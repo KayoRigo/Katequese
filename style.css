@@ -1884,3 +1884,44 @@ dialog.janela-jogo { width: min(620px, 96vw); padding: 18px; overflow-y: auto; }
 .edicao-rapida { display: inline-flex; align-items: center; gap: 8px; font-size: 0.82rem; color: var(--texto-suave); }
 .edicao-rapida input { width: 84px; padding: 5px 7px; font: inherit; color: var(--texto); background: var(--superficie-2); border: 1px solid var(--borda); border-radius: 6px; }
 .admin-prof { margin: 16px 0 6px; font-size: 1rem; }
+
+/* Admin em sub-abas + setas da hierarquia das tags */
+.admin-nav { position: sticky; top: 64px; z-index: 5; padding: 6px; background: var(--superficie); border: 1px solid var(--borda); border-radius: var(--raio); }
+.admin-nav a.ativa { color: var(--texto); border-color: var(--destaque); box-shadow: inset 0 -2px 0 var(--destaque); }
+.admin-secoes > section[hidden] { display: none; }
+.barra-salvar[hidden] { display: none; }
+.setas-ordem { display: inline-flex; gap: 2px; margin-right: 4px; }
+.setas-ordem button { width: 26px; height: 26px; padding: 0; font: inherit; color: var(--texto-suave); background: var(--superficie-2); border: 1px solid var(--borda); border-radius: 5px; cursor: pointer; }
+.setas-ordem button:hover:not(:disabled) { color: var(--texto); border-color: var(--texto-suave); }
+.setas-ordem button:disabled { opacity: 0.35; cursor: default; }
+
+/* =====================================================================
+   LEIS E CÂMARA
+   ===================================================================== */
+.pagina-leis { max-width: 860px; }
+.lei, .proposta { margin-bottom: 12px; }
+.lei h2, .proposta h3 { margin: 4px 0 8px; }
+.lei-numero { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--destaque); }
+.lei-texto { white-space: pre-wrap; line-height: 1.55; }
+.lei small, .proposta small { display: block; margin-top: 8px; font-size: 0.8rem; color: var(--texto-suave); }
+.revogadas summary { cursor: pointer; color: var(--texto-suave); }
+.revogadas p { margin: 12px 0 0; color: var(--texto-suave); }
+.proposta { border-left: 4px solid var(--borda); }
+.proposta.camara, .proposta.popular { border-left-color: var(--destaque); }
+.proposta.empate { border-left-color: #f2c94c; }
+.proposta.aprovada { border-left-color: #4caf68; }
+.proposta.rejeitada, .proposta.cancelada { opacity: 0.75; }
+.proposta-topo { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.selo-status { padding: 2px 10px; font-size: 0.75rem; font-weight: 700; border: 1px solid var(--borda); border-radius: 999px; white-space: nowrap; }
+.justificativa { margin-top: 8px; font-size: 0.9rem; color: var(--texto-suave); }
+.etapa { margin: 12px 0 0; padding-top: 10px; border-top: 1px solid var(--borda); font-size: 0.92rem; }
+.etapa + .etapa { border-top: none; padding-top: 0; margin-top: 4px; }
+.voto-botoes { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 10px; }
+.voto-botoes small { margin: 0 !important; }
+.voto-botoes .votado { color: var(--sobre-destaque); background: var(--destaque); border-color: var(--destaque); }
+.campo-inline { display: inline-flex; align-items: center; gap: 6px; font-size: 0.88rem; color: var(--texto-suave); }
+.campo-inline select, #aba-gestao select { padding: 6px 8px; font: inherit; color: var(--texto); background: var(--superficie-2); border: 1px solid var(--borda); border-radius: 6px; }
+.titulo-secao { margin: 18px 0 10px; font-size: 1.05rem; }
+.titulo-secao:first-child { margin-top: 0; }
+.proposta .botao-link { margin-top: 10px; }
+.espera-aposta { min-height: 1.2em; margin: 8px 0 0; font-size: 0.85rem; color: var(--texto-suave); font-variant-numeric: tabular-nums; }

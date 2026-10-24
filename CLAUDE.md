@@ -38,11 +38,11 @@ de forma simples e mantenha comentários em português no código (o Kayo aprend
 | `tema.js` | paletas de cada pessoa + **tema global** (Halloween) com todas as decorações em SVG |
 | `style.css` | todo o visual; paletas no topo; tema de Halloween no fim |
 | `index.html` | início: nome gigante, faixa, acesso rápido, próximo encontro, membro da semana, números, frase do dia |
-| `eventos.html`, `midias.html`, `membros.html`, `enquetes.html`, `sorteios.html`, `economia.html` (+ `economia.js` e `minijogos.js`), `mural.html`, `atualizacoes.html`, `politica.html`, `perfil.html`, `admin.html`, `login.html` | as páginas |
-| `supabase.sql` até `supabase-16.sql` | estrutura do banco (rodados em ordem no SQL Editor do Supabase) |
+| `eventos.html`, `midias.html`, `membros.html`, `enquetes.html`, `sorteios.html`, `economia.html` (+ `economia.js` e `minijogos.js`), `mural.html`, `leis.html`, `atualizacoes.html`, `politica.html`, `perfil.html`, `admin.html`, `login.html` | as páginas |
+| `supabase.sql` até `supabase-17.sql` | estrutura do banco (rodados em ordem no SQL Editor do Supabase) |
 
 Menu: barra com Início · Eventos · Mídias · Política · Economia + botão "Mais" com grupos:
-Grupo (Membros, Mural) · Atividades (Enquetes, Sorteios) · Conta (Perfil, Atualizações [só katequistas], Admin). Página nova = entra num grupo.
+Grupo (Membros, Mural, Leis) · Atividades (Enquetes, Sorteios) · Conta (Perfil, Atualizações [só katequistas], Admin). Página nova = entra num grupo.
 Pedidos dos amigos, a fazer por partes (Sorteios e Mural já feitos): voltar Regras, integrar a rede social
 (estilo Twitter) do amigo e um sistema de votação da Câmara dentro da Política.
 
@@ -83,7 +83,7 @@ Pedidos dos amigos, a fazer por partes (Sorteios e Mural já feitos): voltar Reg
 - Funções: `eh_aprovado`, `eh_admin`, `eh_katequista`, `pode_ver_arquivo`, `uso_do_espaco`,
   `criar_enquete`, `votar`, `resultados_enquetes`, `evento_aberto`, `sortear` (o banco escolhe o item; só autor ou admin),
   `tem_tag(nome)`, `pode_anunciar()` (admin/Presidente/Deputado), `pode_priorizar()` (admin/Presidente).
-- **Mudança na estrutura do banco = novo arquivo `supabase-N.sql`** (o próximo é o 17), feito para
+- **Mudança na estrutura do banco = novo arquivo `supabase-N.sql`** (o próximo é o 18), feito para
   poder rodar mais de uma vez, e o Kayo roda no SQL Editor. Mudança só de conteúdo vai pelo Admin.
 - Plano grátis: 500 MB de banco, 1 GB de arquivos, 5 GB de tráfego por mês.
 
@@ -177,6 +177,25 @@ Futuro: quando o site estiver no GitHub, uma GitHub Action pode registrar cada c
 - Só quem criou (ou admin) sorteia; o item é escolhido no banco (`sortear`) e vai para o histórico.
 - Animação: roleta de 3 linhas que desacelera e para no resultado; "Rever animação" repete sem sortear.
 - Link direto: `sorteios.html#ID` abre a janela do sorteio.
+
+## Cargos ao lado do nome (hierarquia, supabase-17)
+
+- `tags.ordem` = hierarquia (menor = mais alto). Padrão: Presidente 10, Deputado 20, outras ~100–500, Katequista 900,
+  Visitante 950. Admin não é tag e fica sempre no topo. O admin muda a ordem em Admin → Tags (setas ↑↓, `ordenar_tags`).
+- `cargosPorPerfil` guarda TODAS as tags (para `temCargo`); `cargosVisiveis` (dados.js) mostra só a mais alta;
+  admin mostra "Admin" + a próxima (sem Katequista/Visitante). As outras ficam em Membros/Perfil.
+- Admin (admin.html) agora tem sub-abas (`abrirSecao`); a barra Salvar só aparece em Frases.
+
+## Leis e Câmara (leis.html, supabase-17)
+
+- Abas: Leis em vigor (todos), Câmara (katequistas), Gestão (Presidente ou admin).
+- Presidente/admin `propor_lei(tipo criar|alterar|revogar, id_lei, titulo, texto, justificativa, horas)`.
+- Só deputados votam (`votar_camara`, voto secreto; contagem só depois de encerrar). Encerra no prazo ou quando
+  todos os deputados votarem. Sim > não aprova (já vale), não > sim rejeita, empate → Presidente/admin pode
+  `levar_ao_voto_popular(pid, horas)` (katequistas votam, `votar_popular`; empate no popular = rejeitada) ou `arquivar_proposta`.
+- Sem cron: `propostas_situacao()` apura as vencidas sempre que a página abre ou alguém vota.
+- Cassino: espera entre apostas por jogo em `config.cassinoEspera` (segundos; padrão 4/8/4), editável em Economia → Admin;
+  última aposta em `ultimas_apostas`.
 
 ## Política
 

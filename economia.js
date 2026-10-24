@@ -635,8 +635,22 @@ let jogoAtual = "moeda";
 let anguloMoeda = 0;
 let roda = { angulo: 0, bola: 0, raioBola: 133 };
 let historicoRoleta = [];
+// Espera entre apostas (segundos, por jogo; o admin muda) e quando cada jogo libera de novo
+let esperaCassino = { moeda: 0, roleta: 0, slots: 0 };
+let proximaAposta = {};
+let vigiaCassino = null;
+
+async function carregarEsperaCassino() {
+  const [{ data: cfg }, { data: ultimas }] = await Promise.all([
+    sb.from("config").select("dados").eq("id", 1).single(),
+    sb.from("ultimas_apostas").select("jogo, em").eq("perfil_id", euEco.id),
+  ]);
+  esperaCassino = { moeda: 0, roleta: 0, slots: 0, ...(cfg?.dados?.cassinoEspera || {}) };
+  (ultimas || []).forEach(u => { proximaAposta[u.jogo] = new Date(u.em).getTime() + Number(esperaCassino[u.jogo] || 0) * 1000; });
+}
 
 async function abaCassino(el) {
+  await carregarEsperaCassino();
   el.innerHTML = `
     <div class="cassino-jogos">
       <button data-jogo="moeda">Cara ou Coroa</button>
@@ -746,8 +760,19 @@ function montarMesa(el) {
       v === "tudo" ? Math.min(carteira.saldo, 50000) : v === "metade" ? Math.max(10, Math.floor(carteira.saldo / 2)) : v;
   });
 
-  // Apostar (botões de baixo ou a alavanca)
+  // Aviso de espera entre apostas (embaixo dos botões)
+  mesa.querySelector(".botoes-jogo").insertAdjacentHTML("afterend", '<p class="espera-aposta" id="espera-aposta"></p>');
   let girando = false;
+  clearInterval(vigiaCassino);
+  vigiaCassino = setInterval(() => {
+    if (!mesa.isConnected) return clearInterval(vigiaCassino);
+    if (girando) return;
+    const resta = Math.ceil(((proximaAposta[jogoAtual] || 0) - Date.now()) / 1000);
+    mesa.querySelectorAll("[data-escolha]").forEach(x => x.disabled = resta > 0);
+    mesa.querySelector("#espera-aposta").textContent = resta > 0 ? `Próxima aposta neste jogo em ${resta} s` : "";
+  }, 200);
+
+  // Apostar (botões de baixo ou a alavanca)
   mesa.addEventListener("click", async (e) => {
     const b = e.target.closest("[data-escolha]");
     if (!b || girando) return;
@@ -769,6 +794,8 @@ function montarMesa(el) {
       girando = false;
       return;
     }
+    // Começa a contar a espera para a próxima aposta neste jogo
+    proximaAposta[jogoAtual] = Date.now() + Number(data.espera || 0) * 1000;
     // O saldo cai na hora (a aposta saiu); o prêmio aparece quando a animação termina
     mostrarSaldo(carteira.saldo - valor);
 
@@ -1059,6 +1086,17 @@ async function abaAdmin(el) {
       <button class="botao" type="submit">Aplicar</button>
     </form>
 
+    <form class="caixa eco-form" id="form-espera" style="margin-top: 16px">
+      <h2>Cassino: espera entre apostas</h2>
+      <p class="eco-dica">Segundos que cada pessoa espera entre uma aposta e outra no mesmo jogo (0 = sem espera).</p>
+      <div class="linha-campos">
+        <label class="campo"><span>Cara ou Coroa</span><input id="espera-moeda" type="number" min="0" max="3600" step="1"></label>
+        <label class="campo"><span>Roleta</span><input id="espera-roleta" type="number" min="0" max="3600" step="1"></label>
+        <label class="campo"><span>Caça-níquel</span><input id="espera-slots" type="number" min="0" max="3600" step="1"></label>
+      </div>
+      <button class="botao" type="submit">Salvar esperas</button>
+    </form>
+
     <form class="caixa eco-form form-item" id="form-item" style="margin-top: 16px">
       <h2 id="item-titulo">Novo item da loja</h2>
       <div class="modelos-item">
@@ -1180,6 +1218,18 @@ async function abaAdmin(el) {
     avisoEco(`${valor > 0 ? "Deu" : "Tirou"} ${moeda(Math.abs(valor))} ${valor > 0 ? "para" : "de"} ${esc(quem.selectedOptions[0].textContent)}`, "ganho");
     await atualizarCarteira();
     e.target.reset();
+  });
+
+  // ---------- Espera do cassino (fica na config, chave "cassinoEspera") ----------
+  await carregarEsperaCassino();
+  ["moeda", "roleta", "slots"].forEach(j => { $("espera-" + j).value = esperaCassino[j] ?? 0; });
+  $("form-espera").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const novas = Object.fromEntries(["moeda", "roleta", "slots"].map(j => [j, Math.max(0, Number($("espera-" + j).value) || 0)]));
+    const { data: atual } = await sb.from("config").select("dados").eq("id", 1).single();
+    const { error } = await sb.from("config").update({ dados: { ...(atual?.dados || {}), cassinoEspera: novas } }).eq("id", 1);
+    if (error) return avisoEco(esc(error.message), "erro");
+    avisoEco("Esperas do cassino salvas", "ganho");
   });
 
   // ---------- Formulário de item ----------

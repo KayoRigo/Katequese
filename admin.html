@@ -21,7 +21,7 @@
       </div>
     </div>
 
-    <nav class="admin-nav">
+    <nav class="admin-nav" id="admin-nav">
       <a href="#sec-pessoas">Pessoas</a>
       <a href="#sec-cadastro">Cadastro</a>
       <a href="#sec-tema">Tema do site</a>
@@ -158,6 +158,24 @@
 
     // Atalho para não escrever document.getElementById toda hora
     const $ = (id) => document.getElementById(id);
+
+    // ================= SUB-ABAS =================
+    // Mostra uma seção por vez (os links do topo viram abas). A barra "Salvar" só aparece nas Frases.
+    function abrirSecao(id) {
+      const secoes = [...document.querySelectorAll(".admin-secoes > section")];
+      if (!secoes.some(sec => sec.id === id)) id = secoes[0].id;
+      secoes.forEach(sec => sec.hidden = sec.id !== id);
+      document.querySelectorAll("#admin-nav a").forEach(a => a.classList.toggle("ativa", a.getAttribute("href") === "#" + id));
+      document.querySelector(".barra-salvar").hidden = id !== "sec-frases";
+      history.replaceState(null, "", "#" + id);
+    }
+    $("admin-nav").addEventListener("click", (e) => {
+      const a = e.target.closest("a");
+      if (!a) return;
+      e.preventDefault();
+      abrirSecao(a.getAttribute("href").slice(1));
+    });
+    abrirSecao(location.hash.slice(1));
 
     // Lista de todas as pessoas cadastradas (usada em Pessoas e em Tags)
     let pessoas = [];
@@ -488,8 +506,8 @@
         sb.from("tags").select("*").order("nome"),
         sb.from("perfil_tags").select("perfil_id, tag_id"),
       ]);
-      // Tags do sistema (Katequista, Visitante) primeiro
-      tags = (t || []).sort((a, b) => (b.sistema === true) - (a.sistema === true));
+      // Na ordem da hierarquia (a mais alta primeiro). Admin não é tag: fica sempre acima de todas.
+      tags = (t || []).sort((a, b) => (a.ordem ?? 500) - (b.ordem ?? 500));
       donos = d || [];
     }
 
@@ -499,7 +517,9 @@
         return;
       }
 
-      $("lista-tags").innerHTML = tags.map(tag => {
+      $("lista-tags").innerHTML = `<p class="dica-admin" style="margin-top: 0">Ordem da hierarquia (de cima para baixo).
+        Ao lado do nome aparece só a tag mais alta; admins mostram "Admin" e a próxima. <b>Admin</b> fica sempre no topo.</p>` +
+        tags.map((tag, k) => {
         const temTag = donos.filter(d => d.tag_id === tag.id).map(d => d.perfil_id);
         const comTag = aprovados().filter(p => temTag.includes(p.id));
         let semTag = aprovados().filter(p => !temTag.includes(p.id));
@@ -513,6 +533,10 @@
         return `
           <div class="item-tag">
             <div class="item-tag-topo">
+              <span class="setas-ordem">
+                <button title="Subir na hierarquia" data-subir="${k}" ${k === 0 ? "disabled" : ""}>↑</button>
+                <button title="Descer na hierarquia" data-descer="${k}" ${k === tags.length - 1 ? "disabled" : ""}>↓</button>
+              </span>
               ${htmlTag(tag)}
               <span class="contagem-tag">${comTag.length} ${comTag.length === 1 ? "membro" : "membros"}</span>
               ${tag.sistema
@@ -552,6 +576,20 @@
     $("lista-tags").addEventListener("click", async (e) => {
       const apagar = e.target.closest("[data-apagar-tag]");
       const tirar = e.target.closest("[data-tirar]");
+      const subir = e.target.closest("[data-subir]");
+      const descer = e.target.closest("[data-descer]");
+
+      // Mudar a ordem: troca de lugar com a vizinha e grava a lista inteira
+      if (subir || descer) {
+        const k = Number((subir || descer).dataset[subir ? "subir" : "descer"]);
+        const outro = subir ? k - 1 : k + 1;
+        [tags[k], tags[outro]] = [tags[outro], tags[k]];
+        mostrarTags();
+        const { error } = await sb.rpc("ordenar_tags", { ids: tags.map(t => t.id) });
+        if (error) avisarJanela("Não foi possível salvar a ordem: " + error.message);
+        await carregarCargos();
+        return;
+      }
 
       if (apagar) {
         if (!(await confirmar("Apagar esta tag? Ela sai de todos os membros.", "Apagar"))) return;

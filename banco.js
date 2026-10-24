@@ -227,17 +227,26 @@ const COR_ADMIN = "#e5484d";
 let cargosPorPerfil = {}; // { id_do_perfil: [ { nome, cor }, ... ] }
 
 async function carregarCargos() {
-  const [{ data: comTags }, { data: admins }] = await Promise.all([
-    sb.from("perfil_tags").select("perfil_id, tags!inner(nome, cor, sistema)").in("tags.nome", ["Presidente", "Deputado"]),
+  // Todas as tags de todo mundo, com a ordem da hierarquia (tags.ordem, supabase-17)
+  let [{ data: comTags, error }, { data: admins }] = await Promise.all([
+    sb.from("perfil_tags").select("perfil_id, tags!inner(nome, cor, sistema, ordem)"),
     sb.from("perfis").select("id").eq("admin", true).eq("status", "aprovado"),
   ]);
+  if (error) { // banco ainda sem a coluna "ordem": usa a ordem antiga
+    ({ data: comTags } = await sb.from("perfil_tags").select("perfil_id, tags!inner(nome, cor, sistema)"));
+  }
+  const ordemAntiga = { Presidente: 10, Deputado: 20, Katequista: 900, Visitante: 950 };
   cargosPorPerfil = {};
-  const ordem = { Presidente: 0, Deputado: 1, Admin: 2 };
   (comTags || []).forEach(({ perfil_id, tags }) => {
-    if (tags?.sistema) (cargosPorPerfil[perfil_id] ||= []).push({ nome: tags.nome, cor: tags.cor });
+    if (!tags) return;
+    (cargosPorPerfil[perfil_id] ||= []).push({
+      nome: tags.nome, cor: tags.cor, sistema: tags.sistema,
+      ordem: tags.ordem ?? ordemAntiga[tags.nome] ?? 500,
+    });
   });
-  (admins || []).forEach(({ id }) => (cargosPorPerfil[id] ||= []).push({ nome: "Admin", cor: COR_ADMIN }));
-  Object.values(cargosPorPerfil).forEach(lista => lista.sort((a, b) => ordem[a.nome] - ordem[b.nome]));
+  // Admin não é tag, mas fica sempre no topo da hierarquia
+  (admins || []).forEach(({ id }) => (cargosPorPerfil[id] ||= []).push({ nome: "Admin", cor: COR_ADMIN, sistema: true, ordem: -1 }));
+  Object.values(cargosPorPerfil).forEach(lista => lista.sort((a, b) => a.ordem - b.ordem));
 }
 
 // Lista de cargos de uma pessoa (vazia se ela não tiver nenhum)
@@ -246,7 +255,7 @@ function cargosDe(idPerfil) {
 }
 
 // Pode publicar anúncio / dar prioridade? (a mesma regra do banco, só para mostrar ou esconder botões)
-const temCargo = (idPerfil, nome) => cargosDe(idPerfil).some(c => c.nome === nome);
+const temCargo = (idPerfil, nome) => cargosDe(idPerfil).some(c => c.sistema && c.nome === nome);
 
 // Recados: fixados primeiro, depois os mais novos
 async function buscarRecados(limite = 200) {

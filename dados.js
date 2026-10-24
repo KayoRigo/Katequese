@@ -157,8 +157,21 @@ function quandoAniversario(dias) {
 
 // ---------------- Cargos ao lado do nome ----------------
 // Destaque de marca-texto na cor do cargo (Presidente, Deputado, Admin)
+// Ao lado do nome aparece só a tag mais alta da hierarquia (Admin → Presidente →
+// Deputado → outras → Katequista → Visitante). Admin aparece junto com a próxima
+// (ex: "Admin Presidente"). O resto das tags fica no perfil/Membros.
+function cargosVisiveis(idPerfil) {
+  const lista = cargosDe(idPerfil);
+  if (!lista.length) return [];
+  if (lista[0].nome === "Admin") {
+    const proxima = lista.find(c => c.nome !== "Admin" && !(c.sistema && ["Katequista", "Visitante"].includes(c.nome)));
+    return proxima ? [lista[0], proxima] : [lista[0]];
+  }
+  return [lista[0]];
+}
+
 function htmlCargos(idPerfil) {
-  return cargosDe(idPerfil).map(c =>
+  return cargosVisiveis(idPerfil).map(c =>
     `<span class="cargo" style="--cor-cargo: ${esc(c.cor)}">${esc(c.nome)}</span>`).join("");
 }
 
