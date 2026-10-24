@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="carregando">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Economia · Katequese</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="tema.js"></script>
+</head>
+
+<body>
+  <!-- O menu é preenchido pelo menu.js -->
+  <header id="menu"></header>
+
+  <main class="pagina-economia">
+    <div class="cabecalho-pagina">
+      <div>
+        <h1>Economia</h1>
+        <p>Trabalhe, junte K$, suba de nível, compre e aposte.</p>
+      </div>
+    </div>
+
+    <!-- Resumo sempre visível: saldo e nível -->
+    <div class="eco-resumo" id="eco-resumo" hidden>
+      <div class="caixa eco-saldo">
+        <span class="rotulo">Saldo</span>
+        <strong id="resumo-saldo">K$ 0</strong>
+      </div>
+      <div class="caixa eco-nivel">
+        <div class="eco-nivel-topo">
+          <span class="rotulo">Nível</span>
+          <small id="resumo-xp"></small>
+        </div>
+        <strong id="resumo-nivel">1</strong>
+        <div class="barra-xp"><div id="resumo-barra"></div></div>
+      </div>
+    </div>
+
+    <!-- Sub-abas -->
+    <nav class="eco-abas" id="eco-abas" hidden>
+      <button data-aba="carteira" class="ativa">Carteira</button>
+      <button data-aba="trabalhos">Trabalhos</button>
+      <button data-aba="transferir">Transferir</button>
+      <button data-aba="loja">Loja</button>
+      <button data-aba="cassino">Cassino</button>
+      <button data-aba="ranking">Ranking</button>
+      <button data-aba="admin" hidden>Admin</button>
+    </nav>
+
+    <!-- Cada sub-aba é preenchida pelo economia.js -->
+    <section class="eco-secao" id="aba-carteira"></section>
+    <section class="eco-secao" id="aba-trabalhos" hidden></section>
+    <section class="eco-secao" id="aba-transferir" hidden></section>
+    <section class="eco-secao" id="aba-loja" hidden></section>
+    <section class="eco-secao" id="aba-cassino" hidden></section>
+    <section class="eco-secao" id="aba-ranking" hidden></section>
+    <section class="eco-secao" id="aba-admin" hidden></section>
+  </main>
+
+  <!-- Avisos rápidos (ganhou dinheiro, subiu de nível...) -->
+  <div class="eco-avisos" id="eco-avisos"></div>
+
+  <footer>Katequese © 2026</footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+  <script src="config.js"></script>
+  <script src="dados.js"></script>
+  <script src="menu.js"></script>
+  <script src="banco.js"></script>
+  <script src="economia.js"></script>
+  <script src="minijogos.js"></script>
+  <script type="module">
+    const eu = await iniciarPagina();
+    await iniciarEconomia(eu);
+  </script>
+</body>
+</html>

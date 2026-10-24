@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Entrar · Katequese</title>
+  <meta name="robots" content="noindex">
+  <link rel="stylesheet" href="style.css">
+  <script src="tema.js"></script>
+</head>
+
+<body>
+  <div class="tela-login">
+    <div class="nome-login fonte-nome">Katequese</div>
+    <p class="sub">Acesso restrito aos membros</p>
+
+    <div class="caixa caixa-login">
+      <!-- ============ ENTRAR / CADASTRAR-SE ============ -->
+      <div id="tela-formularios">
+        <div class="abas">
+          <button class="aba ativa" data-aba="entrar">Entrar</button>
+          <button class="aba" data-aba="cadastro">Cadastrar-se</button>
+        </div>
+
+        <form id="form-entrar">
+          <label class="campo"><span>Nome de usuário</span>
+            <input id="entrar-usuario" class="campo-usuario" autocomplete="username" required autocapitalize="none"
+                   spellcheck="false" placeholder="@">
+          </label>
+          <label class="campo"><span>Senha</span>
+            <input id="entrar-senha" type="password" autocomplete="current-password" required>
+          </label>
+          <button class="botao" type="submit">Entrar</button>
+        </form>
+
+        <form id="form-cadastro" hidden>
+          <label class="campo"><span>Nome de usuário</span>
+            <input id="cad-usuario" class="campo-usuario" autocomplete="username" required autocapitalize="none"
+                   spellcheck="false" placeholder="@usuario" maxlength="20">
+          </label>
+          <label class="campo"><span>Nome</span>
+            <input id="cad-nome" required maxlength="40" placeholder="Seu nome">
+          </label>
+          <label class="campo"><span>Senha</span>
+            <input id="cad-senha" type="password" autocomplete="new-password" required minlength="4">
+          </label>
+          <label class="campo"><span>Repita a senha</span>
+            <input id="cad-senha2" type="password" autocomplete="new-password" required minlength="4">
+          </label>
+          <button class="botao" type="submit">Cadastrar-se</button>
+          <p class="aviso" style="text-align: center">Você entra como visitante. O acesso completo é liberado por um administrador.</p>
+        </form>
+
+        <p class="mensagem" id="mensagem"></p>
+      </div>
+
+      <!-- ============ AGUARDANDO APROVAÇÃO (só aparece se o supabase-10.sql não tiver rodado) ============ -->
+      <div class="estado" id="tela-aguardando" hidden>
+        <h2>Cadastro recebido</h2>
+        <p>Seu acesso será liberado assim que um administrador aprovar o cadastro.</p>
+        <div class="botoes">
+          <button class="botao" id="verificar">Verificar novamente</button>
+          <button class="botao-pequeno" id="sair-aguardando">Sair</button>
+        </div>
+      </div>
+
+      <!-- ============ BLOQUEADO (status "recusado" no banco) ============ -->
+      <div class="estado" id="tela-recusado" hidden>
+        <h2>Acesso bloqueado</h2>
+        <p>Seu acesso ao site foi bloqueado. Fale com um administrador.</p>
+        <div class="botoes"><button class="botao-pequeno" id="sair-recusado">Sair</button></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+  <script src="config.js"></script>
+  <script src="dados.js"></script>
+  <script src="menu.js"></script>
+  <script src="banco.js"></script>
+  <script type="module">
+    const $ = (id) => document.getElementById(id);
+    const mensagem = $("mensagem");
+
+    function avisar(texto, tipo = "erro") {
+      mensagem.textContent = texto;
+      mensagem.className = "mensagem " + tipo;
+    }
+
+    // Mostra só uma das três telas: formulários, aguardando ou recusado
+    function mostrarTela(qual) {
+      $("tela-formularios").hidden = qual !== "formularios";
+      $("tela-aguardando").hidden = qual !== "aguardando";
+      $("tela-recusado").hidden = qual !== "recusado";
+    }
+
+    // ---------- Troca entre as abas "Entrar" e "Cadastrar-se" ----------
+    document.querySelectorAll(".aba").forEach(aba => {
+      aba.addEventListener("click", () => {
+        document.querySelectorAll(".aba").forEach(a => a.classList.toggle("ativa", a === aba));
+        $("form-entrar").hidden = aba.dataset.aba !== "entrar";
+        $("form-cadastro").hidden = aba.dataset.aba !== "cadastro";
+        avisar("");
+      });
+    });
+
+    if (!configurado) {
+      avisar("O banco de dados ainda não foi configurado (config.js).");
+    }
+
+    // Nome de usuário: já vai deixando minúsculo e sem espaço enquanto a pessoa digita
+    document.querySelectorAll(".campo-usuario").forEach(campo => {
+      campo.addEventListener("input", () => {
+        campo.value = campo.value.toLowerCase().replace(/\s/g, "").replace(/^@/, "");
+      });
+    });
+
+    // ---------- Confere a situação de quem está logado ----------
+    async function verificarSituacao() {
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) return mostrarTela("formularios");
+
+      const { data: perfil } = await sb.from("perfis").select("status").eq("id", session.user.id).maybeSingle();
+      if (perfil?.status === "aprovado") return location.replace("index.html");
+      mostrarTela(perfil?.status === "recusado" ? "recusado" : "aguardando");
+    }
+
+    if (configurado) await verificarSituacao();
+
+    // ---------- Entrar ----------
+    $("form-entrar").addEventListener("submit", async (evento) => {
+      evento.preventDefault();
+      if (!configurado) return;
+      avisar("Entrando...", "ok");
+
+      const { error } = await sb.auth.signInWithPassword({
+        email: emailDe($("entrar-usuario").value),
+        password: senhaReal($("entrar-senha").value),
+      });
+      if (error) return avisar("Usuário ou senha incorretos.");
+      avisar("");
+      await verificarSituacao();
+    });
+
+    // ---------- Cadastrar-se ----------
+    $("form-cadastro").addEventListener("submit", async (evento) => {
+      evento.preventDefault();
+      if (!configurado) return;
+
+      const usuario = normalizarUsuario($("cad-usuario").value);
+      const nome = $("cad-nome").value.trim();
+      const senha = $("cad-senha").value;
+
+      // Só letras minúsculas, números, ponto, traço e underline (sem espaço nem acento)
+      if (!/^[a-z0-9._-]{3,20}$/.test(usuario)) {
+        return avisar("Nome de usuário: de 3 a 20 caracteres, só letras sem acento, números, ponto, - ou _.");
+      }
+      if (senha.length < 4) return avisar("A senha precisa ter pelo menos 4 caracteres.");
+      if (senha !== $("cad-senha2").value) return avisar("As senhas não são iguais.");
+
+      avisar("Enviando cadastro...", "ok");
+      const { data, error } = await sb.auth.signUp({
+        email: emailDe(usuario),
+        password: senhaReal(senha),
+        options: { data: { usuario, nome } }, // o banco usa isso para criar o perfil
+      });
+
+      if (error) {
+        if (/registered|exists/i.test(error.message)) return avisar("Esse nome de usuário já existe. Escolha outro.");
+        // O Supabase tentou mandar e-mail de confirmação (que deveria estar desligado) e bateu no limite
+        if (/rate limit/i.test(error.message)) return avisar("O Supabase está tentando enviar e-mail de confirmação. O administrador precisa desligar o \"Confirm email\".");
+        return avisar("Não foi possível cadastrar: " + error.message);
+      }
+      if (!data.session) {
+        // Acontece se a confirmação de e-mail estiver ligada no Supabase
+        return avisar("Cadastro criado, mas o Supabase está pedindo confirmação de e-mail. O administrador precisa desligar isso.");
+      }
+      avisar("");
+      await verificarSituacao();
+    });
+
+    // ---------- Botões das telas de espera ----------
+    $("verificar").addEventListener("click", verificarSituacao);
+    $("sair-aguardando").addEventListener("click", sair);
+    $("sair-recusado").addEventListener("click", sair);
+  </script>
+</body>
+</html>

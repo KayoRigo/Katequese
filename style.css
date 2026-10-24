@@ -1,0 +1,1886 @@
+/* =====================================================================
+   style.css — o visual do site inteiro.
+
+   Fundo neutro, superfícies um tom acima e UMA cor de destaque, usada com
+   moderação: botões, aba ativa e números. Sem degradês e sem brilhos.
+   ===================================================================== */
+
+/* Fontes (Google Fonts):
+   - Archivo: textos e menus
+   - Coustard Black: só o nome "Katequese" (serifas grossas e arredondadas) */
+@import url("https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=Coustard:wght@900&display=swap");
+
+/* ---------------------------------------------------------------------
+   PALETAS DE CORES
+   O tema.js coloca data-paleta="..." no <html>; cada bloco abaixo troca as cores.
+   --------------------------------------------------------------------- */
+:root,
+:root[data-paleta="grafite"] {
+  --fundo: #111214;
+  --superficie: #191a1d;
+  --superficie-2: #222327;
+  --borda: #2b2d32;
+  --texto: #ececee;
+  --texto-suave: #9a9ca3;
+  --placeholder: #5f6168;
+  --destaque: #f26b3a;
+  --sobre-destaque: #121212;     /* cor do texto em cima do destaque */
+}
+:root[data-paleta="oceano"] {
+  --fundo: #0e1217;
+  --superficie: #151b22;
+  --superficie-2: #1c242d;
+  --borda: #27313c;
+  --texto: #e8edf2;
+  --texto-suave: #93a0ad;
+  --placeholder: #56626e;
+  --destaque: #4ea1ff;
+  --sobre-destaque: #0b1220;
+}
+:root[data-paleta="floresta"] {
+  --fundo: #0f1311;
+  --superficie: #161c18;
+  --superficie-2: #1d2520;
+  --borda: #28322b;
+  --texto: #e7ece8;
+  --texto-suave: #94a397;
+  --placeholder: #57635a;
+  --destaque: #5fbf77;
+  --sobre-destaque: #0c120e;
+}
+:root[data-paleta="vinho"] {
+  --fundo: #140f11;
+  --superficie: #1c1518;
+  --superficie-2: #251c20;
+  --borda: #33272c;
+  --texto: #f0e8ea;
+  --texto-suave: #a8969c;
+  --placeholder: #6a5a60;
+  --destaque: #e0607e;
+  --sobre-destaque: #1a0e12;
+}
+:root[data-paleta="ouro"] {
+  --fundo: #121110;
+  --superficie: #1b1a17;
+  --superficie-2: #24221e;
+  --borda: #312e28;
+  --texto: #eeebe4;
+  --texto-suave: #a29d92;
+  --placeholder: #635f56;
+  --destaque: #e5b84b;
+  --sobre-destaque: #17140c;
+}
+:root[data-paleta="claro"] {
+  --fundo: #f4f4f2;
+  --superficie: #ffffff;
+  --superficie-2: #ececea;
+  --borda: #dcdcd8;
+  --texto: #1b1c1e;
+  --texto-suave: #66686e;
+  --placeholder: #a3a5aa;
+  --destaque: #e35d2a;
+  --sobre-destaque: #ffffff;
+}
+
+:root {
+  --perigo: #ef5350;
+  --raio: 8px;
+  --fonte-nome: "Coustard", Georgia, serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* Garante que o atributo "hidden" sempre esconda, mesmo com display definido */
+[hidden] { display: none !important; }
+
+/* Enquanto o login é conferido, a página fica invisível (para não "vazar" nada) */
+html.carregando body { visibility: hidden; }
+
+body {
+  font-family: "Archivo", system-ui, sans-serif;
+  background: var(--fundo);
+  color: var(--texto);
+  line-height: 1.55;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  transition: background 0.2s, color 0.2s;
+}
+a { color: inherit; }
+img { display: block; max-width: 100%; }
+::selection { background: var(--destaque); color: var(--sobre-destaque); }
+
+/* O nome "Katequese" sempre com a mesma fonte, onde quer que apareça */
+.fonte-nome {
+  font-family: var(--fonte-nome);
+  font-weight: 900; /* a versão "Black", a mais grossa */
+  letter-spacing: 0;
+}
+
+/* =====================================================================
+   MENU (igual em todas as páginas, montado pelo menu.js)
+   ===================================================================== */
+header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  height: 60px;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: var(--fundo);
+  border-bottom: 1px solid var(--borda);
+}
+.logo { font-size: 1.45rem; line-height: 1; text-decoration: none; white-space: nowrap; }
+/* Abas fixas (as mais usadas) ficam na barra; o resto vai para o painel do "Mais" */
+.abas-fixas { flex: 1; display: flex; align-items: center; justify-content: flex-end; gap: 2px; }
+#menu a:not(.logo), .botao-sair, .botao-mais {
+  padding: 7px 12px;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-decoration: none;
+  white-space: nowrap;
+  color: var(--texto-suave);
+}
+#menu a:not(.logo):hover, .botao-mais:hover { color: var(--texto); background: var(--superficie-2); }
+#menu a.ativo, .botao-mais.ativo { color: var(--texto); background: var(--superficie-2); box-shadow: inset 0 -2px 0 var(--destaque); }
+.botao-sair { background: none; border: 1px solid var(--borda); cursor: pointer; flex-shrink: 0; }
+.botao-sair:hover { color: var(--texto); border-color: var(--texto-suave); }
+
+/* Botão "Mais" / "Menu" e o painel que ele abre */
+.menu-mais { position: relative; flex-shrink: 0; }
+.botao-mais { display: flex; align-items: center; gap: 6px; background: none; border: none; cursor: pointer; }
+.botao-mais svg { width: 10px; height: 8px; transition: transform 0.15s; }
+.botao-mais[aria-expanded="true"] svg { transform: rotate(180deg); }
+.painel-menu {
+  position: absolute;
+  top: 46px;
+  right: 0;
+  z-index: 40;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(130px, 1fr));
+  gap: 6px 10px;
+  padding: 12px;
+  background: var(--superficie);
+  border: 1px solid var(--borda);
+  border-radius: var(--raio);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+}
+.painel-menu[hidden] { display: none; }
+.grupo-menu { display: flex; flex-direction: column; gap: 2px; }
+.grupo-menu p { padding: 4px 12px 6px; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--texto-suave); }
+#menu .grupo-menu a { display: flex; align-items: center; }
+
+/* Computador x celular */
+.so-celular { display: none !important; }
+@media (max-width: 760px) {
+  .so-computador, .abas-fixas { display: none !important; }
+  .so-celular { display: revert !important; }
+  .grupo-menu.so-celular { display: flex !important; }
+  header { justify-content: space-between; }
+  .logo { margin-right: auto; }
+  .botao-mais { border: 1px solid var(--borda); }
+  /* No celular o painel ocupa a largura da tela, logo abaixo da barra */
+  .painel-menu {
+    position: fixed;
+    top: 60px;
+    left: 0;
+    right: 0;
+    max-height: calc(100vh - 60px);
+    overflow-y: auto;
+    grid-template-columns: 1fr 1fr;
+    border-radius: 0;
+    border-width: 0 0 1px;
+  }
+  .painel-menu .botao-sair { grid-column: 1 / -1; margin-top: 6px; padding: 10px; }
+}
+
+/* Número de cadastros esperando aprovação, ao lado de "Admin" */
+.bolinha {
+  display: inline-block;
+  min-width: 18px;
+  margin-left: 5px;
+  padding: 0 5px;
+  border-radius: 9px;
+  background: var(--destaque);
+  color: var(--sobre-destaque);
+  font-size: 0.7rem;
+  font-weight: 700;
+  line-height: 18px;
+  text-align: center;
+}
+
+/* Botão e menu de escolher a paleta de cores */
+.paleta { position: relative; flex-shrink: 0; }
+.botao-paleta {
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: 1px solid var(--borda);
+  border-radius: 50%;
+  cursor: pointer;
+}
+.botao-paleta:hover { border-color: var(--texto-suave); }
+.botao-paleta span { width: 16px; height: 16px; border-radius: 50%; background: var(--destaque); }
+.menu-paleta {
+  position: absolute;
+  top: 44px;
+  right: 0;
+  z-index: 30;
+  width: 200px;
+  padding: 6px;
+  background: var(--superficie);
+  border: 1px solid var(--borda);
+  border-radius: var(--raio);
+}
+.menu-paleta p { padding: 6px 8px; font-size: 0.75rem; color: var(--texto-suave); }
+.opcao-paleta {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 8px;
+  background: none;
+  border: none;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  color: var(--texto);
+  text-align: left;
+  cursor: pointer;
+}
+.opcao-paleta:hover { background: var(--superficie-2); }
+.opcao-paleta.ativa { background: var(--superficie-2); font-weight: 600; }
+/* Amostra com as duas cores da paleta (fundo + destaque) */
+.amostra { width: 26px; height: 16px; border-radius: 4px; border: 1px solid var(--borda); flex-shrink: 0; }
+
+main { max-width: 1100px; margin: 0 auto; padding: 32px 20px 64px; }
+
+footer {
+  padding: 24px 20px;
+  border-top: 1px solid var(--borda);
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--texto-suave);
+}
+
+/* =====================================================================
+   PEÇAS USADAS EM VÁRIAS PÁGINAS
+   ===================================================================== */
+
+/* Título de cada página interna */
+.cabecalho-pagina { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: flex-end; justify-content: space-between; margin-bottom: 28px; }
+.cabecalho-pagina h1 { font-size: clamp(1.8rem, 4vw, 2.4rem); font-weight: 800; line-height: 1.15; }
+.cabecalho-pagina p { margin-top: 4px; color: var(--texto-suave); }
+
+/* Caixa (cartão) */
+.caixa {
+  padding: 20px;
+  background: var(--superficie);
+  border: 1px solid var(--borda);
+  border-radius: var(--raio);
+}
+
+/* Título pequeno de seção */
+.caixa h2, .rotulo {
+  margin-bottom: 14px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--texto-suave);
+}
+
+.aviso { margin-top: 14px; font-size: 0.9rem; color: var(--texto-suave); }
+
+/* Mensagem de "ainda não tem nada aqui" */
+.vazio {
+  padding: 36px 20px;
+  text-align: center;
+  color: var(--texto-suave);
+  border: 1px dashed var(--borda);
+  border-radius: var(--raio);
+}
+
+.botao {
+  display: inline-block;
+  padding: 10px 18px;
+  background: var(--destaque);
+  color: var(--sobre-destaque);
+  border: none;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 0.92rem;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+}
+.botao:hover { filter: brightness(1.1); }
+.botao:disabled { opacity: 0.5; cursor: default; }
+
+.botao-pequeno {
+  padding: 6px 11px;
+  background: var(--superficie-2);
+  color: var(--texto);
+  border: 1px solid var(--borda);
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.botao-pequeno:hover { border-color: var(--texto-suave); }
+.botao-pequeno.perigo:hover { border-color: var(--perigo); color: var(--perigo); }
+
+/* Campos de formulário */
+.campo { display: block; margin-bottom: 16px; }
+.campo span { display: block; margin-bottom: 6px; font-size: 0.85rem; font-weight: 500; color: var(--texto-suave); }
+input, textarea, select {
+  width: 100%;
+  padding: 10px 12px;
+  background: var(--fundo);
+  color: var(--texto);
+  border: 1px solid var(--borda);
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 0.95rem;
+}
+input:focus, textarea:focus, select:focus { outline: none; border-color: var(--destaque); }
+input::placeholder, textarea::placeholder { color: var(--placeholder); }
+input[type="file"] { padding: 8px; font-size: 0.85rem; color: var(--texto-suave); }
+input[type="color"] { width: 52px; height: 42px; padding: 3px; cursor: pointer; }
+.linha-campos { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 0 14px; }
+
+/* Caixinha de marcar com o texto ao lado */
+.campo-check { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; font-size: 0.92rem; cursor: pointer; }
+.campo-check input { width: 18px; height: 18px; accent-color: var(--destaque); cursor: pointer; }
+
+/* Quem pode ver um evento ou foto */
+.visibilidade { font-size: 0.78rem; color: var(--texto-suave); }
+.visibilidade.publica { color: var(--destaque); }
+
+/* Formulário que abre ao clicar em "Adicionar..." */
+.formulario-novo { max-width: 720px; margin-bottom: 28px; }
+.formulario-novo .botoes { display: flex; gap: 8px; flex-wrap: wrap; }
+.progresso { margin-top: 10px; font-size: 0.9rem; color: var(--texto-suave); }
+
+/* Foto de perfil (ou as iniciais, quando não tem foto) */
+.iniciais {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--superficie-2);
+  border: 1px solid var(--borda);
+  font-size: 1.5rem;
+  font-weight: 700;
+  flex-shrink: 0;
+  object-fit: cover; /* quando é uma <img>, recorta para caber no círculo */
+}
+.iniciais.grande { width: 112px; height: 112px; font-size: 2.6rem; }
+.iniciais.pequena { width: 40px; height: 40px; margin: 0; font-size: 1rem; }
+
+/* Etiquetas de situação no admin (pendente, aprovado...) */
+.etiqueta {
+  margin-left: 6px;
+  padding: 1px 7px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  vertical-align: middle;
+  background: var(--superficie-2);
+  color: var(--texto-suave);
+}
+.etiqueta.admin { color: var(--destaque); }
+.etiqueta.pendente { color: #d9a93a; }
+.etiqueta.aprovado { color: #4caf68; }
+.etiqueta.recusado { color: var(--perigo); }
+
+/* Tags dos membros, no estilo dos cargos do Discord: bolinha colorida + nome.
+   A cor de cada tag vem do banco e entra pela variável --cor-tag. */
+.tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.tags.centro { justify-content: center; }
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 9px;
+  border-radius: 4px;
+  background: var(--superficie-2);
+  border: 1px solid color-mix(in srgb, var(--cor-tag) 45%, var(--borda));
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+.tag::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: var(--cor-tag); }
+.tag button { margin-left: 2px; background: none; border: none; color: var(--texto-suave); cursor: pointer; font-size: 0.95rem; line-height: 1; }
+.tag button:hover { color: var(--perigo); }
+
+/* Janela que abre por cima da página (ver uma mídia em tamanho grande) */
+dialog.janela {
+  width: min(960px, 94vw);
+  max-height: 92vh;
+  margin: auto;
+  padding: 0;
+  background: var(--superficie);
+  color: var(--texto);
+  border: 1px solid var(--borda);
+  border-radius: var(--raio);
+}
+dialog.janela::backdrop { background: rgba(0, 0, 0, 0.75); }
+.janela-midia { background: #000; display: flex; justify-content: center; }
+.janela-midia img { max-height: 70vh; width: auto; max-width: 100%; }
+.janela-info { padding: 16px 20px; display: flex; gap: 16px; align-items: flex-start; justify-content: space-between; }
+.janela-info h3 { font-size: 1.1rem; }
+.janela-info p { color: var(--texto-suave); white-space: pre-wrap; }
+.janela-info small { display: block; margin-top: 6px; color: var(--texto-suave); }
+.janela-info .acoes { flex-shrink: 0; }
+
+/* =====================================================================
+   PÁGINA INICIAL
+   ===================================================================== */
+
+/* Primeira tela: ocupa a altura toda, com o nome no meio */
+.capa {
+  min-height: calc(100vh - 60px);
+  padding: 40px 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  position: relative;
+}
+.nome-grupo {
+  font-size: clamp(3.4rem, 15vw, 11rem);
+  line-height: 1;
+  white-space: nowrap;
+  user-select: none;
+}
+/* Cada letra vira um <span> pelo JavaScript, para animar uma por uma */
+.nome-grupo span { display: inline-block; transition: transform 0.2s, color 0.2s; }
+.nome-grupo span:hover { transform: translateY(-0.08em); color: var(--destaque); }
+.nome-grupo span.chegando { animation: entrar 0.5s ease-out backwards; }
+@keyframes entrar { from { opacity: 0; transform: translateY(0.25em); } }
+.nome-grupo span.pulando { animation: pulo 0.45s; }
+@keyframes pulo { 40% { transform: translateY(-0.22em) rotate(-5deg); color: var(--destaque); } }
+
+/* Traço colorido embaixo do nome */
+.traco { width: 64px; height: 4px; margin: 22px auto 0; background: var(--destaque); border-radius: 2px; }
+
+/* Frase digitada pela "máquina de escrever" */
+.lema {
+  margin-top: 22px;
+  min-height: 1.6em;
+  padding-right: 3px;
+  font-size: clamp(1rem, 2.2vw, 1.25rem);
+  color: var(--texto-suave);
+  border-right: 2px solid var(--destaque); /* o cursor piscando */
+  animation: piscar 0.9s step-end infinite;
+}
+@keyframes piscar { 50% { border-color: transparent; } }
+
+.continua { position: absolute; bottom: 28px; font-size: 0.85rem; text-decoration: none; color: var(--texto-suave); }
+.continua:hover { color: var(--texto); }
+
+/* Faixa colorida com texto correndo */
+.faixa {
+  overflow: hidden;
+  white-space: nowrap;
+  padding: 10px 0;
+  background: var(--destaque);
+  color: var(--sobre-destaque);
+  font-weight: 800;
+  font-stretch: 112%;
+  font-size: 0.85rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+/* O texto aparece duas vezes; andar metade da largura faz o loop ficar perfeito */
+.faixa-trilho { display: inline-block; animation: deslizar 40s linear infinite; }
+.faixa-trilho span { padding: 0 16px; }
+@keyframes deslizar { to { transform: translateX(-50%); } }
+
+/* Seções da página inicial */
+.secao { max-width: 1100px; margin: 0 auto; padding: 36px 20px 0; }
+.secao:last-of-type { padding-bottom: 56px; }
+.secao-titulo {
+  margin-bottom: 14px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--texto-suave);
+}
+
+/* Atalhos para as abas: ícone + nome */
+.atalhos { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
+.atalho {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: var(--superficie);
+  border: 1px solid var(--borda);
+  border-radius: var(--raio);
+  font-weight: 600;
+  text-decoration: none;
+  transition: border-color 0.15s, background 0.15s;
+}
+.atalho svg { width: 22px; height: 22px; color: var(--texto-suave); flex-shrink: 0; transition: color 0.15s; }
+.atalho:hover { border-color: var(--destaque); background: var(--superficie-2); }
+.atalho:hover svg { color: var(--destaque); }
+
+/* Próximo encontro + membro da semana lado a lado */
+.destaques { display: grid; grid-template-columns: 1.3fr 1fr; gap: 16px; }
+@media (max-width: 800px) { .destaques { grid-template-columns: 1fr; } }
+.destaques h3 { font-size: 1.4rem; font-weight: 700; line-height: 1.25; }
+.detalhe { color: var(--texto-suave); }
+
+/* Contagem regressiva */
+.contagem { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 18px 0 14px; }
+.contagem div {
+  padding: 12px 6px;
+  text-align: center;
+  background: var(--fundo);
+  border: 1px solid var(--borda);
+  border-radius: 6px;
+}
+.contagem b {
+  display: block;
+  font-size: clamp(1.6rem, 4.5vw, 2.4rem);
+  font-weight: 800;
+  line-height: 1.1;
+  color: var(--destaque);
+  font-variant-numeric: tabular-nums; /* números com a mesma largura, não "tremem" */
+}
+.contagem small { font-size: 0.75rem; color: var(--texto-suave); }
+
+/* Membro da semana */
+.membro-semana { display: flex; gap: 18px; align-items: center; }
+.membro-semana .foto-semana {
+  width: 112px;
+  height: 112px;
+  border-radius: var(--raio);
+  object-fit: cover;
+  flex-shrink: 0;
+  background: var(--superficie-2);
+  border: 1px solid var(--borda);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.4rem;
+  font-weight: 700;
+}
+.membro-semana p { margin-top: 6px; color: var(--texto-suave); white-space: pre-wrap; }
+@media (max-width: 420px) { .membro-semana { flex-direction: column; text-align: center; } }
+
+.link-mais { display: inline-block; margin-top: 14px; font-size: 0.88rem; font-weight: 600; color: var(--destaque); text-decoration: none; }
+.link-mais:hover { text-decoration: underline; }
+
+/* Números do grupo */
+.numeros { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; }
+.numero { padding: 20px; }
+.numero b { display: block; font-size: 2.2rem; font-weight: 800; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.numero span { font-size: 0.9rem; color: var(--texto-suave); }
+
+/* Frase do dia */
+.citacao { padding: 28px 24px; border-left: 4px solid var(--destaque); }
+.citacao p { font-size: clamp(1.15rem, 2.6vw, 1.5rem); font-weight: 500; line-height: 1.4; }
+.citacao small { display: block; margin-top: 10px; font-size: 0.8rem; color: var(--texto-suave); }
+
+/* Elementos que aparecem suavemente quando você rola até eles */
+.aparecer { opacity: 0; transform: translateY(14px); transition: opacity 0.5s, transform 0.5s; }
+.aparecer.visivel { opacity: 1; transform: none; }
+
+/* Confete do segredo */
+.confete { position: fixed; top: -20px; width: 8px; height: 14px; z-index: 50; pointer-events: none; animation: cair linear forwards; }
+@keyframes cair { to { transform: translateY(110vh) rotate(720deg); } }
+
+/* =====================================================================
+   EVENTOS
+   ===================================================================== */
+.lista-eventos { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+.subtitulo { margin: 32px 0 14px; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--texto-suave); }
+.subtitulo:first-of-type { margin-top: 0; }
+.evento-card {
+  overflow: hidden;
+  background: var(--superficie);
+  border: 1px solid var(--borda);
+  border-radius: var(--raio);
+}
+.evento-card.passou { opacity: 0.55; }
+.evento-card img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
+.evento-corpo { padding: 16px; }
+.evento-topo { display: flex; gap: 14px; align-items: flex-start; }
+.evento-topo h3 { font-size: 1.1rem; line-height: 1.3; }
+.evento-info { font-size: 0.88rem; color: var(--texto-suave); }
+.evento-desc { margin-top: 12px; font-size: 0.95rem; white-space: pre-wrap; word-break: break-word; }
+.evento-rodape { margin-top: 14px; display: flex; justify-content: space-between; align-items: center; gap: 10px; font-size: 0.8rem; color: var(--texto-suave); }
+.data {
+  min-width: 54px;
+  padding: 7px 6px;
+  text-align: center;
+  background: var(--superficie-2);
+  border: 1px solid var(--borda);
+  border-radius: 6px;
+  font-size: 1.35rem;
+  font-weight: 800;
+  line-height: 1.05;
+  color: var(--destaque);
+  flex-shrink: 0;
+}
+.data small { display: block; font-size: 0.68rem; font-weight: 600; color: var(--texto-suave); }
+
+/* =====================================================================
+   MÍDIAS
+   ===================================================================== */
+.galeria { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+.item-midia {
+  position: relative;
+  overflow: hidden;
+  padding: 0;
+  aspect-ratio: 1;
+  background: var(--superficie-2);
+  border: 1px solid var(--borda);
+  border-radius: var(--raio);
+  cursor: pointer;
+}
+.item-midia img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.25s; }
+.item-midia:hover img { transform: scale(1.03); }
+.item-midia .legenda {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 18px 10px 8px;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.75));
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-align: left;
+}
+
+/* =====================================================================
+   ENQUETES
+   ===================================================================== */
+.lista-enquetes { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px; align-items: start; }
+@media (max-width: 420px) { .lista-enquetes { grid-template-columns: 1fr; } }
+.enquete { overflow: hidden; }
+.enquete.encerrada { opacity: 0.75; }
+.enquete-foto { width: calc(100% + 40px); max-width: none; margin: -20px -20px 16px; aspect-ratio: 16 / 9; object-fit: cover; }
+.enquete-topo { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+.enquete-topo h3 { font-size: 1.15rem; line-height: 1.3; }
+.enquete-desc { margin-top: 6px; white-space: pre-wrap; word-break: break-word; }
+.enquete-meta { margin-top: 6px; font-size: 0.82rem; color: var(--texto-suave); }
+.enquete-selos { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.enquete-selos span { padding: 1px 8px; border: 1px solid var(--borda); border-radius: 4px; font-size: 0.72rem; color: var(--texto-suave); }
+.enquete-opcoes { display: grid; gap: 8px; margin-top: 14px; }
+.enquete-opcoes .acoes { align-items: center; margin-top: 4px; }
+
+/* Cada opção: a barra de resultado fica por trás do texto */
+.opcao-enquete {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  padding: 10px 12px;
+  background: var(--fundo);
+  border: 1px solid var(--borda);
+  border-radius: 6px;
+}
+.opcao-enquete.clicavel { cursor: pointer; }
+.opcao-enquete.clicavel:hover { border-color: var(--texto-suave); }
+.opcao-enquete.escolhida { border-color: var(--destaque); }
+.opcao-barra {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: color-mix(in srgb, var(--destaque) 16%, transparent);
+  transition: width 0.4s;
+}
+.opcao-enquete > :not(.opcao-barra) { position: relative; } /* fica por cima da barra */
+.opcao-enquete input { width: 16px; height: 16px; accent-color: var(--destaque); cursor: pointer; }
+.opcao-texto { flex: 1; }
+.opcao-numeros { font-size: 0.82rem; font-weight: 600; color: var(--texto-suave); font-variant-numeric: tabular-nums; }
+.votantes { flex-basis: 100%; font-size: 0.75rem; color: var(--texto-suave); }
+
+/* Formulário: lista de opções */
+.lista-opcoes { display: grid; gap: 8px; margin-bottom: 8px; }
+.linha-opcao { display: flex; gap: 8px; align-items: center; }
+.linha-opcao .link-apagar { font-size: 1.1rem; }
+
+/* =====================================================================
+   MEMBROS E PERFIL
+   ===================================================================== */
+.membros { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 12px; }
+.membro {
+  padding: 22px 16px;
+  text-align: center;
+  background: var(--superficie);
+  border: 1px solid var(--borda);
+  border-radius: var(--raio);
+}
+.membro strong { display: block; }
+.abas-membros { max-width: 360px; background: var(--superficie); border: 1px solid var(--borda); }
+.membros.sem-ninguem { display: block; }
+.membro small { display: block; margin-bottom: 10px; color: var(--texto-suave); }
+
+.perfil { display: grid; grid-template-columns: 1fr 1.3fr; gap: 16px; align-items: start; }
+@media (max-width: 760px) { .perfil { grid-template-columns: 1fr; } }
+.ficha { text-align: center; }
+.ficha .nome { font-size: 1.5rem; font-weight: 700; }
+.ficha .usuario { color: var(--texto-suave); }
+.ficha .apelido { margin-top: 6px; color: var(--destaque); font-weight: 600; }
+.ficha .bio { margin-top: 10px; color: var(--texto-suave); }
+.ficha .tags { margin-top: 16px; }
+.ficha .botoes-foto { display: flex; gap: 6px; justify-content: center; margin-bottom: 16px; }
+.pilha { display: grid; gap: 16px; }
+
+/* =====================================================================
+   ADMINISTRAÇÃO
+   ===================================================================== */
+.admin-nav { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 24px; }
+.admin-nav a { padding: 6px 12px; border: 1px solid var(--borda); border-radius: 6px; font-size: 0.88rem; text-decoration: none; color: var(--texto-suave); }
+.admin-nav a:hover { color: var(--texto); border-color: var(--texto-suave); }
+
+.admin-secoes { display: grid; gap: 16px; padding-bottom: 90px; }
+.admin-secoes .caixa { scroll-margin-top: 80px; }
+.dica-admin { margin: -6px 0 14px; font-size: 0.88rem; color: var(--texto-suave); }
+.grade-campos { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 0 14px; }
+
+
+.pessoa { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--borda); }
+.pessoa:last-child { border-bottom: none; }
+.pessoa .info { flex: 1; min-width: 180px; }
+.pessoa .info small { display: block; font-size: 0.85rem; color: var(--texto-suave); }
+.acoes { display: flex; flex-wrap: wrap; gap: 6px; }
+
+/* Indicadores de uso do espaço */
+.usos { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
+.uso { padding: 14px; background: var(--fundo); border: 1px solid var(--borda); border-radius: 6px; }
+.uso-topo { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; margin-bottom: 10px; }
+.uso-topo span { font-size: 0.85rem; color: var(--texto-suave); }
+.trilho { height: 8px; overflow: hidden; border-radius: 4px; background: var(--superficie-2); }
+.trilho div { height: 100%; min-width: 2px; border-radius: 4px; background: var(--destaque); }
+.uso.alerta .trilho div { background: var(--perigo); }
+.uso small { display: block; margin-top: 8px; font-size: 0.82rem; color: var(--texto-suave); }
+.uso small a { color: var(--destaque); }
+
+/* Membro da semana no admin */
+.editor-semana { display: grid; grid-template-columns: 140px 1fr; gap: 20px; align-items: start; }
+@media (max-width: 600px) { .editor-semana { grid-template-columns: 1fr; } }
+.editor-semana .foto-semana { width: 140px; height: 140px; }
+
+/* Tags no admin */
+.nova-tag { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; margin-bottom: 18px; }
+.nova-tag .campo { margin-bottom: 0; }
+.nova-tag .campo:first-child { flex: 1; min-width: 180px; }
+.item-tag { padding: 12px 0; border-top: 1px solid var(--borda); }
+.item-tag-topo { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.item-tag-topo .tag { font-size: 0.72rem; padding: 2px 8px; }
+.item-tag-topo > :last-child { margin-left: auto; }
+.contagem-tag { font-size: 0.78rem; color: var(--texto-suave); }
+.selo-sistema { padding: 1px 7px; border: 1px solid var(--borda); border-radius: 4px; font-size: 0.72rem; color: var(--texto-suave); }
+.link-apagar { background: none; border: none; font-family: inherit; font-size: 0.8rem; color: var(--texto-suave); cursor: pointer; }
+.link-apagar:hover { color: var(--perigo); text-decoration: underline; }
+
+/* Pessoas que têm a tag: bolinhas neutras e pequenas (para não parecerem tags) */
+.membros-tag { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.pessoa-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px 4px 2px 10px;
+  border-radius: 999px;
+  background: var(--superficie-2);
+  font-size: 0.78rem;
+}
+.pessoa-chip button { padding: 0 4px; background: none; border: none; font-size: 0.95rem; line-height: 1; color: var(--texto-suave); cursor: pointer; }
+.pessoa-chip button:hover { color: var(--perigo); }
+select.mini {
+  width: auto;
+  padding: 3px 10px;
+  border: 1px dashed var(--borda);
+  border-radius: 999px;
+  background: transparent;
+  font-size: 0.78rem;
+  color: var(--texto-suave);
+  cursor: pointer;
+}
+
+/* Janelinha de confirmação ("Tem certeza?") */
+dialog.janela-aviso { width: min(380px, 92vw); padding: 20px; }
+.janela-aviso p { margin-bottom: 18px; }
+.janela-aviso .acoes { justify-content: flex-end; }
+
+/* Barra fixa embaixo com o botão de salvar */
+.barra-salvar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 15;
+  padding: 12px 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  background: var(--superficie);
+  border-top: 1px solid var(--borda);
+}
+.barra-salvar span { font-size: 0.9rem; color: var(--texto-suave); }
+
+/* =====================================================================
+   LOGIN
+   ===================================================================== */
+.tela-login { min-height: 100vh; padding: 32px 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.nome-login { font-size: clamp(2.8rem, 11vw, 4.4rem); line-height: 1; }
+.tela-login .sub { margin: 10px 0 24px; color: var(--texto-suave); }
+.caixa-login { width: 100%; max-width: 400px; }
+.abas { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-bottom: 20px; padding: 4px; background: var(--fundo); border-radius: 6px; }
+.aba { padding: 8px; background: none; border: none; border-radius: 4px; font-family: inherit; font-size: 0.9rem; font-weight: 600; color: var(--texto-suave); cursor: pointer; }
+.aba.ativa { background: var(--superficie-2); color: var(--texto); }
+.caixa-login .botao { width: 100%; }
+.mensagem { min-height: 1.4em; margin-top: 12px; text-align: center; font-size: 0.9rem; }
+.mensagem.erro { color: var(--perigo); }
+.mensagem.ok { color: var(--texto-suave); }
+
+.estado { text-align: center; }
+.estado h2 { margin-bottom: 8px; font-size: 1.3rem; font-weight: 700; letter-spacing: 0; text-transform: none; color: var(--texto); }
+.estado p { margin-bottom: 18px; color: var(--texto-suave); }
+.estado .botoes { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+
+/* Aviso de erro grave (banco não configurado etc.) */
+.aviso-central { max-width: 420px; margin: 12vh auto; text-align: center; }
+
+/* Opções de tema global no Admin */
+.temas-globais { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
+.opcao-tema {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 14px;
+  background: var(--fundo);
+  border: 1px solid var(--borda);
+  border-radius: var(--raio);
+  cursor: pointer;
+}
+.opcao-tema:has(input:checked) { border-color: var(--destaque); }
+.opcao-tema input { width: 16px; height: 16px; margin-top: 3px; accent-color: var(--destaque); }
+.opcao-tema small { display: block; font-size: 0.82rem; color: var(--texto-suave); }
+
+/* ----- Confirmação de presença nos eventos ----- */
+.presenca { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--borda); }
+.presenca-botoes { display: flex; gap: 6px; margin-bottom: 10px; }
+.botao-presenca {
+  flex: 1;
+  padding: 8px 6px;
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--texto);
+  background: var(--superficie-2);
+  border: 1px solid var(--borda);
+  border-radius: var(--raio);
+  cursor: pointer;
+}
+.botao-presenca:hover { border-color: var(--texto-suave); }
+.botao-presenca:disabled { opacity: 0.6; cursor: default; }
+.botao-presenca.marcado { color: var(--sobre-destaque); background: var(--destaque); border-color: var(--destaque); }
+.botao-presenca.nao.marcado { color: var(--texto); background: var(--superficie); border-color: var(--texto-suave); }
+.presenca-resumo { display: flex; align-items: center; gap: 10px; font-size: 0.88rem; color: var(--texto-suave); }
+.presenca-fotos { display: flex; }
+.presenca-fotos .iniciais.mini { width: 26px; height: 26px; margin: 0 0 0 -6px; font-size: 0.7rem; border: 2px solid var(--superficie); }
+.presenca-fotos .iniciais.mini:first-child { margin-left: 0; }
+.mais-gente { margin-left: 4px; font-size: 0.8rem; }
+.presenca-lista { margin-top: 8px; font-size: 0.85rem; }
+.presenca-lista summary { cursor: pointer; color: var(--texto-suave); }
+.presenca-lista p { margin-top: 4px; }
+
+/* ----- Aniversários (página inicial e membros) ----- */
+.aniversario-hoje { display: flex; align-items: center; gap: 12px; padding: 12px; margin-bottom: 10px; border: 1px solid var(--destaque); border-radius: var(--raio); }
+.aniversario-hoje strong { display: block; }
+.aniversario-hoje small { color: var(--texto-suave); }
+.lista-aniversarios { list-style: none; padding: 0; margin: 0; }
+.lista-aniversarios li { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-top: 1px solid var(--borda); }
+.lista-aniversarios li:first-child { border-top: none; }
+.lista-aniversarios .nome { flex: 1; font-weight: 600; }
+.lista-aniversarios .aniv-data { color: var(--texto-suave); font-size: 0.9rem; }
+.lista-aniversarios .quando { min-width: 76px; text-align: right; font-size: 0.85rem; color: var(--destaque); }
+.aniversario-membro { color: var(--texto-suave); }
+
+/* =====================================================================
+   MURAL (recados e anúncios)
+   ===================================================================== */
+.pagina-mural { max-width: 820px; }
+.abas-mural { max-width: 420px; background: var(--superficie); border: 1px solid var(--borda); }
+.escrever { margin-bottom: 20px; }
+.escrever-rodape { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.escrever-rodape .botao { margin-left: auto; }
+.contador-letras { color: var(--texto-suave); font-size: 0.8rem; }
+
+/* Cargo ao lado do nome (Presidente, Deputado, Admin): destaque de marca-texto na cor do cargo.
+   A faixa colorida é um ::before inclinado e com cantos irregulares, cobrindo a palavra toda por trás das letras. */
+.cargo {
+  position: relative;
+  z-index: 0;
+  display: inline-block;
+  margin-left: 0.45em;
+  padding: 0 0.3em;
+  font-size: 0.85em;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--texto);
+  white-space: nowrap;
+}
+.cargo::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0.05em -0.12em -0.02em;   /* cobre a palavra inteira, de cima a baixo */
+  background: var(--cor-cargo);
+  opacity: 0.55;
+  border-radius: 0.35em 0.15em 0.4em 0.2em;  /* cantos diferentes: parece passado à mão */
+  transform: rotate(-1.5deg) skewX(-10deg);
+}
+.cargo + .cargo { margin-left: 0.3em; }
+
+/* Botão que parece link (ações pequenas: fixar, apagar...) */
+.botao-link { padding: 0; background: none; border: none; font: inherit; font-size: 0.82rem; color: var(--texto-suave); cursor: pointer; }
+.botao-link:hover { color: var(--texto); text-decoration: underline; }
+.botao-link.perigo:hover { color: var(--perigo); }
+
+.lista-recados { display: grid; gap: 10px; }
+.recado { display: flex; gap: 12px; padding: 14px 16px; background: var(--superficie); border: 1px solid var(--borda); border-radius: var(--raio); }
+.recado.fixado { border-color: var(--destaque); }
+.recado-corpo { flex: 1; min-width: 0; }
+.recado-topo { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; }
+.recado-topo small { color: var(--texto-suave); font-size: 0.8rem; }
+.recado-corpo p { margin-top: 4px; white-space: pre-wrap; word-break: break-word; }
+.recado-acoes { display: flex; gap: 14px; margin-top: 8px; }
+/* Versão compacta (página inicial): sem caixa em volta de cada recado */
+.lista-recados.compacta { gap: 0; }
+.lista-recados.compacta .recado { padding: 10px 0; background: none; border: none; border-top: 1px solid var(--borda); border-radius: 0; }
+.lista-recados.compacta .recado:first-child { border-top: none; padding-top: 0; }
+.lista-recados.compacta .recado-corpo p { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+
+.lista-anuncios { display: grid; gap: 12px; }
+.anuncio { padding: 18px 20px; background: var(--superficie); border: 1px solid var(--borda); border-left: 4px solid var(--borda); border-radius: var(--raio); }
+.anuncio.prioridade { border-color: var(--destaque); border-left-color: var(--destaque); }
+.anuncio-topo { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 6px; }
+.selo-prioridade { padding: 2px 8px; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--sobre-destaque); background: var(--destaque); border-radius: 4px; }
+.anuncio-cargo { font-size: 0.82rem; font-weight: 600; color: var(--texto-suave); }
+.anuncio h3 { font-size: 1.2rem; line-height: 1.3; }
+.anuncio p { margin-top: 6px; white-space: pre-wrap; word-break: break-word; }
+.anuncio-rodape { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px; margin-top: 12px; }
+.anuncio-rodape small { color: var(--texto-suave); font-size: 0.8rem; }
+.anuncio-rodape .recado-acoes { margin-top: 0; }
+/* Na página inicial o anúncio inteiro é um link para o mural */
+.anuncio-link { display: block; margin-bottom: 16px; color: inherit; text-decoration: none; }
+.anuncio-link:hover .anuncio { border-color: var(--texto-suave); border-left-color: var(--destaque); }
+
+/* =====================================================================
+   ATUALIZAÇÕES (registro de mudanças do site)
+   ===================================================================== */
+.pagina-atualizacoes { max-width: 820px; }
+.dia-atualizacoes .subtitulo { text-transform: none; letter-spacing: 0; font-size: 0.95rem; }
+.dia-atualizacoes .subtitulo::first-letter { text-transform: uppercase; }
+.atualizacoes { list-style: none; padding: 0; margin: 0; border-left: 2px solid var(--borda); }
+.atualizacao { position: relative; display: flex; gap: 16px; padding: 0 0 18px 18px; }
+/* Bolinha na linha do tempo (cor muda conforme o tipo) */
+.atualizacao::before {
+  content: "";
+  position: absolute;
+  left: -7px;
+  top: 4px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--fundo);
+  border: 2px solid var(--cor-tipo, var(--texto-suave));
+}
+.atualizacao.tipo-nova { --cor-tipo: var(--destaque); }
+.atualizacao.tipo-melhoria { --cor-tipo: #4a8fd4; }
+.atualizacao.tipo-correcao { --cor-tipo: #4caf68; }
+.atualizacao.tipo-banco { --cor-tipo: #9a7fd1; }
+.atualizacao time { flex-shrink: 0; width: 44px; font-size: 0.85rem; font-variant-numeric: tabular-nums; color: var(--texto-suave); }
+.atualizacao-corpo { flex: 1; min-width: 0; }
+.atualizacao-topo { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; }
+.tipo-atualizacao { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--cor-tipo); }
+.atualizacao-corpo p { margin-top: 4px; color: var(--texto-suave); font-size: 0.93rem; }
+.atualizacao-corpo small { display: block; margin-top: 4px; font-size: 0.82rem; color: var(--texto-suave); }
+
+/* =====================================================================
+   SORTEIOS
+   ===================================================================== */
+.lista-sorteios { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+.sorteio-card {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  overflow: hidden;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  background: var(--superficie);
+  border: 1px solid var(--borda);
+  border-radius: var(--raio);
+  cursor: pointer;
+  transition: border-color 0.15s, transform 0.15s;
+}
+.sorteio-card:hover { border-color: var(--texto-suave); transform: translateY(-2px); }
+.sorteio-card img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
+.sorteio-corpo { display: flex; flex-direction: column; gap: 4px; padding: 14px 16px 16px; }
+.sorteio-corpo strong { font-size: 1.1rem; }
+.sorteio-corpo small { color: var(--texto-suave); font-size: 0.82rem; }
+.sorteio-ultimo { margin-top: 6px; font-size: 0.9rem; color: var(--texto-suave); }
+.sorteio-ultimo b { color: var(--destaque); }
+
+dialog.janela-sorteio { width: min(720px, 94vw); }
+.sorteio-janela { padding: 20px; }
+.sorteio-topo { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 16px; }
+.sorteio-topo h2 { font-size: 1.4rem; line-height: 1.2; }
+.sorteio-topo small { color: var(--texto-suave); }
+.sorteio-imagem { width: 100%; max-height: 220px; object-fit: cover; border-radius: var(--raio); margin-bottom: 16px; }
+
+/* A roleta: uma "janela" de 3 linhas; a fita com os itens corre por trás.
+   A linha do meio é a que vale (marcada com as bordas). */
+.roleta {
+  --linha-roleta: 64px;
+  position: relative;
+  height: calc(var(--linha-roleta) * 3);
+  overflow: hidden;
+  background: var(--fundo);
+  border: 1px solid var(--borda);
+  border-radius: var(--raio);
+  /* As linhas de cima e de baixo vão sumindo, para o olho focar no meio */
+  -webkit-mask-image: linear-gradient(transparent, #000 30%, #000 70%, transparent);
+  mask-image: linear-gradient(transparent, #000 30%, #000 70%, transparent);
+}
+.roleta::before {
+  content: "";
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  top: var(--linha-roleta);
+  height: var(--linha-roleta);
+  border: 2px solid var(--destaque);
+  border-radius: 8px;
+  pointer-events: none;
+  z-index: 1;
+}
+.roleta-fita { will-change: transform; }
+.roleta-item {
+  height: var(--linha-roleta);
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: clamp(1.1rem, 4vw, 1.6rem);
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.roleta-item.vencedor { color: var(--destaque); }
+.roleta.parou .roleta-item.vencedor { animation: vencedor 0.6s ease-out; }
+@keyframes vencedor {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.18); }
+  100% { transform: scale(1); }
+}
+
+.sorteio-acoes { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 14px 0 22px; }
+.sorteio-acoes .botao { min-width: 160px; }
+.sorteio-acoes .aviso { margin: 0; }
+.sorteio-colunas { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+@media (max-width: 560px) { .sorteio-colunas { grid-template-columns: 1fr; } }
+.sorteio-itens { display: flex; flex-wrap: wrap; gap: 6px; max-height: 220px; overflow-y: auto; }
+.sorteio-itens span { padding: 4px 10px; font-size: 0.85rem; background: var(--superficie-2); border: 1px solid var(--borda); border-radius: 999px; }
+.sorteio-itens span.saiu { text-decoration: line-through; opacity: 0.5; }
+.sorteio-historico { display: grid; gap: 8px; max-height: 220px; overflow-y: auto; padding-left: 20px; }
+.sorteio-historico small { display: block; font-size: 0.8rem; color: var(--texto-suave); }
+.sorteio-rodape { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; padding-top: 14px; border-top: 1px solid var(--borda); }
+
+/* =====================================================================
+   ECONOMIA
+   ===================================================================== */
+.pagina-economia { max-width: 1000px; }
+.eco-resumo { display: grid; grid-template-columns: 1fr 2fr; gap: 12px; margin-bottom: 16px; }
+@media (max-width: 600px) { .eco-resumo { grid-template-columns: 1fr; } }
+.eco-resumo .rotulo { margin-bottom: 6px; display: block; }
+.eco-saldo strong { font-size: clamp(1.8rem, 5vw, 2.4rem); font-weight: 800; color: var(--destaque); font-variant-numeric: tabular-nums; }
+.eco-nivel-topo { display: flex; justify-content: space-between; gap: 10px; }
+.eco-nivel-topo small { color: var(--texto-suave); font-size: 0.82rem; text-align: right; }
+.eco-nivel strong { display: block; font-size: 1.8rem; font-weight: 800; line-height: 1.1; }
+.barra-xp { height: 8px; margin-top: 10px; background: var(--superficie-2); border-radius: 4px; overflow: hidden; }
+.barra-xp div { height: 100%; background: var(--destaque); border-radius: 4px; transition: width 0.6s ease; }
+.barra-xp.pequena { height: 5px; margin-top: 12px; }
+
+/* Sub-abas: rolam para o lado no celular */
+.eco-abas { display: flex; gap: 4px; margin-bottom: 18px; padding: 4px; overflow-x: auto; scrollbar-width: none; background: var(--superficie); border: 1px solid var(--borda); border-radius: var(--raio); }
+.eco-abas::-webkit-scrollbar { display: none; }
+.eco-abas button { flex: 1 0 auto; padding: 9px 14px; font: inherit; font-size: 0.9rem; font-weight: 600; color: var(--texto-suave); background: none; border: none; border-radius: 6px; cursor: pointer; white-space: nowrap; }
+.eco-abas button:hover { color: var(--texto); }
+.eco-abas button.ativa { color: var(--texto); background: var(--superficie-2); box-shadow: inset 0 -2px 0 var(--destaque); }
+.eco-dica { margin: 0 0 14px; font-size: 0.88rem; color: var(--texto-suave); }
+.eco-secao > .caixa + .caixa { margin-top: 16px; }
+
+/* Carteira */
+.eco-diario { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 16px; }
+.eco-diario h2 { margin-bottom: 4px; }
+.eco-diario p { color: var(--texto-suave); font-size: 0.92rem; }
+.extrato { list-style: none; padding: 0; margin: 0; }
+.extrato li { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 9px 0; border-top: 1px solid var(--borda); }
+.extrato li:first-child { border-top: none; padding-top: 0; }
+.extrato-desc small { display: block; font-size: 0.78rem; color: var(--texto-suave); }
+.extrato b { white-space: nowrap; font-variant-numeric: tabular-nums; }
+.extrato b.entrada { color: #4caf68; }
+.extrato b.saida { color: var(--perigo); }
+
+/* Trabalhos */
+.lista-trabalhos { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+.trabalho { position: relative; overflow: hidden; display: flex; flex-direction: column; }
+.trabalho.bloqueado { opacity: 0.55; }
+.trabalho-topo { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.trabalho-topo h3 { font-size: 1.15rem; }
+.trabalho-nivel { font-size: 0.8rem; font-weight: 700; color: var(--destaque); white-space: nowrap; }
+.trabalho > p { margin-top: 4px; font-size: 0.9rem; color: var(--texto-suave); }
+.trabalho-info { list-style: none; padding: 0; margin: 12px 0 0; display: grid; gap: 4px; font-size: 0.88rem; }
+.trabalho-info li { display: flex; justify-content: space-between; }
+.trabalho-info span { color: var(--texto-suave); }
+.trabalho-acao { margin-top: auto; padding-top: 14px; }
+.trabalho-acao .botao { width: 100%; }
+/* Barrinha de "trabalhando..." no pé do cartão */
+.progresso-trabalho { position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: var(--superficie-2); }
+.progresso-trabalho div { height: 100%; width: 0; background: var(--destaque); }
+.progresso-trabalho.andando div { animation: encher 1.6s linear forwards; }
+@keyframes encher { to { width: 100%; } }
+
+/* Loja */
+.lista-loja { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+.item-loja { display: flex; flex-direction: column; gap: 6px; }
+.item-loja.bloqueado { opacity: 0.6; }
+.item-loja p { flex: 1; font-size: 0.9rem; color: var(--texto-suave); }
+.item-loja-info { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.item-loja-info b { font-size: 1.15rem; color: var(--destaque); }
+.item-loja-info small { color: var(--texto-suave); font-size: 0.8rem; }
+.inventario { display: flex; flex-wrap: wrap; gap: 8px; }
+.inventario span { padding: 6px 12px; background: var(--superficie-2); border: 1px solid var(--borda); border-radius: 999px; font-size: 0.9rem; }
+
+/* Cassino */
+.cassino-jogos { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+.cassino-jogos button { padding: 8px 16px; font: inherit; font-weight: 600; color: var(--texto-suave); background: var(--superficie); border: 1px solid var(--borda); border-radius: 999px; cursor: pointer; }
+.cassino-jogos button.ativa { color: var(--sobre-destaque); background: var(--destaque); border-color: var(--destaque); }
+.cassino-mesa { text-align: center; }
+.cassino-mesa h2 { text-align: left; }
+.aposta { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: center; gap: 10px; margin: 18px auto 14px; max-width: 560px; text-align: left; }
+.aposta .campo { width: 140px; }
+.atalhos-aposta { display: flex; flex-wrap: wrap; gap: 4px; }
+.atalhos-aposta button { padding: 8px 10px; font: inherit; font-size: 0.82rem; color: var(--texto-suave); background: var(--superficie-2); border: 1px solid var(--borda); border-radius: 6px; cursor: pointer; }
+.atalhos-aposta button:hover { color: var(--texto); border-color: var(--texto-suave); }
+.botoes-jogo { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.botao.cor-vermelho { background: #c8313a; color: #fff; }
+.botao.cor-preto { background: #1d1d22; color: #fff; border: 1px solid var(--borda); }
+.botao.cor-verde { background: #2e8b50; color: #fff; }
+.resultado-jogo { min-height: 1.5em; margin-top: 14px; font-size: 1.05rem; }
+.resultado-jogo.ganhou { color: #4caf68; }
+.resultado-jogo.perdeu { color: var(--texto-suave); }
+
+/* Moeda 3D: sobe girando (rotateX), cai e quica; a borda são fatias empilhadas */
+.palco-moeda { position: relative; perspective: 700px; display: flex; flex-direction: column; align-items: center; padding: 160px 0 10px; }
+.moeda-voo { transform-style: preserve-3d; position: relative; z-index: 1; }
+.moeda { position: relative; width: 120px; height: 120px; transform-style: preserve-3d; }
+.moeda .face {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  border-radius: 50%; backface-visibility: hidden;
+  font-weight: 800; font-size: 1.1rem; letter-spacing: 0.04em; text-transform: uppercase;
+  color: #5a3d06; background: #e6b84a; border: 6px solid #c99a2e;
+  box-shadow: inset 0 0 0 3px #f2d27c;
+}
+.moeda .cara { transform: translateZ(5px); }
+.moeda .coroa { transform: rotateX(180deg) translateZ(5px); background: #d9a93c; }
+.moeda-borda { position: absolute; inset: 0; border-radius: 50%; background: #a87d22; }
+.moeda-sombra { width: 100px; height: 14px; margin-top: 14px; border-radius: 50%; background: #000; opacity: 0.5; filter: blur(3px); }
+
+/* Roleta: roda em SVG; a bola é posicionada pelo JavaScript */
+.palco-roda { width: min(320px, 100%); margin: 6px auto 0; }
+.roda { display: block; width: 100%; height: auto; }
+.roda-aro { fill: #3a2717; }
+.roda-pista { fill: #1b130d; stroke: #5a3d22; stroke-width: 2; }
+.casa-roda { stroke: #c9a646; stroke-width: 0.8; }
+.casa-roda.vermelho { fill: #c8313a; }
+.casa-roda.preto { fill: #1d1d22; }
+.casa-roda.verde { fill: #2e8b50; }
+.num-roda { fill: #fff; font: 700 10px Archivo, sans-serif; text-anchor: middle; dominant-baseline: central; }
+.roda-cone { fill: #4a3220; stroke: #c9a646; stroke-width: 1.5; }
+.roda-miolo { fill: #2e1f14; }
+.roda-raios line { stroke: #c9a646; stroke-width: 4; stroke-linecap: round; }
+.roda-centro { fill: #c9a646; }
+.bola { fill: #f3f3f0; stroke: #9a9a96; stroke-width: 0.8; }
+.historico-roleta { display: flex; justify-content: center; flex-wrap: wrap; gap: 4px; min-height: 26px; margin-top: 10px; }
+.historico-roleta span { min-width: 26px; padding: 3px 6px; font-size: 0.8rem; font-weight: 800; color: #fff; border-radius: 5px; }
+.historico-roleta span.vermelho { background: #c8313a; }
+.historico-roleta span.preto { background: #1d1d22; border: 1px solid var(--borda); }
+.historico-roleta span.verde { background: #2e8b50; }
+.historico-roleta span.novo { animation: surge 0.35s ease-out; outline: 2px solid var(--destaque); }
+@keyframes surge { from { transform: scale(0.4); opacity: 0; } }
+
+/* Caça-níquel: 3 rolos, cada um mostra 3 símbolos; vale o do meio */
+.maquina-caixa { display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 8px; }
+.maquina { display: flex; justify-content: center; gap: 10px; padding: 14px; max-width: 360px; background: var(--fundo); border: 1px solid var(--borda); border-radius: var(--raio); position: relative; }
+.maquina::after { content: ""; position: absolute; left: 8px; right: 8px; top: 50%; height: 88px; margin-top: -44px; border: 2px solid var(--destaque); border-radius: 8px; pointer-events: none; transition: border-color 0.2s; }
+.maquina.ganhou::after { border-color: #4caf68; animation: linha-pisca 0.5s ease-in-out 4; }
+@keyframes linha-pisca { 50% { opacity: 0.2; } }
+.rolo { width: 92px; height: 252px; overflow: hidden; background: var(--superficie-2); border-radius: 6px;
+  -webkit-mask-image: linear-gradient(transparent, #000 25%, #000 75%, transparent);
+  mask-image: linear-gradient(transparent, #000 25%, #000 75%, transparent); }
+.fita-rolo { will-change: transform; transition: filter 0.2s; }
+.rolo.girando .fita-rolo { filter: blur(2.5px); }
+.simbolo { height: 84px; display: flex; align-items: center; justify-content: center; }
+.simbolo svg { width: 56px; height: 56px; }
+.simbolo.vencedor svg { animation: vencedor-pula 0.5s ease-in-out 3; }
+@keyframes vencedor-pula { 50% { transform: scale(1.18); } }
+@media (max-width: 420px) { .rolo { width: 72px; } .simbolo svg { width: 46px; height: 46px; } }
+
+/* Alavanca do caça-níquel */
+.alavanca { position: relative; width: 26px; height: 150px; padding: 0; background: none; border: none; cursor: pointer; }
+.alavanca:disabled { cursor: default; }
+.alavanca-haste { position: absolute; left: 10px; bottom: 0; width: 6px; height: 120px; background: #8a8d94; border-radius: 3px; transform-origin: bottom center; }
+.alavanca-bola { position: absolute; left: 1px; top: 0; width: 24px; height: 24px; border-radius: 50%; background: #c8313a; border: 2px solid #8f1f22; }
+.alavanca.puxada .alavanca-haste { animation: alavanca-haste 0.6s ease-in-out; }
+.alavanca.puxada .alavanca-bola { animation: alavanca-bola 0.6s ease-in-out; }
+@keyframes alavanca-haste { 40% { transform: scaleY(-0.15); } }
+@keyframes alavanca-bola { 40% { transform: translateY(132px); } }
+@media (max-width: 420px) { .alavanca { display: none; } }
+.tabela-premios { margin-top: 16px; text-align: left; font-size: 0.9rem; }
+.tabela-premios summary { cursor: pointer; color: var(--texto-suave); }
+.tabela-premios ul { list-style: none; padding: 0; margin: 10px 0 0; display: grid; gap: 4px; }
+.tabela-premios li { display: flex; align-items: center; gap: 4px; }
+.tabela-premios li svg { width: 24px; height: 24px; }
+.tabela-premios li b { margin-left: 10px; }
+.tabela-premios .qualquer { width: 24px; text-align: center; color: var(--texto-suave); }
+
+/* Ranking */
+.rankings { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 700px) { .rankings { grid-template-columns: 1fr; } }
+.ranking { list-style: none; padding: 0; margin: 0; }
+.ranking li { display: flex; align-items: center; gap: 10px; padding: 8px 6px; border-top: 1px solid var(--borda); }
+.ranking li:first-child { border-top: none; }
+.ranking li.sou-eu { background: var(--superficie-2); border-radius: 6px; }
+.ranking .posicao { width: 22px; font-weight: 800; color: var(--texto-suave); text-align: center; }
+.ranking li:nth-child(1) .posicao { color: #d4a72c; }
+.ranking .nome { flex: 1; min-width: 0; font-weight: 600; }
+.ranking b { white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+/* Avisos rápidos no canto */
+.eco-avisos { position: fixed; right: 16px; bottom: 16px; z-index: 60; display: flex; flex-direction: column; gap: 8px; align-items: flex-end; pointer-events: none; }
+.eco-aviso { max-width: 320px; padding: 10px 14px; font-size: 0.92rem; background: var(--superficie); border: 1px solid var(--borda); border-left: 4px solid var(--texto-suave); border-radius: 8px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35); animation: aviso-entra 0.25s ease-out; transition: opacity 0.4s, transform 0.4s; }
+.eco-aviso.ganho { border-left-color: #4caf68; }
+.eco-aviso.nivel { border-left-color: var(--destaque); }
+.eco-aviso.erro { border-left-color: var(--perigo); }
+.eco-aviso.saindo { opacity: 0; transform: translateY(8px); }
+@keyframes aviso-entra { from { opacity: 0; transform: translateY(10px); } }
+
+/* Perfil e membros: resumo da economia */
+.eco-perfil { display: grid; grid-template-columns: auto 1fr; gap: 6px 16px; align-items: center; }
+.eco-perfil strong { font-size: 1.5rem; color: var(--destaque); }
+.eco-perfil .barra-xp { grid-column: 1 / -1; margin-top: 4px; }
+.nivel-membro { color: var(--texto-suave); }
+
+/* =====================================================================
+   POLÍTICA
+   ===================================================================== */
+.eleicao { border-left: 4px solid var(--borda); }
+.eleicao.aberta { border-left-color: #4caf68; }
+.eleicao.em-breve { border-left-color: var(--destaque); }
+.eleicao-titulo { display: flex; align-items: center; gap: 10px; font-size: 1.35rem; font-weight: 700; }
+.eleicao-texto { margin: 6px 0 16px; color: var(--texto-suave); }
+.eleicao-aviso { font-size: 0.9rem; color: var(--texto-suave); }
+.eleicao .botao { display: inline-block; text-decoration: none; }
+.eleicao .botao-pequeno { display: inline-block; text-decoration: none; }
+/* Bolinha verde piscando devagar quando a votação está aberta */
+.ponto-aberta { width: 10px; height: 10px; border-radius: 50%; background: #4caf68; animation: ponto-pisca 1.6s ease-in-out infinite; }
+@keyframes ponto-pisca { 50% { opacity: 0.3; } }
+
+.presidente { display: flex; align-items: center; gap: 22px; }
+.presidente img, .presidente .iniciais {
+  width: 150px;
+  height: 150px;
+  margin: 0;
+  border-radius: var(--raio);
+  object-fit: cover;
+  object-position: center 25%;   /* foto de corpo inteiro: mostra mais o rosto */
+  font-size: 3rem;
+}
+.presidente .cargo { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--destaque); }
+.presidente strong { display: block; margin-top: 4px; font-size: clamp(1.4rem, 3.5vw, 1.9rem); line-height: 1.2; }
+.partido-atual { margin-top: 4px; font-weight: 600; color: var(--texto-suave); }
+.cargo-desde { margin-top: 6px; font-size: 0.9rem; color: var(--texto-suave); }
+@media (max-width: 480px) { .presidente { flex-direction: column; text-align: center; } }
+
+.deputados { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+.deputado { padding: 18px 12px; text-align: center; background: var(--superficie-2); border: 1px solid var(--borda); border-radius: var(--raio); }
+.deputado strong { display: block; }
+.deputado small { color: var(--texto-suave); }
+.deputado.vaga { background: none; border-style: dashed; }
+.deputado.vaga .iniciais { background: none; border-style: dashed; color: var(--texto-suave); font-size: 1.1rem; }
+.deputado.vaga strong { color: var(--texto-suave); font-weight: 600; }
+
+/* Candidatos */
+.candidatos-resumo { margin: -4px 0 16px; color: var(--texto-suave); font-size: 0.95rem; }
+.chapas { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 12px; align-items: start; }
+.chapa { padding: 18px; background: var(--superficie-2); border: 1px solid var(--borda); border-radius: var(--raio); }
+.chapa-topo { display: flex; gap: 14px; align-items: center; margin-bottom: 12px; }
+.chapa-foto, .deputado-foto { flex-shrink: 0; background-color: var(--superficie); background-repeat: no-repeat; border: 1px solid var(--borda); }
+.chapa-foto { width: 84px; height: 84px; border-radius: var(--raio); }
+.chapa-numero { display: block; font-size: 2.4rem; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
+.chapa-partido { display: block; margin-top: 4px; font-size: 0.8rem; color: var(--texto-suave); }
+.chapa-nome { display: block; font-size: 1.2rem; }
+.chapa-cargo { font-size: 0.85rem; color: var(--destaque); }
+.chapa-slogan { margin-top: 8px; color: var(--texto-suave); font-style: italic; }
+.candidato-deputado { display: flex; gap: 12px; padding: 10px 0; border-top: 1px solid var(--borda); }
+.deputado-foto { width: 48px; height: 48px; border-radius: 50%; }
+.candidato-deputado p { margin-top: 2px; font-size: 0.88rem; color: var(--texto-suave); }
+.numero-deputado { margin-left: 4px; font-size: 0.85rem; color: var(--texto-suave); font-variant-numeric: tabular-nums; }
+.propostas { margin-top: 10px; }
+.propostas summary { cursor: pointer; font-size: 0.88rem; font-weight: 600; color: var(--destaque); }
+.propostas ol { margin: 8px 0 0; padding-left: 18px; display: grid; gap: 8px; }
+.propostas li strong { display: block; font-size: 0.92rem; }
+.propostas li span { font-size: 0.88rem; color: var(--texto-suave); }
+
+/* Admin → Política */
+.admin-politica-linha { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; margin-bottom: 14px; }
+.admin-politica-linha .campo { flex: 1 1 160px; margin: 0; }
+.admin-politica-linha img, .admin-politica-linha .iniciais { width: 48px; height: 48px; margin: 0; font-size: 1rem; }
+
+/* =====================================================================
+   TEMA GLOBAL: HALLOWEEN
+   Ligado pelo admin, vale para todos e passa por cima da paleta de cada um.
+   (Fica no fim do arquivo para "ganhar" das paletas lá de cima.)
+   ===================================================================== */
+:root[data-tema-global="halloween"] {
+  --fundo: #120c14;
+  --superficie: #1b1320;
+  --superficie-2: #251a2b;
+  --borda: #382840;
+  --texto: #f3ece4;
+  --texto-suave: #a99aa6;
+  --placeholder: #6a5a66;
+  --destaque: #ff7a1a;
+  --sobre-destaque: #1a0d03;
+}
+
+:root[data-tema-global="halloween"] .logo { color: #ff7a1a; text-shadow: 0 0 10px rgba(255, 122, 26, 0.4); }
+:root[data-tema-global="halloween"] footer::after { content: " · Feliz Dia das Bruxas"; color: #ff7a1a; }
+
+/* ----- Título -----
+   Cada letra vira "cera de vela derretendo":
+   - cor de cera clara, com luz quente de vela por baixo, tremendo;
+   - gotas de cera escorrendo da base de algumas letras;
+   - chapéu de bruxa no "K" e um morcego pousado no último "e".
+   As gotas usam a MESMA cor da letra (currentColor) e ficam ATRÁS dela (z-index: -1),
+   então a parte de cima da gota some por trás da letra e parece sair de dentro dela.
+   O :where() deixa essas regras "fracas", para não atrapalhar a animação de entrada e o pulo das letras. */
+:where(:root[data-tema-global="halloween"]) .nome-grupo span {
+  position: relative;
+  isolation: isolate;   /* cria uma "camada" própria: o z-index -1 da gota fica atrás da letra, mas dentro dela */
+  color: #efe3cc;
+  animation: vela 3.2s ease-in-out infinite;
+}
+:where(:root[data-tema-global="halloween"]) .nome-grupo span:nth-child(even) { animation-delay: -1.1s; }
+/* As sombras ficam no "filter" (e não no text-shadow) para valer para a letra E para a gota juntas.
+   1ª sombra: borda de baixo mais escura (volume). 2ª: sombra no chão. 3ª: luz de vela, tremendo. */
+@keyframes vela {
+  0%, 100% { filter: drop-shadow(0 0.02em 0 #b9a27c) drop-shadow(0 0.04em 0.02em rgba(20, 8, 4, 0.6)) drop-shadow(0 0.03em 0.12em rgba(255, 140, 40, 0.35)); }
+  30%      { filter: drop-shadow(0 0.02em 0 #b9a27c) drop-shadow(0 0.04em 0.02em rgba(20, 8, 4, 0.6)) drop-shadow(0 0.03em 0.2em rgba(255, 150, 50, 0.6)); }
+  34%      { filter: drop-shadow(0 0.02em 0 #b9a27c) drop-shadow(0 0.04em 0.02em rgba(20, 8, 4, 0.6)) drop-shadow(0 0.03em 0.08em rgba(255, 130, 40, 0.25)); }
+  60%      { filter: drop-shadow(0 0.02em 0 #b9a27c) drop-shadow(0 0.04em 0.02em rgba(20, 8, 4, 0.6)) drop-shadow(0 0.03em 0.16em rgba(255, 140, 40, 0.45)); }
+}
+
+/* Gotas de cera. O desenho é uma gota comprida (com o pingo redondo na ponta), presa embaixo.
+   A caixa nasce ATRÁS da base da letra e só muda de altura: quanto mais alta, mais fio aparece,
+   e o pingo fica sempre na ponta. Letras: K (1ª), e (4ª), u (6ª) e s (8ª). */
+:where(:root[data-tema-global="halloween"]) .nome-grupo span:is(:nth-child(1), :nth-child(4), :nth-child(6), :nth-child(8))::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: 0.72em;
+  width: 0.11em;
+  height: 0.22em;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 11 60'%3E%3Cpath d='M0 0h11C8 0 7.5 4 7.5 8v41a4 4 0 1 1-4 0V8C3.5 4 3 0 0 0z' fill='%23efe3cc'/%3E%3C/svg%3E") no-repeat bottom / 100% auto;
+  animation: escorrer 7s ease-in-out infinite;
+}
+:where(:root[data-tema-global="halloween"]) .nome-grupo span:nth-child(1)::after { left: 21%; }
+:where(:root[data-tema-global="halloween"]) .nome-grupo span:nth-child(4)::after { left: 38%; animation-delay: -2.2s; }
+:where(:root[data-tema-global="halloween"]) .nome-grupo span:nth-child(6)::after { left: 68%; animation-delay: -3.8s; }
+:where(:root[data-tema-global="halloween"]) .nome-grupo span:nth-child(8)::after { left: 48%; animation-delay: -5.1s; }
+/* A gota desce devagar, segura um pouco e volta (como se a cera endurecesse) */
+@keyframes escorrer {
+  0%, 100% { height: 0.2em; }
+  65%, 85% { height: 0.46em; }
+}
+
+/* Chapéu de bruxa torto em cima do "K" */
+:where(:root[data-tema-global="halloween"]) .nome-grupo span:nth-child(1)::before {
+  content: "";
+  position: absolute;
+  left: -0.1em;
+  top: -0.36em;
+  width: 0.62em;
+  height: 0.52em;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 50'%3E%3Cpath d='M4 42c8-4 44-4 52 0 2 2-4 5-26 5S2 44 4 42z' fill='%23241a2e'/%3E%3Cpath d='M14 41L27 6c2-5 7-4 7 1l9 34z' fill='%23241a2e'/%3E%3Cpath d='M15 35h29l1.5 5h-32z' fill='%23ff7a1a'/%3E%3Crect x='26' y='34' width='7' height='7' rx='1' fill='none' stroke='%23ffcf5c' stroke-width='1.6'/%3E%3C/svg%3E") no-repeat center / contain;
+  transform: rotate(-14deg);
+}
+
+/* Morcego pousado no último "e", batendo as asas de vez em quando */
+:where(:root[data-tema-global="halloween"]) .nome-grupo span:nth-child(9)::before {
+  content: "";
+  position: absolute;
+  right: -0.2em;
+  top: -0.02em;
+  width: 0.44em;
+  height: 0.22em;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 50'%3E%3Cg fill='%232b2133' stroke='%23786a8a' stroke-width='1'%3E%3Cpath d='M47 21C40 14 28 10 16 9 10 9 5 11 2 15c5 0 8 3 9 7 4-3 9-2 11 2 3-3 8-3 11 1 3-3 8-2 11 3z'/%3E%3Cpath transform='translate(100 0) scale(-1 1)' d='M47 21C40 14 28 10 16 9 10 9 5 11 2 15c5 0 8 3 9 7 4-3 9-2 11 2 3-3 8-3 11 1 3-3 8-2 11 3z'/%3E%3Cpath d='M45.5 14 44.5 5.5 49 11zM54.5 14l1-8.5L51 11z'/%3E%3Ccircle cx='50' cy='16' r='5'/%3E%3Cellipse cx='50' cy='26' rx='5' ry='8.5'/%3E%3C/g%3E%3Ccircle cx='48.2' cy='15.6' r='1' fill='%23d9b860'/%3E%3Ccircle cx='51.8' cy='15.6' r='1' fill='%23d9b860'/%3E%3C/svg%3E") no-repeat center / contain;
+  transform: rotate(14deg);
+  transform-origin: 50% 80%;
+  animation: morcego-pousado 5s ease-in-out infinite;
+}
+@keyframes morcego-pousado {
+  0%, 80%, 100% { transform: rotate(14deg) scaleX(0.8); }
+  84%, 92% { transform: rotate(14deg) scaleX(1); }
+  88%, 96% { transform: rotate(14deg) scaleX(0.65); }
+}
+
+/* ----- Teias de aranha nos cantos (clique: a aranha desce pelo fio) ----- */
+/* A teia deixa os cliques passarem para o site; só o cantinho (.hw-alvo) é clicável */
+.hw-teia { position: fixed; top: 60px; z-index: 5; width: 150px; height: 150px; color: rgba(225, 220, 235, 0.35); pointer-events: none; }
+.hw-teia:has(.hw-alvo:hover) { color: rgba(240, 235, 250, 0.6); }
+.hw-alvo { position: absolute; left: 0; top: 0; width: 80px; height: 80px; pointer-events: auto; cursor: pointer; }
+.hw-teia.esquerda { left: 0; }
+.hw-teia.direita { right: 0; transform: scaleX(-1); }
+.hw-teia svg { display: block; width: 100%; height: 100%; }
+.hw-pendurada { position: absolute; left: 56px; top: 40px; display: flex; flex-direction: column; align-items: center; pointer-events: none; }
+.hw-fio { width: 1px; height: 14px; background: rgba(225, 220, 235, 0.6); }
+.hw-aranha { width: 22px; height: 22px; margin-top: -2px; }
+.hw-aranha svg { display: block; width: 100%; height: 100%; }
+.hw-teia.descendo .hw-fio { animation: fio-desce 3.2s ease-in-out; }
+.hw-teia.descendo .hw-aranha { animation: aranha-balanca 3.2s ease-in-out; }
+@keyframes fio-desce { 0%, 100% { height: 14px; } 40%, 60% { height: 180px; } }
+@keyframes aranha-balanca {
+  40%, 60% { transform: rotate(0); }
+  46% { transform: rotate(14deg); }
+  53% { transform: rotate(-14deg); }
+}
+
+/* ----- Morcegos voando no alto da tela (clique: o morcego foge) -----
+   A posição de cada morcego é calculada no tema.js (função voarMorcegos);
+   aqui fica só o desenho e a batida das asas. */
+.hw-ceu { position: fixed; top: 60px; left: 0; right: 0; height: 55vh; z-index: 6; overflow: hidden; pointer-events: none; }
+.hw-morcego {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 50px;
+  margin: -12px 0 0 -25px;     /* o ponto calculado fica no meio do morcego */
+  pointer-events: auto;
+  cursor: pointer;
+  will-change: transform;
+}
+.hw-morcego svg { display: block; width: 100%; overflow: visible; }
+/* Silhueta escura com um contorno fino e claro, para aparecer no céu escuro sem brilho */
+.hw-morcego .corpo-morcego { fill: #2b2133; stroke: #786a8a; stroke-width: 1; stroke-linejoin: round; }
+/* Cada asa gira em volta do ombro: lá em cima e lá embaixo, rápido */
+.hw-morcego .asa {
+  transform-box: fill-box;
+  transform-origin: 100% 60%;   /* o "ombro": lado da asa que encosta no corpo */
+  animation: bater-asas 0.16s ease-in-out infinite alternate;
+}
+/* Planando: asas abertas e paradas */
+.hw-morcego.planando .asa { animation: none; transform: rotate(-6deg); }
+@keyframes bater-asas {
+  from { transform: rotate(30deg) scaleY(0.85); }
+  to   { transform: rotate(-26deg); }
+}
+
+/* ----- Abóboras (clique: o rosto acende e pisca) ----- */
+.hw-abobora { z-index: 5; cursor: pointer; }
+.hw-abobora svg { display: block; width: 100%; height: auto; transition: transform 0.2s; }
+.hw-abobora:hover svg { transform: rotate(-6deg) scale(1.05); }
+.hw-abobora.acesa svg { animation: abobora-pula 0.5s ease-out, abobora-brilha 1.6s; }
+.hw-abobora.acesa .rosto { animation: abobora-acende 1.6s; }
+@keyframes abobora-pula { 30% { transform: translateY(-14px) scale(1.08); } 60% { transform: translateY(0) scale(0.97); } }
+@keyframes abobora-brilha {
+  10%, 30%, 60% { filter: drop-shadow(0 0 14px rgba(255, 200, 90, 0.85)); }
+  20%, 45% { filter: none; }
+}
+@keyframes abobora-acende {
+  0%, 100% { fill: #ffcf5c; }
+  10%, 30%, 60% { fill: #fff6c9; }
+  20%, 45% { fill: #4a2200; }
+}
+/* Cantinho de baixo, nas páginas internas: velas, abóbora e um doce */
+.hw-canto { position: fixed; left: 12px; bottom: 8px; z-index: 5; display: flex; align-items: flex-end; gap: 4px; }
+.hw-canto .hw-abobora { width: 58px; }
+
+/* ----- Céu da página inicial: lua (clique: chove doce), estrelas e neblina ----- */
+.hw-lua {
+  position: absolute;
+  top: 9%;
+  right: 12%;
+  width: clamp(56px, 8vw, 96px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #fff4d6, #f2d48a 60%, #d9b45f);
+  box-shadow: 0 0 40px 10px rgba(255, 214, 130, 0.18);
+  opacity: 0.85;
+  cursor: pointer;
+  transition: box-shadow 0.3s;
+}
+.hw-lua:hover { box-shadow: 0 0 60px 18px rgba(255, 214, 130, 0.3); }
+.hw-estrelas { position: absolute; inset: 0; pointer-events: none; }
+.hw-estrelas i {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: #f3e9d2;
+  animation: estrela 4s ease-in-out infinite;
+}
+@keyframes estrela { 0%, 100% { opacity: 0.15; } 50% { opacity: 0.9; } }
+.hw-neblina {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 220px;
+  pointer-events: none;
+  background: radial-gradient(ellipse 60% 100% at 50% 100%, rgba(140, 110, 170, 0.18), transparent 70%);
+}
+.capa .continua { z-index: 2; }
+
+/* ----- "Chão" da página inicial: lápides, abóboras, velas, doces e caldeirão ----- */
+.hw-chao { position: absolute; left: 0; right: 0; bottom: 0; height: 160px; pointer-events: none; }
+/* "div" deixa a regra mais forte que a de cada enfeite, para todos ficarem apoiados no chão */
+.hw-chao > div { position: absolute; bottom: 6px; pointer-events: auto; }
+.hw-chao > div.hw-lapide { bottom: -4px; }
+
+/* Varal de bandeirinhas embaixo do menu */
+.hw-varal { position: fixed; top: 58px; left: 150px; right: 150px; z-index: 4; overflow: hidden; pointer-events: none; display: flex; justify-content: center; }
+.hw-varal svg { display: block; flex-shrink: 0; }
+
+/* ----- Velas (clique: apaga, sai fumaça e reacende) ----- */
+.hw-vela { position: relative; cursor: pointer; filter: drop-shadow(0 -6px 10px rgba(255, 170, 60, 0.45)); }
+.hw-vela svg { display: block; width: 100%; height: auto; overflow: visible; }
+.hw-vela .chama { animation: chama 1.4s ease-in-out infinite alternate; }
+@keyframes chama {
+  0% { transform: scale(1, 1) rotate(-2deg); }
+  50% { transform: scale(0.92, 1.08) rotate(2deg); }
+  100% { transform: scale(1.04, 0.95) rotate(-1deg); }
+}
+.hw-vela.apagada { filter: none; }
+.hw-vela.apagada .chama { animation: chama-apaga 2.4s; }
+@keyframes chama-apaga { 0% { opacity: 1; } 8%, 80% { opacity: 0; transform: scale(0.2); } 100% { opacity: 1; } }
+.hw-vela.apagada::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: -10%;
+  width: 8px;
+  height: 8px;
+  margin-left: -4px;
+  border-radius: 50%;
+  background: rgba(200, 190, 210, 0.5);
+  animation: fumaca 1.6s ease-out forwards;
+}
+@keyframes fumaca { to { transform: translate(6px, -50px) scale(3); opacity: 0; } }
+
+/* ----- Doces (clique: pula e gira) ----- */
+.hw-doce { cursor: pointer; }
+.hw-doce svg { display: block; width: 100%; height: auto; }
+.hw-doce.pulando svg { animation: doce-pula 0.7s ease-out; }
+@keyframes doce-pula { 40% { transform: translateY(-34px) rotate(200deg); } 100% { transform: translateY(0) rotate(360deg); } }
+.hw-doce-caindo { position: fixed; top: -40px; z-index: 50; pointer-events: none; animation: doce-cai linear forwards; }
+.hw-doce-caindo svg { display: block; width: 100%; height: auto; }
+@keyframes doce-cai { to { transform: translateY(110vh) rotate(540deg); } }
+
+/* ----- Lápides (clique: treme) ----- */
+.hw-lapide { cursor: pointer; }
+.hw-lapide svg { display: block; width: 100%; height: auto; }
+.hw-lapide.tremendo svg { animation: lapide-treme 0.6s; }
+@keyframes lapide-treme { 20%, 60% { transform: rotate(-6deg); } 40%, 80% { transform: rotate(6deg); } }
+
+/* ----- Caldeirão (bolhas sobem sozinhas; clique: ferve e solta fumaça verde) ----- */
+.hw-caldeirao { cursor: pointer; filter: drop-shadow(0 0 14px rgba(95, 208, 104, 0.35)); }
+.hw-caldeirao svg { display: block; width: 100%; height: auto; overflow: visible; }
+.hw-caldeirao .bolhas circle { animation: bolha 2.2s ease-in infinite; }
+.hw-caldeirao .bolhas circle:nth-child(2) { animation-delay: -0.6s; }
+.hw-caldeirao .bolhas circle:nth-child(3) { animation-delay: -1.2s; }
+.hw-caldeirao .bolhas circle:nth-child(4) { animation-delay: -1.7s; }
+@keyframes bolha { 0% { transform: translateY(10px); opacity: 0; } 30% { opacity: 1; } 100% { transform: translateY(-22px); opacity: 0; } }
+.hw-caldeirao.fervendo { filter: drop-shadow(0 0 26px rgba(120, 240, 130, 0.8)); }
+.hw-caldeirao.fervendo .bolhas circle { animation-duration: 0.6s; }
+.hw-caldeirao.fervendo::after {
+  content: "";
+  position: absolute;
+  left: 20%;
+  top: -10%;
+  width: 60%;
+  height: 40%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(138, 240, 143, 0.55), transparent 70%);
+  animation: fumaca-verde 2s ease-out forwards;
+}
+@keyframes fumaca-verde { to { transform: translateY(-70px) scale(2.4); opacity: 0; } }
+
+/* ----- Fantasma espiando no canto (clique: "Buu!" e some) ----- */
+.hw-fantasma {
+  position: fixed;
+  right: 18px;
+  bottom: -14px;
+  z-index: 5;
+  width: 56px;
+  opacity: 0.92;
+  cursor: pointer;
+  animation: flutuar-fantasma 4s ease-in-out infinite;
+}
+.hw-fantasma svg { display: block; width: 100%; }
+.hw-fantasma.assustando svg { animation: fantasma-some 2.6s ease-in-out; }
+.hw-buu {
+  position: absolute;
+  bottom: 100%;
+  right: 10px;
+  padding: 4px 10px;
+  border-radius: 10px;
+  background: #f4f0ea;
+  color: #1d1622;
+  font-weight: 800;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+}
+.hw-fantasma.assustando .hw-buu { animation: buu 2.6s; }
+@keyframes flutuar-fantasma { 50% { transform: translateY(-10px); } }
+@keyframes fantasma-some {
+  15% { transform: translateY(-30px) scale(1.25); }
+  60% { transform: translateY(-120px) scale(0.6); opacity: 0; }
+  85% { transform: none; opacity: 0; }
+  100% { opacity: 1; }
+}
+@keyframes buu { 5%, 40% { opacity: 1; } 55%, 100% { opacity: 0; } }
+
+/* Celular: decorações menores */
+@media (max-width: 600px) {
+  .hw-teia { width: 90px; height: 90px; }
+  .hw-pendurada { left: 32px; top: 22px; }
+  .hw-varal { left: 90px; right: 90px; }
+  .hw-fantasma { width: 44px; }
+  .hw-canto .hw-abobora { width: 46px; }
+  .hw-chao { height: 120px; }
+  .hw-chao .some-celular { display: none; }
+}
+
+
+/* =====================================================================
+   ECONOMIA 2: saldo animado, trabalhos, minijogos, loja de equipamentos
+   ===================================================================== */
+.eco-saldo.subiu strong { animation: saldo-subiu 0.9s ease-out; }
+.eco-saldo.desceu strong { animation: saldo-desceu 0.9s ease-out; }
+@keyframes saldo-subiu { 20% { color: #4caf68; transform: scale(1.04); } }
+@keyframes saldo-desceu { 20% { color: var(--perigo); } }
+.eco-saldo strong { display: inline-block; transform-origin: left center; }
+
+/* Cartões de trabalho */
+.trabalho-jogo { margin-top: 6px !important; font-size: 0.82rem !important; font-weight: 600; color: var(--destaque) !important; }
+.trabalho-info s { color: var(--texto-suave); font-weight: 400; margin-right: 2px; }
+.trabalho-equip { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 12px; }
+.trabalho-equip span { padding: 2px 9px; font-size: 0.78rem; background: var(--superficie-2); border: 1px solid var(--borda); border-radius: 999px; }
+.trabalho-equip small { font-size: 0.8rem; color: var(--texto-suave); }
+.trabalho-acao { display: flex; gap: 8px; }
+.trabalho-acao .botao { flex: 1; width: auto; }
+
+/* Janela do turno (minijogo) */
+dialog.janela-jogo { width: min(620px, 96vw); padding: 18px; overflow-y: auto; }
+.mj-topo { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; }
+.mj-topo h2 { margin: 2px 0 0; font-size: 1.3rem; }
+.mj-placar { font-variant-numeric: tabular-nums; color: var(--destaque); white-space: nowrap; }
+.mj-tempo { height: 6px; margin: 12px 0 0; background: var(--superficie-2); border-radius: 3px; overflow: hidden; }
+.mj-tempo div { height: 100%; background: var(--destaque); border-radius: 3px; }
+.mj-tempo div.acabando { background: var(--perigo); }
+.mj-palco { position: relative; min-height: 300px; margin-top: 14px; user-select: none; -webkit-user-select: none; }
+.mj-intro p { margin: 0 0 10px; }
+.mj-botoes { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; }
+.mj-contagem { display: flex; align-items: center; justify-content: center; height: 300px; font-size: 6rem; font-weight: 900; color: var(--destaque); animation: contagem 0.65s ease-out; }
+@keyframes contagem { from { transform: scale(1.8); opacity: 0; } 40% { opacity: 1; } }
+.mj-fechando { padding: 120px 0; text-align: center; color: var(--texto-suave); }
+.mj-msg { min-height: 1.4em; margin: 12px 0 0; text-align: center; color: var(--texto-suave); }
+.mj-flutua { position: absolute; z-index: 3; font-weight: 800; pointer-events: none; transform: translate(-50%, -50%); animation: flutua 0.9s ease-out forwards; }
+.mj-flutua.ruim { color: var(--perigo); }
+@keyframes flutua { to { transform: translate(-50%, -160%); opacity: 0; } }
+
+/* Resultado do turno */
+.mj-resultado { position: relative; }
+.mj-nota { text-align: center; }
+.mj-nota strong { display: block; font-size: 3rem; font-weight: 900; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.mj-nota small { color: var(--texto-suave); }
+.mj-nota .barra-xp { max-width: 320px; margin: 10px auto 0; }
+.mj-nota .barra-xp div { transition: width 0.7s ease-out; }
+.mj-ganhos { list-style: none; padding: 0; margin: 20px 0 0; }
+.mj-ganhos li { display: flex; justify-content: space-between; gap: 10px; padding: 10px 0; border-top: 1px solid var(--borda); }
+.mj-ganhos b { font-variant-numeric: tabular-nums; }
+.mj-extra.apareceu { animation: extra-entra 0.5s ease-out; }
+.mj-extra.apareceu b { color: #4caf68; }
+.mj-extra.sem b { font-weight: 400; color: var(--texto-suave); }
+@keyframes extra-entra { from { transform: translateY(8px); opacity: 0; } 50% { background: var(--superficie-2); } }
+.mj-niveis p { margin: 10px 0 0; padding: 8px 12px; font-weight: 700; border-left: 4px solid var(--destaque); background: var(--superficie-2); border-radius: 6px; animation: extra-entra 0.4s ease-out; }
+
+/* 1) Entregador: mapa com ruas */
+.mj-mapa { position: relative; height: 300px; overflow: hidden; border: 1px solid var(--borda); border-radius: var(--raio);
+  background-color: var(--superficie-2);
+  background-image: repeating-linear-gradient(0deg, transparent 0 46px, var(--fundo) 46px 54px), repeating-linear-gradient(90deg, transparent 0 66px, var(--fundo) 66px 74px); }
+.mj-rota { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.mj-rota polyline { fill: none; stroke: var(--destaque); stroke-width: 0.8; stroke-dasharray: 2 1.5; vector-effect: non-scaling-stroke; stroke-width: 3; }
+.mj-ponto { position: absolute; width: 38px; height: 38px; margin: -19px 0 0 -19px; font: inherit; font-weight: 800; color: var(--texto); background: var(--superficie); border: 2px solid var(--borda); border-radius: 50%; cursor: pointer; transition: transform 0.12s, background 0.2s; }
+.mj-ponto:hover { transform: scale(1.1); }
+.mj-ponto.alvo { border-color: var(--destaque); animation: alvo 0.9s ease-in-out infinite; }
+.mj-ponto.feito { color: var(--sobre-destaque); background: var(--destaque); border-color: var(--destaque); cursor: default; }
+@keyframes alvo { 50% { box-shadow: 0 0 0 7px rgba(255, 255, 255, 0.08); } }
+
+/* 2) Churrasqueiro: grelha */
+.mj-grelha { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 12px; background: #1c1714; border: 1px solid var(--borda); border-radius: var(--raio);
+  background-image: repeating-linear-gradient(90deg, transparent 0 18px, #2c2420 18px 22px); }
+.mj-vaga { height: 128px; display: flex; align-items: center; justify-content: center; }
+.mj-carne { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 8px; font: inherit; color: var(--texto); background: rgba(0, 0, 0, 0.25); border: 1px solid #3a302a; border-radius: 10px; cursor: pointer; animation: surge 0.25s ease-out; }
+.mj-peca { width: 70%; height: 44px; border-radius: 22px; background: rgb(214, 120, 120); box-shadow: inset 0 -5px 0 rgba(0, 0, 0, 0.18); }
+.mj-carne small { font-size: 0.78rem; font-weight: 600; }
+.mj-assado { position: relative; width: 80%; height: 7px; background: #3a302a; border-radius: 4px; }
+.mj-assado i { position: absolute; top: 0; bottom: 0; background: #4caf68; border-radius: 4px; }
+.mj-assado b { position: absolute; top: -3px; width: 3px; height: 13px; margin-left: -1.5px; background: #fff; border-radius: 2px; }
+.mj-carne.fumaca .mj-peca { animation: fumega 0.4s ease-in-out infinite; }
+@keyframes fumega { 50% { transform: translateY(-2px); } }
+.mj-carne.saiu { pointer-events: none; animation: carne-sai 0.6s ease-in forwards; }
+.mj-carne.boa small { color: #4caf68; }
+.mj-carne.ruim small { color: var(--perigo); }
+@keyframes carne-sai { 40% { transform: scale(1.05); } to { transform: scale(0.6); opacity: 0; } }
+
+/* 3) DJ: pads */
+.mj-pads { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; max-width: 320px; margin: 10px auto 0; }
+.mj-pad { aspect-ratio: 1; border: none; border-radius: 16px; cursor: pointer; opacity: 0.35; transition: opacity 0.08s, transform 0.08s; }
+.mj-pad:disabled { cursor: default; }
+.mj-pad.aceso { opacity: 1; transform: scale(0.96); }
+.pad-0 { background: #e5484d; } .pad-1 { background: #f2c94c; } .pad-2 { background: #4ea1ff; } .pad-3 { background: #5fbf77; }
+
+/* 4) Programador: linhas de código */
+.mj-codigo { padding: 8px 0; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 0.85rem; background: var(--fundo); border: 1px solid var(--borda); border-radius: var(--raio); }
+.mj-linha { position: relative; display: flex; align-items: center; gap: 12px; height: 38px; padding: 0 12px; transition: background 0.2s; }
+.mj-num { width: 18px; text-align: right; color: var(--texto-suave); opacity: 0.6; }
+.mj-linha code { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--texto-suave); }
+.mj-linha.corrigida { background: rgba(76, 175, 104, 0.18); }
+.mj-linha.quebrou, .mj-linha.escapou { background: rgba(229, 72, 77, 0.18); }
+.mj-bug, .mj-ok { position: absolute; top: 50%; width: 42px; height: 42px; margin-top: -21px; padding: 2px; background: none; border: none; cursor: pointer; animation: bug-entra 0.18s ease-out; }
+.mj-bug svg { width: 100%; height: 100%; animation: bug-mexe 0.25s ease-in-out infinite; }
+.mj-ok { font-size: 1.2rem; font-weight: 900; color: #4caf68; background: var(--superficie-2); border: 1px solid var(--borda); border-radius: 6px; }
+.mj-bug.sumindo, .mj-ok.sumindo { animation: bug-sai 0.2s ease-in forwards; }
+@keyframes bug-entra { from { transform: scale(0); } }
+@keyframes bug-sai { to { transform: scale(0); opacity: 0; } }
+@keyframes bug-mexe { 50% { transform: rotate(8deg); } }
+
+/* 5) Empresário: barra de negociação */
+.mj-negocio { padding-top: 10px; text-align: center; }
+.mj-barra-negocio { position: relative; height: 54px; margin: 18px 0 6px; background: var(--superficie-2); border: 1px solid var(--borda); border-radius: var(--raio); cursor: pointer; overflow: hidden; }
+.mj-faixa { position: absolute; top: 0; bottom: 0; background: rgba(76, 175, 104, 0.35); border-left: 2px solid #4caf68; border-right: 2px solid #4caf68; }
+.mj-marcador { position: absolute; top: 4px; bottom: 4px; width: 6px; margin-left: -3px; background: var(--texto); border-radius: 3px; }
+.mj-marcador.bom { background: #4caf68; }
+.mj-marcador.ruim { background: var(--perigo); }
+.mj-escala { display: flex; justify-content: space-between; font-size: 0.78rem; color: var(--texto-suave); }
+.mj-fechar { margin-top: 18px; min-width: 200px; }
+.mj-acordos { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; list-style: none; padding: 0; margin: 16px 0 0; }
+.mj-acordos li { padding: 3px 10px; font-size: 0.8rem; border-radius: 999px; border: 1px solid var(--borda); animation: surge 0.3s ease-out; }
+.mj-acordos li.bom { color: #4caf68; border-color: #4caf68; }
+.mj-acordos li.ruim { color: var(--texto-suave); }
+
+/* Moedinhas caindo (prêmios) */
+.cassino-mesa, .mj-resultado { position: relative; }
+.chuva-moedas { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 5; }
+.chuva-moedas i { position: absolute; top: 0; width: 16px; height: 16px; border-radius: 50%; background: #e6b84a; border: 2px solid #c99a2e; }
+
+/* Loja: profissões e linhas de progressão */
+.profissoes { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.profissoes button { padding: 7px 14px; font: inherit; font-size: 0.88rem; font-weight: 600; color: var(--texto-suave); background: var(--superficie); border: 1px solid var(--borda); border-radius: 8px; cursor: pointer; }
+.profissoes button.ativa { color: var(--texto); border-color: var(--destaque); box-shadow: inset 0 -2px 0 var(--destaque); }
+.loja-prof-topo { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 8px; }
+.loja-prof-topo h2 { margin-bottom: 4px; }
+.loja-bonus { display: flex; flex-wrap: wrap; gap: 4px; justify-content: flex-end; max-width: 420px; }
+.loja-bonus span { padding: 3px 10px; font-size: 0.8rem; font-weight: 600; color: #4caf68; border: 1px solid #4caf68; border-radius: 999px; }
+.loja-bonus small { color: var(--texto-suave); font-size: 0.85rem; }
+.trilha { padding: 16px 0 4px; border-top: 1px solid var(--borda); margin-top: 12px; }
+.trilha-nome { display: block; margin-bottom: 10px; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--texto-suave); }
+.trilha-passos { display: flex; gap: 26px; overflow-x: auto; padding-bottom: 6px; }
+.equip { position: relative; flex: 0 0 220px; display: flex; flex-direction: column; gap: 6px; padding: 14px; background: var(--superficie-2); border: 1px solid var(--borda); border-radius: var(--raio); }
+/* a "linha" ligando um passo ao próximo */
+.equip + .equip::before { content: ""; position: absolute; left: -27px; top: 50%; width: 26px; height: 2px; background: var(--borda); }
+.equip.tem + .equip::before { background: var(--destaque); }
+.equip.tem { border-color: var(--destaque); }
+.equip.superado { opacity: 0.6; }
+.equip.bloqueado { opacity: 0.55; }
+.equip.acabou-de-comprar { animation: comprou 0.8s ease-out; }
+@keyframes comprou { 30% { transform: scale(1.04); box-shadow: 0 0 0 4px var(--destaque); } }
+.equip-topo { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.equip h3 { font-size: 1rem; }
+.equip-check { font-weight: 900; color: var(--destaque); }
+.equip > p { flex: 1; font-size: 0.85rem; color: var(--texto-suave); }
+.equip-efeitos { display: flex; flex-wrap: wrap; gap: 4px; }
+.equip-efeitos span { padding: 2px 8px; font-size: 0.75rem; background: var(--superficie); border: 1px solid var(--borda); border-radius: 999px; }
+.equip-preco { display: flex; justify-content: space-between; align-items: baseline; margin-top: 4px; }
+.equip-preco b { color: var(--destaque); }
+.equip-preco small { font-size: 0.78rem; color: var(--texto-suave); }
+.equip .botao { width: 100%; font-size: 0.88rem; }
+@media (max-width: 600px) {
+  .trilha-passos { flex-direction: column; gap: 14px; }
+  .equip { flex-basis: auto; }
+  .equip + .equip::before { left: 50%; top: -15px; width: 2px; height: 14px; }
+}
+.inventario span.de-trabalho { border-color: var(--destaque); }
+
+/* =====================================================================
+   ECONOMIA 3: itens com atributos (loja e admin)
+   ===================================================================== */
+.efeitos-ativos { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 16px; }
+.efeitos-ativos h2 { width: 100%; margin-bottom: 2px; }
+.efeitos-ativos span { padding: 5px 12px; font-size: 0.88rem; border: 1px solid var(--destaque); border-radius: 999px; }
+.efeitos-ativos small { margin-left: 4px; color: var(--destaque); font-variant-numeric: tabular-nums; }
+.item-foto { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 8px; background: var(--superficie-2); }
+.item-tipo { font-size: 0.78rem; color: var(--texto-suave); }
+.item-loja-info s, .equip-preco s { font-weight: 400; color: var(--texto-suave); }
+.item-inv { display: inline-flex; align-items: center; gap: 6px; }
+.item-inv .botao-link { font-size: 0.82rem; }
+
+.form-item fieldset { margin: 14px 0 0; padding: 12px 14px 4px; border: 1px solid var(--borda); border-radius: var(--raio); }
+.form-item legend { padding: 0 6px; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--texto-suave); }
+.modelos-item { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 0.88rem; color: var(--texto-suave); }
+.item-basico { display: grid; grid-template-columns: 150px 1fr; gap: 16px; }
+@media (max-width: 600px) { .item-basico { grid-template-columns: 1fr; } .item-imagem { max-width: 160px; } }
+.item-imagem { display: flex; flex-direction: column; gap: 8px; align-items: stretch; }
+.item-foto-previa { display: flex; align-items: center; justify-content: center; aspect-ratio: 1; overflow: hidden; font-size: 0.82rem; color: var(--texto-suave); background: var(--superficie-2); border: 1px dashed var(--borda); border-radius: 8px; }
+.item-foto-previa img { width: 100%; height: 100%; object-fit: cover; }
+.campos-efeito { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 0 14px; }
+.campos-efeito .campo small { display: block; margin-top: 4px; font-size: 0.75rem; color: var(--texto-suave); }
+
+.lista-itens-admin li, .lista-equip-admin li { flex-wrap: wrap; }
+.lista-itens-admin .extrato-desc, .lista-equip-admin .extrato-desc { flex: 1; min-width: 200px; }
+.item-mini { flex: 0 0 40px; width: 40px; height: 40px; object-fit: cover; border-radius: 6px; background: var(--superficie-2); }
+.edicao-rapida { display: inline-flex; align-items: center; gap: 8px; font-size: 0.82rem; color: var(--texto-suave); }
+.edicao-rapida input { width: 84px; padding: 5px 7px; font: inherit; color: var(--texto); background: var(--superficie-2); border: 1px solid var(--borda); border-radius: 6px; }
+.admin-prof { margin: 16px 0 6px; font-size: 1rem; }

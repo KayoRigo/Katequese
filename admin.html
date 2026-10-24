@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="carregando">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Administração · Katequese</title>
+  <meta name="robots" content="noindex">
+  <link rel="stylesheet" href="style.css">
+  <script src="tema.js"></script>
+</head>
+
+<body>
+  <!-- O menu é preenchido pelo menu.js (a aba Admin só aparece para administradores) -->
+  <header id="menu"></header>
+
+  <main>
+    <div class="cabecalho-pagina">
+      <div>
+        <h1>Administração</h1>
+        <p>Cadastros, tags e conteúdo do site.</p>
+      </div>
+    </div>
+
+    <nav class="admin-nav">
+      <a href="#sec-pessoas">Pessoas</a>
+      <a href="#sec-cadastro">Cadastro</a>
+      <a href="#sec-tema">Tema do site</a>
+      <a href="#sec-semana">Membro da semana</a>
+      <a href="#sec-politica">Política</a>
+      <a href="#sec-tags">Tags</a>
+      <a href="#sec-uso">Uso do espaço</a>
+      <a href="#sec-frases">Frases</a>
+    </nav>
+
+    <div class="admin-secoes">
+      <!-- PESSOAS: pedidos de cadastro e membros -->
+      <section class="caixa" id="sec-pessoas">
+        <h2>Pessoas</h2>
+        <p class="dica-admin">Quem se cadastra entra como visitante (ou já como Katequista, se desligar em Cadastro). Dê a tag Katequista para liberar o acesso completo. As ações desta seção valem na hora.</p>
+        <div id="lista-pessoas"></div>
+      </section>
+
+      <!-- CADASTRO: novos cadastros entram como Visitante ou já como Katequista -->
+      <section class="caixa" id="sec-cadastro">
+        <h2>Cadastro</h2>
+        <label class="opcao-tema">
+          <input type="checkbox" id="visitantes-ativos">
+          <span><strong>Novos cadastros entram como Visitante</strong>
+            <small>Desligado: quem se cadastrar já entra como Katequista (bom para quando mandar o link no grupo).
+              Ligado: entra como Visitante e você libera um por um. Não muda quem já tem conta. Muda na hora.</small></span>
+        </label>
+        <p class="progresso" id="cadastro-msg"></p>
+      </section>
+
+      <!-- TEMA DO SITE (vale para todos) -->
+      <section class="caixa" id="sec-tema">
+        <h2>Tema do site</h2>
+        <p class="dica-admin">Vale para todo mundo e passa por cima da paleta que cada um escolheu.
+          Com "Nenhum", cada pessoa volta a ver a própria paleta. Muda na hora.</p>
+        <div class="temas-globais" id="temas-globais"></div>
+        <p class="progresso" id="tema-msg"></p>
+      </section>
+
+      <!-- MEMBRO DA SEMANA -->
+      <section class="caixa" id="sec-semana">
+        <h2>Membro da semana</h2>
+        <p class="dica-admin">Aparece na página inicial. A foto pode ser qualquer imagem.</p>
+        <div class="editor-semana">
+          <div>
+            <div id="semana-foto"></div>
+            <input id="semana-arquivo" type="file" accept="image/*" hidden>
+            <button class="botao-pequeno" id="semana-trocar" style="margin-top: 8px; width: 140px">Escolher foto</button>
+          </div>
+          <div>
+            <label class="campo"><span>Nome</span><input id="semana-nome" maxlength="40"></label>
+            <label class="campo"><span>O que ele(a) fez</span><textarea id="semana-descricao" rows="3" maxlength="300"></textarea></label>
+            <div class="acoes">
+              <button class="botao" id="semana-salvar">Salvar membro da semana</button>
+              <button class="botao-pequeno perigo" id="semana-limpar">Remover</button>
+            </div>
+            <p class="progresso" id="semana-msg"></p>
+          </div>
+        </div>
+      </section>
+
+      <!-- POLÍTICA: presidente, deputados, datas da eleição e link da votação -->
+      <section class="caixa" id="sec-politica">
+        <h2>Política</h2>
+        <div id="politica-form">
+          <p class="rotulo">Presidente</p>
+          <div class="admin-politica-linha" data-vaga="presidente"></div>
+          <label class="campo" style="max-width: 220px"><span>No cargo desde (opcional)</span><input id="pol-desde" type="date"></label>
+
+          <p class="rotulo" style="margin-top: 22px">Deputados (deixe o nome vazio para "Vaga aberta")</p>
+          <div class="admin-politica-linha" data-vaga="0"></div>
+          <div class="admin-politica-linha" data-vaga="1"></div>
+          <div class="admin-politica-linha" data-vaga="2"></div>
+          <div class="admin-politica-linha" data-vaga="3"></div>
+
+          <p class="rotulo" style="margin-top: 22px">Eleição</p>
+          <div class="grade-campos">
+            <label class="campo"><span>Votação abre</span><input id="pol-abre" type="datetime-local"></label>
+            <label class="campo"><span>Votação fecha</span><input id="pol-fecha" type="datetime-local"></label>
+          </div>
+          <label class="campo"><span>Link do site da votação (só Katequistas veem)</span><input id="pol-link" type="url" placeholder="https://..."></label>
+          <input id="pol-arquivo" type="file" accept="image/*" hidden>
+          <button class="botao" id="pol-salvar">Salvar política</button>
+          <p class="progresso" id="pol-msg"></p>
+        </div>
+      </section>
+
+      <!-- TAGS -->
+      <section class="caixa" id="sec-tags">
+        <h2>Tags</h2>
+        <p class="dica-admin">Crie tags com nome e cor e escolha quem recebe cada uma. As ações desta seção valem na hora.
+          Quem tem <b>Katequista</b> tem acesso completo; os outros aprovados são <b>Visitantes</b> e só veem o que for liberado para eles.</p>
+        <form class="nova-tag" id="form-tag">
+          <label class="campo"><span>Nome da tag</span><input id="tag-nome" maxlength="30" required></label>
+          <label class="campo"><span>Cor</span><input id="tag-cor" type="color" value="#f26b3a"></label>
+          <button class="botao" type="submit">Criar tag</button>
+        </form>
+        <div id="lista-tags"></div>
+      </section>
+
+      <!-- USO DO ESPAÇO (limites do plano grátis do Supabase) -->
+      <section class="caixa" id="sec-uso">
+        <h2>Uso do espaço</h2>
+        <p class="dica-admin">Limites do plano grátis do Supabase. Quando uma barra passar de 80%, ela fica vermelha.</p>
+        <div class="usos" id="usos"></div>
+      </section>
+
+      <!-- FRASES -->
+      <section class="caixa" id="sec-frases">
+        <h2>Frases</h2>
+        <p class="dica-admin">Uma frase por linha. Linhas vazias são ignoradas.</p>
+        <label class="campo"><span>Frases da página inicial (embaixo do nome)</span><textarea id="t-lemas" rows="5"></textarea></label>
+        <label class="campo"><span>Frases ao clicar nas letras do nome</span><textarea id="t-gritos" rows="6"></textarea></label>
+        <label class="campo"><span>Frase do dia</span><textarea id="t-sabedorias" rows="6"></textarea></label>
+      </section>
+    </div>
+  </main>
+
+  <!-- Barra fixa com o botão de salvar (vale para as Frases) -->
+  <div class="barra-salvar">
+    <span id="status">Nenhuma alteração.</span>
+    <button class="botao" id="salvar">Salvar</button>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+  <script src="config.js"></script>
+  <script src="dados.js"></script>
+  <script src="menu.js"></script>
+  <script src="banco.js"></script>
+  <script type="module">
+    // Só entra quem é administrador. Os outros voltam para a página inicial.
+    // (E mesmo que alguém burle isso, o banco recusa as alterações de quem não é admin.)
+    const eu = await iniciarPagina({ soAdmin: true });
+
+    // Atalho para não escrever document.getElementById toda hora
+    const $ = (id) => document.getElementById(id);
+
+    // Lista de todas as pessoas cadastradas (usada em Pessoas e em Tags)
+    let pessoas = [];
+    async function carregarPessoas() {
+      const { data } = await sb.from("perfis").select("*").order("criado_em");
+      pessoas = data || [];
+    }
+    const aprovados = () => pessoas.filter(p => p.status === "aprovado")
+      .sort((a, b) => a.nome.localeCompare(b.nome));
+
+    // ================= PESSOAS =================
+    const ORDEM_STATUS = { pendente: 0, aprovado: 1, recusado: 2 };
+
+    async function mostrarPessoas() {
+      const ordenadas = [...pessoas].sort((a, b) => ORDEM_STATUS[a.status] - ORDEM_STATUS[b.status]);
+      const links = await linksDosArquivos(ordenadas.map(p => p.foto_path));
+
+      // A tag "Katequista" é a que dá acesso completo ao site
+      const idKatequista = tags.find(t => t.sistema && t.nome === "Katequista")?.id;
+      const ehKatequista = (p) => p.admin || donos.some(d => d.perfil_id === p.id && d.tag_id === idKatequista);
+
+      $("lista-pessoas").innerHTML = ordenadas.map(p => {
+        const souEu = p.id === eu.id;
+        let botoes = "";
+        if (p.status === "pendente") {
+          botoes = `<button class="botao-pequeno" data-acao="aprovar" data-id="${p.id}">Aprovar</button>
+                    <button class="botao-pequeno perigo" data-acao="recusar" data-id="${p.id}">Recusar</button>`;
+        } else if (p.status === "aprovado" && !souEu) {
+          // Admin é sempre katequista, então só aparece o botão para quem não é admin
+          const botaoAcesso = !p.admin && idKatequista
+            ? `<button class="botao-pequeno" data-katequista="${ehKatequista(p) ? "tirar" : "dar"}" data-id="${p.id}">
+                 ${ehKatequista(p) ? "Tornar visitante" : "Tornar katequista"}</button>`
+            : "";
+          botoes = `${botaoAcesso}
+                    <button class="botao-pequeno" data-acao="${p.admin ? "tirar-admin" : "dar-admin"}" data-id="${p.id}">
+                      ${p.admin ? "Remover admin" : "Tornar admin"}</button>
+                    <button class="botao-pequeno perigo" data-acao="recusar" data-id="${p.id}">Bloquear</button>`;
+        } else if (p.status === "recusado") {
+          botoes = `<button class="botao-pequeno" data-acao="aprovar" data-id="${p.id}">Desbloquear</button>`;
+        }
+
+        return `
+          <div class="pessoa">
+            ${htmlAvatar(p, links[p.foto_path], "pequena")}
+            <div class="info">
+              <strong>${esc(p.nome)}</strong>
+              ${p.status === "recusado" ? '<span class="etiqueta recusado">bloqueado</span>' : ""}
+              ${p.status === "pendente" ? '<span class="etiqueta pendente">pendente</span>' : ""}
+              ${p.admin ? '<span class="etiqueta admin">admin</span>' : ""}
+              ${p.status === "aprovado" && idKatequista
+                ? `<span class="etiqueta ${ehKatequista(p) ? "aprovado" : ""}">${ehKatequista(p) ? "katequista" : "visitante"}</span>` : ""}
+              <small>@${esc(p.usuario)}${souEu ? " (você)" : ""} · cadastro em ${new Date(p.criado_em).toLocaleDateString("pt-BR")}</small>
+            </div>
+            <div class="acoes">${botoes}</div>
+          </div>`;
+      }).join("");
+    }
+
+    // O que cada botão muda no perfil da pessoa
+    const ACOES = {
+      "aprovar":     { status: "aprovado" },
+      "recusar":     { status: "recusado", admin: false },
+      "dar-admin":   { admin: true },
+      "tirar-admin": { admin: false },
+    };
+
+    $("lista-pessoas").addEventListener("click", async (e) => {
+      const botao = e.target.closest("[data-acao], [data-katequista]");
+      if (!botao) return;
+      botao.disabled = true;
+      let error;
+      if (botao.dataset.katequista) {
+        // Dar ou tirar a tag Katequista (o banco troca a tag Visitante sozinho)
+        const idKatequista = tags.find(t => t.sistema && t.nome === "Katequista").id;
+        ({ error } = botao.dataset.katequista === "dar"
+          ? await sb.from("perfil_tags").insert({ perfil_id: botao.dataset.id, tag_id: idKatequista })
+          : await sb.from("perfil_tags").delete().eq("perfil_id", botao.dataset.id).eq("tag_id", idKatequista));
+      } else {
+        ({ error } = await sb.from("perfis").update(ACOES[botao.dataset.acao]).eq("id", botao.dataset.id));
+      }
+      if (error) await avisarJanela("Não foi possível alterar: " + error.message);
+      await recarregar();
+    });
+
+    // Aprovar, dar admin ou Katequista mexe nas tags também: recarrega tudo
+    async function recarregar() {
+      await Promise.all([carregarPessoas(), carregarTags()]);
+      mostrarTags();
+      await mostrarPessoas();
+
+      // Atualiza a bolinha de pendentes no menu
+      const pendentes = pessoas.filter(p => p.status === "pendente").length;
+      const bolinha = document.querySelector('#menu a[href="admin.html"] .bolinha');
+      if (bolinha && pendentes) bolinha.textContent = pendentes;
+      else if (bolinha) bolinha.remove();
+    }
+
+    // ================= TEMA DO SITE =================
+    // As opções vêm da lista TEMAS_GLOBAIS (tema.js). "Nenhum" = cada um usa a própria paleta.
+    const temaAtual = dados.temaGlobal || "";
+    $("temas-globais").innerHTML = [{ id: "", nome: "Nenhum", descricao: "Cada pessoa usa a própria paleta" }, ...TEMAS_GLOBAIS]
+      .map(t => `
+        <label class="opcao-tema">
+          <input type="radio" name="tema-global" value="${t.id}" ${t.id === temaAtual ? "checked" : ""}>
+          <span><strong>${esc(t.nome)}</strong><small>${esc(t.descricao)}</small></span>
+        </label>`).join("");
+
+    $("temas-globais").addEventListener("change", async (e) => {
+      const escolhido = e.target.value || null;
+      $("tema-msg").textContent = "Salvando...";
+      try {
+        await gravarNaConfig("temaGlobal", escolhido);
+        $("tema-msg").textContent = escolhido ? "Tema ligado para todos." : "Tema desligado. Cada um volta à própria paleta.";
+        setTimeout(() => location.reload(), 700); // recarrega para você já ver como ficou
+      } catch (erro) {
+        $("tema-msg").textContent = "Não foi possível salvar: " + erro.message;
+      }
+    });
+
+    // ================= CADASTRO (visitantes ligados ou não) =================
+    // Fica na config como "visitantesAtivos"; sem valor = ligado. O banco lê isso no cadastro.
+    $("visitantes-ativos").checked = dados.visitantesAtivos !== false;
+    $("visitantes-ativos").addEventListener("change", async (e) => {
+      const ligado = e.target.checked;
+      $("cadastro-msg").textContent = "Salvando...";
+      try {
+        await gravarNaConfig("visitantesAtivos", ligado);
+        $("cadastro-msg").textContent = ligado
+          ? "Ligado: novos cadastros entram como Visitante."
+          : "Desligado: novos cadastros já entram como Katequista.";
+      } catch (erro) {
+        e.target.checked = !ligado;
+        $("cadastro-msg").textContent = "Não foi possível salvar: " + erro.message;
+      }
+    });
+
+    // ================= MEMBRO DA SEMANA =================
+    // Rascunho próprio: só vai para o banco no botão "Salvar membro da semana"
+    let semana = { nome: "", descricao: "", foto: null, ...(dados.membroSemana || {}) };
+    const fotoOriginal = semana.foto;
+
+    async function mostrarSemana() {
+      const link = (await linksDosArquivos([semana.foto]))[semana.foto];
+      $("semana-foto").innerHTML = link
+        ? `<img class="foto-semana" src="${esc(link)}" alt="" style="width: 140px; height: 140px; border-radius: 8px; object-fit: cover">`
+        : `<div class="foto-semana iniciais" style="width: 140px; height: 140px; border-radius: 8px; margin: 0">?</div>`;
+      $("semana-nome").value = semana.nome;
+      $("semana-descricao").value = semana.descricao;
+    }
+    await mostrarSemana();
+
+    $("semana-trocar").addEventListener("click", () => $("semana-arquivo").click());
+    $("semana-arquivo").addEventListener("change", async () => {
+      const arquivo = $("semana-arquivo").files[0];
+      if (!arquivo) return;
+      $("semana-msg").textContent = "Enviando foto...";
+      try {
+        semana.foto = await enviarArquivo("semana", await reduzirImagem(arquivo, 800));
+        semana.nome = $("semana-nome").value;
+        semana.descricao = $("semana-descricao").value;
+        await mostrarSemana();
+        $("semana-msg").textContent = "Foto pronta. Clique em \"Salvar membro da semana\".";
+      } catch (erro) {
+        $("semana-msg").textContent = "Não foi possível enviar: " + erro.message;
+      }
+      $("semana-arquivo").value = "";
+    });
+
+    // Grava só UMA parte da config (ex: "membroSemana"), sem mexer no resto
+    async function gravarNaConfig(chave, valor) {
+      const { data: atual } = await sb.from("config").select("dados").eq("id", 1).single();
+      const { error } = await sb.from("config").update({ dados: { ...atual.dados, [chave]: valor } }).eq("id", 1);
+      if (error) throw error;
+      rascunho[chave] = valor; // mantém o rascunho geral em dia
+    }
+    const gravarSemana = (valor) => gravarNaConfig("membroSemana", valor);
+
+    $("semana-salvar").addEventListener("click", async () => {
+      semana.nome = $("semana-nome").value.trim();
+      semana.descricao = $("semana-descricao").value.trim();
+      if (!semana.nome) return $("semana-msg").textContent = "Coloque pelo menos o nome.";
+      try {
+        await gravarSemana(semana);
+        $("semana-msg").textContent = "Salvo. Já aparece na página inicial.";
+      } catch (erro) {
+        $("semana-msg").textContent = "Não foi possível salvar: " + erro.message;
+      }
+    });
+
+    $("semana-limpar").addEventListener("click", async () => {
+      if (!(await confirmar("Tirar o membro da semana da página inicial?", "Remover"))) return;
+      await gravarSemana(null);
+      await apagarArquivo(semana.foto);
+      if (fotoOriginal && fotoOriginal !== semana.foto) await apagarArquivo(fotoOriginal);
+      semana = { nome: "", descricao: "", foto: null };
+      await mostrarSemana();
+      $("semana-msg").textContent = "Removido.";
+    });
+
+    // ================= POLÍTICA =================
+    // Rascunho próprio: só vai para o banco no botão "Salvar política".
+    // Se o supabase-6.sql ainda não rodou, a seção mostra um aviso no lugar do formulário.
+    const { data: polBanco, error: erroPol } = await sb.from("politica").select("*").eq("id", 1).maybeSingle();
+    const { data: linkBanco } = await sb.from("politica_link").select("link").eq("id", 1).maybeSingle();
+
+    if (erroPol || !polBanco) {
+      $("politica-form").innerHTML = `<p class="aviso">Rode o <b>supabase-6.sql</b> no Supabase para liberar esta parte.</p>`;
+    } else {
+      // vagas: "presidente" e 0..3 (deputados). Cada uma guarda { nome, foto }.
+      const vagas = {
+        presidente: { nome: polBanco.presidente_nome || "", partido: polBanco.presidente_partido || "", foto: polBanco.presidente_foto || null },
+      };
+      [0, 1, 2, 3].forEach(i => {
+        const d = polBanco.deputados[i] || {};
+        vagas[i] = { nome: d.nome || "", partido: d.partido || "", foto: d.foto || null };
+      });
+      const fotosAntigas = Object.values(vagas).map(v => v.foto).filter(Boolean);
+      let vagaDaFoto = null; // qual vaga está escolhendo foto agora
+
+      // Data do banco ("2026-10-24T03:00:00+00:00") → valor do campo ("2026-10-24T00:00", no horário local)
+      const paraCampo = (iso) => {
+        if (!iso) return "";
+        const d = new Date(iso);
+        return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+      };
+      $("pol-desde").value = polBanco.mandato_desde || "";
+      $("pol-abre").value = paraCampo(polBanco.eleicao_abre);
+      $("pol-fecha").value = paraCampo(polBanco.eleicao_fecha);
+      $("pol-link").value = linkBanco?.link || "";
+
+      // Guarda o que já foi digitado antes de redesenhar as linhas
+      const lerNomes = () => document.querySelectorAll("[data-vaga]").forEach(linha => {
+        vagas[linha.dataset.vaga].nome = linha.querySelector("[data-campo=nome]").value;
+        vagas[linha.dataset.vaga].partido = linha.querySelector("[data-campo=partido]").value;
+      });
+
+      async function mostrarVagas() {
+        const links = await linksDosArquivos(Object.values(vagas).map(v => v.foto));
+        document.querySelectorAll("[data-vaga]").forEach(linha => {
+          const chave = linha.dataset.vaga;
+          const v = vagas[chave];
+          const rotulo = chave === "presidente" ? "Nome do presidente" : `Deputado ${Number(chave) + 1}`;
+          linha.innerHTML = `
+            ${htmlAvatar({ nome: v.nome || "?" }, links[v.foto])}
+            <label class="campo"><span>${rotulo}</span><input data-campo="nome" maxlength="60" value="${esc(v.nome)}"></label>
+            <label class="campo"><span>Partido</span><input data-campo="partido" maxlength="60" placeholder="Ex: PC · Partido Cuiudo" value="${esc(v.partido)}"></label>
+            <button class="botao-pequeno" data-foto="${chave}">Foto</button>
+            ${v.foto ? `<button class="botao-pequeno perigo" data-tirar-foto="${chave}">Tirar foto</button>` : ""}`;
+        });
+      }
+      await mostrarVagas();
+
+      $("politica-form").addEventListener("click", async (e) => {
+        const botaoFoto = e.target.closest("[data-foto]");
+        const botaoTirar = e.target.closest("[data-tirar-foto]");
+        if (botaoFoto) {
+          vagaDaFoto = botaoFoto.dataset.foto;
+          $("pol-arquivo").click();
+        } else if (botaoTirar) {
+          lerNomes();
+          vagas[botaoTirar.dataset.tirarFoto].foto = null;
+          await mostrarVagas();
+          $("pol-msg").textContent = "Foto retirada. Clique em \"Salvar política\".";
+        }
+      });
+
+      $("pol-arquivo").addEventListener("change", async () => {
+        const arquivo = $("pol-arquivo").files[0];
+        if (!arquivo || vagaDaFoto === null) return;
+        $("pol-msg").textContent = "Enviando foto...";
+        try {
+          lerNomes();
+          vagas[vagaDaFoto].foto = await enviarArquivo("politica", await reduzirImagem(arquivo, 800));
+          await mostrarVagas();
+          $("pol-msg").textContent = "Foto pronta. Clique em \"Salvar política\".";
+        } catch (erro) {
+          $("pol-msg").textContent = "Não foi possível enviar: " + erro.message;
+        }
+        $("pol-arquivo").value = "";
+      });
+
+      $("pol-salvar").addEventListener("click", async () => {
+        lerNomes();
+        const abre = $("pol-abre").value, fecha = $("pol-fecha").value;
+        const link = $("pol-link").value.trim();
+        if (abre && fecha && new Date(fecha) <= new Date(abre)) {
+          return $("pol-msg").textContent = "A votação precisa fechar depois de abrir.";
+        }
+        if (link && !/^https?:\/\//i.test(link)) {
+          return $("pol-msg").textContent = "O link precisa começar com https://";
+        }
+        $("pol-msg").textContent = "Salvando...";
+
+        // Deputado sem nome = vaga aberta (a foto dele não é guardada)
+        const deputados = [0, 1, 2, 3].map(i => {
+          const nome = vagas[i].nome.trim();
+          return nome ? { nome, partido: vagas[i].partido.trim(), foto: vagas[i].foto } : {};
+        });
+        const { error: e1 } = await sb.from("politica").update({
+          presidente_nome: vagas.presidente.nome.trim(),
+          presidente_partido: vagas.presidente.partido.trim(),
+          presidente_foto: vagas.presidente.foto,
+          mandato_desde: $("pol-desde").value || null,
+          deputados,
+          eleicao_abre: abre ? new Date(abre).toISOString() : null,
+          eleicao_fecha: fecha ? new Date(fecha).toISOString() : null,
+        }).eq("id", 1);
+        const { error: e2 } = await sb.from("politica_link").update({ link }).eq("id", 1);
+
+        if (e1 || e2) {
+          $("pol-msg").textContent = "Não foi possível salvar: " + (e1 || e2).message;
+          return;
+        }
+        // Apaga do armazenamento as fotos antigas que não são mais usadas
+        const usadas = [vagas.presidente.foto, ...deputados.map(d => d.foto)].filter(Boolean);
+        for (const antiga of fotosAntigas) if (!usadas.includes(antiga)) await apagarArquivo(antiga);
+        fotosAntigas.splice(0, fotosAntigas.length, ...usadas);
+        $("pol-msg").textContent = "Salvo. Já aparece na aba Política.";
+      });
+    }
+
+    // ================= TAGS =================
+    let tags = [];
+    let donos = []; // pares { perfil_id, tag_id }
+
+    async function carregarTags() {
+      const [{ data: t }, { data: d }] = await Promise.all([
+        sb.from("tags").select("*").order("nome"),
+        sb.from("perfil_tags").select("perfil_id, tag_id"),
+      ]);
+      // Tags do sistema (Katequista, Visitante) primeiro
+      tags = (t || []).sort((a, b) => (b.sistema === true) - (a.sistema === true));
+      donos = d || [];
+    }
+
+    function mostrarTags() {
+      if (!tags.length) {
+        $("lista-tags").innerHTML = '<p class="aviso" style="margin: 0">Nenhuma tag criada ainda.</p>';
+        return;
+      }
+
+      $("lista-tags").innerHTML = tags.map(tag => {
+        const temTag = donos.filter(d => d.tag_id === tag.id).map(d => d.perfil_id);
+        const comTag = aprovados().filter(p => temTag.includes(p.id));
+        let semTag = aprovados().filter(p => !temTag.includes(p.id));
+        // Quem é Katequista (ou admin) não pode ser Visitante ao mesmo tempo
+        if (tag.sistema && tag.nome === "Visitante") {
+          const idKatequista = tags.find(t => t.sistema && t.nome === "Katequista")?.id;
+          semTag = semTag.filter(p => !p.admin && !donos.some(d => d.perfil_id === p.id && d.tag_id === idKatequista));
+        }
+        // Linha da tag: a tag, quantos têm, e apagar (tags do sistema não apagam)
+        // Embaixo: as pessoas que têm a tag (com × para tirar) e uma lista para adicionar mais
+        return `
+          <div class="item-tag">
+            <div class="item-tag-topo">
+              ${htmlTag(tag)}
+              <span class="contagem-tag">${comTag.length} ${comTag.length === 1 ? "membro" : "membros"}</span>
+              ${tag.sistema
+                ? '<span class="selo-sistema" title="Tag do sistema: não pode ser apagada">sistema</span>'
+                : `<button class="link-apagar" data-apagar-tag="${tag.id}">Apagar</button>`}
+            </div>
+            <div class="membros-tag">
+              ${comTag.map(p => `
+                <span class="pessoa-chip">${esc(p.nome)}<button title="Tirar a tag" data-tirar="${tag.id}" data-perfil="${p.id}">×</button></span>`).join("")}
+              ${semTag.length ? `
+                <select class="mini" data-dar="${tag.id}">
+                  <option value="">+ adicionar</option>
+                  ${semTag.map(p => `<option value="${p.id}">${esc(p.nome)} (@${esc(p.usuario)})</option>`).join("")}
+                </select>` : ""}
+            </div>
+          </div>`;
+      }).join("");
+    }
+
+    // Escolher alguém na lista "+ adicionar" já dá a tag
+    $("lista-tags").addEventListener("change", async (e) => {
+      const lista = e.target.closest("select[data-dar]");
+      if (!lista || !lista.value) return;
+      lista.disabled = true;
+      await sb.from("perfil_tags").insert({ perfil_id: lista.value, tag_id: Number(lista.dataset.dar) });
+      await recarregar();
+    });
+
+    $("form-tag").addEventListener("submit", async (evento) => {
+      evento.preventDefault();
+      const { error } = await sb.from("tags").insert({ nome: $("tag-nome").value.trim(), cor: $("tag-cor").value });
+      if (error) return avisarJanela(/duplicate|unique/i.test(error.message) ? "Já existe uma tag com esse nome." : "Não foi possível criar: " + error.message);
+      $("tag-nome").value = "";
+      await recarregar();
+    });
+
+    $("lista-tags").addEventListener("click", async (e) => {
+      const apagar = e.target.closest("[data-apagar-tag]");
+      const tirar = e.target.closest("[data-tirar]");
+
+      if (apagar) {
+        if (!(await confirmar("Apagar esta tag? Ela sai de todos os membros.", "Apagar"))) return;
+        await sb.from("tags").delete().eq("id", apagar.dataset.apagarTag);
+      } else if (tirar) {
+        await sb.from("perfil_tags").delete().eq("tag_id", tirar.dataset.tirar).eq("perfil_id", tirar.dataset.perfil);
+      } else {
+        return;
+      }
+      await recarregar();
+    });
+
+    // ================= USO DO ESPAÇO =================
+    // Limites do plano grátis (confira em supabase.com/pricing se mudarem)
+    const MB = 1024 * 1024;
+    const LIMITE_BANCO = 500 * MB;
+    const LIMITE_ARQUIVOS = 1024 * MB;
+
+    function tamanho(bytes) {
+      return bytes >= 1024 * MB ? (bytes / 1024 / MB).toFixed(2) + " GB" : (bytes / MB).toFixed(1) + " MB";
+    }
+
+    function htmlUso(titulo, usado, limite, detalhe) {
+      const pct = Math.min(100, (usado / limite) * 100);
+      return `
+        <div class="uso ${pct >= 80 ? "alerta" : ""}">
+          <div class="uso-topo"><strong>${titulo}</strong><span>${tamanho(usado)} de ${tamanho(limite)}</span></div>
+          <div class="trilho"><div style="width: ${pct.toFixed(1)}%"></div></div>
+          <small>${pct.toFixed(1)}% usado${detalhe ? " · " + detalhe : ""}</small>
+        </div>`;
+    }
+
+    async function mostrarUso() {
+      const { data: uso, error } = await sb.rpc("uso_do_espaco");
+      // O tráfego não dá para medir de dentro do site: só o painel do Supabase sabe
+      const projeto = new URL(SUPABASE_URL).hostname.split(".")[0];
+      const trafego = `
+        <div class="uso">
+          <div class="uso-topo"><strong>Tráfego do mês</strong><span>limite de 5 GB</span></div>
+          <small>O Supabase não informa esse número para o site.
+            <a href="https://supabase.com/dashboard/project/${projeto}/usage" target="_blank" rel="noopener">Ver no painel do Supabase →</a></small>
+        </div>`;
+
+      if (error || !uso) {
+        $("usos").innerHTML = '<p class="aviso" style="margin: 0">Não foi possível medir. Confira se o supabase-3.sql foi executado.</p>' + trafego;
+        return;
+      }
+      $("usos").innerHTML =
+        htmlUso("Banco de dados", uso.banco, LIMITE_BANCO, "textos, perfis, eventos") +
+        htmlUso("Arquivos", uso.arquivos, LIMITE_ARQUIVOS, `${uso.qtd_arquivos} ${uso.qtd_arquivos === 1 ? "foto" : "fotos"}`) +
+        trafego;
+    }
+
+    // ================= RASCUNHO DA CONFIG =================
+    // As frases são editadas numa CÓPIA. Só vão para o banco ao clicar em Salvar.
+    const rascunho = JSON.parse(JSON.stringify(dados));
+
+    function marcarAlterado() {
+      $("status").textContent = "Há alterações não salvas.";
+    }
+    // Só as frases marcam "não salvo" (o resto do painel salva na hora)
+    $("sec-frases").addEventListener("input", marcarAlterado);
+
+    $("t-lemas").value = (rascunho.lemas || []).join("\n");
+    $("t-gritos").value = (rascunho.gritos || []).join("\n");
+    $("t-sabedorias").value = (rascunho.sabedorias || []).join("\n");
+
+    // ================= SALVAR =================
+    // Transforma o texto da caixa em lista: uma frase por linha, sem linhas vazias
+    const linhas = (texto) => texto.split("\n").map(l => l.trim()).filter(l => l);
+
+    $("salvar").addEventListener("click", async () => {
+      rascunho.lemas = linhas($("t-lemas").value);
+      rascunho.gritos = linhas($("t-gritos").value);
+      rascunho.sabedorias = linhas($("t-sabedorias").value);
+
+      if (!rascunho.lemas.length || !rascunho.gritos.length || !rascunho.sabedorias.length) {
+        $("status").textContent = "Cada lista de frases precisa de pelo menos uma frase.";
+        return;
+      }
+      $("status").textContent = "Salvando...";
+      // Lê a config atual e troca só as frases (não desfaz o que outras seções salvaram)
+      const { data: atual } = await sb.from("config").select("dados").eq("id", 1).single();
+      const { error } = await sb.from("config").update({ dados: { ...(atual?.dados || rascunho),
+        lemas: rascunho.lemas, gritos: rascunho.gritos, sabedorias: rascunho.sabedorias } }).eq("id", 1);
+      $("status").textContent = error ? "Não foi possível salvar: " + error.message : "Salvo. Já vale para todos.";
+    });
+
+    // Monta tudo na tela
+    await Promise.all([recarregar(), mostrarUso()]);
+  </script>
+</body>
+</html>
