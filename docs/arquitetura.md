@@ -58,6 +58,24 @@ Todo o front-end fica dentro de `frontend/`, dividido entre as páginas `.html`,
 
 ---
 
+## Regras de Responsividade (Celulares de 320px até Telas Grandes)
+
+Inspirado na engenharia reversa de sistemas de layout fluido (**Every Layout** e **Utopia**), todo CSS novo em `frontend/css/style.css` deve seguir estas 5 regras (protegidas pelo guardrail `testes/8-responsividade.test.js`):
+
+1. **Grids Intrínsecos (`min(Npx, 100%)`):**
+   * **Nunca** escreva `grid-template-columns: repeat(auto-fill, minmax(300px, 1fr))` seco, porque numa tela de `320px` (com `24px` de bordas sobram `296px`) a coluna de `300px` estoura a tela para o lado.
+   * **Sempre** use: `repeat(auto-fill, minmax(min(300px, 100%), 1fr))`. Assim, em telas menores que `300px`, o cartão encolhe para `100%` sozinho sem precisar de dezenas de `@media`.
+2. **Variáveis Fluidas de Espaçamento (`--pad-tela` e `--pad-caixa`):**
+   * Use `var(--pad-tela)` (`clamp(12px, 4vw, 24px)`) para margens laterais de página e `var(--pad-caixa)` (`clamp(14px, 3vw, 20px)`) para o recheio das `.caixa` e modais.
+3. **Altura de Tela Real no Celular (`100dvh`):**
+   * Sempre que usar `100vh` (como em `.capa`, `.tela-login` ou `.painel-menu`), coloque na linha de baixo a versão com `100dvh`, que desconta a barra de endereço retrátil do navegador do celular.
+4. **Proibido `width` ou `min-width` fixo maior que `320px`:**
+   * Para janelas e caixas largas, use sempre `max-width: 720px` ou `width: min(720px, 94vw)`.
+5. **Fontes de Formulário `>= 16px` no Celular:**
+   * Mantenha `font-size: max(16px, 0.95rem)` em `input, textarea, select` para impedir que o Safari do iPhone dê zoom sozinho na tela ao tocar num campo.
+
+---
+
 ## Preferências Visuais e Segredos
 
 * **Fontes:** `Coustard Black` apenas para o nome "Katequese" (`.fonte-nome`); `Archivo` para todo o resto.

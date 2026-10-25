@@ -127,6 +127,19 @@ function removerDecoracoes() {
   if (typeof soltarBola === "function") soltarBola();
 }
 
+// Quando gira o celular ou muda a largura da janela, refaz o varal ou o pisca-pisca na medida nova
+let timerLargura = null;
+window.addEventListener("resize", () => {
+  clearTimeout(timerLargura);
+  timerLargura = setTimeout(() => {
+    const largura = Math.max(180, window.innerWidth - (window.innerWidth <= 600 ? 150 : 300));
+    const varal = document.querySelector(".hw-varal");
+    if (varal) varal.innerHTML = svgVaral(largura);
+    const luzes = document.querySelector(".nt-luzes");
+    if (luzes) luzes.innerHTML = svgLuzes(largura);
+  }, 150);
+});
+
 // =====================================================================
 // HALLOWEEN
 // Os desenhos são feitos em SVG (código de desenho) direto aqui, sem imagens.

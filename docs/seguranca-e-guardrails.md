@@ -36,11 +36,15 @@ Os testes foram divididos em **arquivos independentes** para que seja fácil adi
 * `testes/5-banco-seguranca.sql` — Script SQL transacional (`BEGIN ... ROLLBACK`) para colar no SQL Editor do Supabase e validar se as travas do banco estão ativas sem sujar dados.
 * `testes/6-armazenamento-e-sorteio.test.js` — Testa `limparFotosAntigas()` para não acumular imagens órfãs no limite de 1 GB do Supabase.
 * `testes/7-guardrails-arquitetura.test.js` — **Guardrail automático da estrutura:**
-  * Garante que nenhum `.sql`, `.js` ou `.css` fique jogado na raiz;
+  * Garante que nenhum `.html`, `.sql`, `.js` ou `.css` fique jogado na raiz;
   * Garante que `CLAUDE.md` continue enxuto (`<= 120` linhas) e os arquivos de `docs/` existam;
   * Confere se todos os `<script src>` e `<link href>` de todas as páginas `.html` apontam para arquivos reais;
   * Confere se toda página interna tem `class="carregando"` e chama `iniciarPagina()`;
   * Confere se todos os SQLs em `backend/sql/` usam `create table if not exists` e se `config.js` não vazou nenhuma chave `service_role`.
+* `testes/8-responsividade.test.js` — **Guardrail automático de responsividade (celular/tablet/PC):**
+  * Garante `<meta name="viewport">` em todas as páginas `.html`;
+  * Proíbe grids rígidos (`minmax(300px, 1fr)` sem `min(300px, 100%)`) e larguras fixas (`width > 320px`) que criam barra de rolagem horizontal em celulares pequenos;
+  * Garante o uso de `--pad-tela`, `--pad-caixa`, `overflow-x: clip`, `100dvh`, fonte `>= 16px` nos inputs (anti-zoom iOS) e recálculo de decorações ao girar a tela (`resize`).
 
 ### Sempre faça o teste RED ao criar um teste novo:
 Quando criar um teste novo, quebre de propósito a linha correspondente no código, rode `node --test testes/*.test.js` para confirmar que o teste **falha (RED)**, e depois desfaça a quebra para voltar a **passar (GREEN)**.
