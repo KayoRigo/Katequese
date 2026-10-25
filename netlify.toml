@@ -1,0 +1,8 @@
+# Configuração automática de publicação no Netlify
+[build]
+  publish = "frontend"
+
+[[redirects]]
+  from = "/"
+  to = "/paginas/index.html"
+  status = 302

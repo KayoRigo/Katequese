@@ -180,15 +180,26 @@ async function iniciarEconomia(eu) {
 }
 
 // =====================================================================
-// CARTEIRA: bônus diário + extrato
+// CARTEIRA: bônus diário + extrato paginado (12 por página)
 // =====================================================================
-async function abaCarteira(el) {
-  const { data: extrato } = await sb
+const POR_PAGINA_EXTRATO = 12;
+let paginaExtrato = 1;
+
+async function abaCarteira(el, pagina = paginaExtrato) {
+  const { count } = await sb
+    .from("transacoes")
+    .select("id", { count: "exact", head: true })
+    .eq("perfil_id", euEco.id);
+  const totalExtrato = count || 0;
+  const pag = calcularPaginacao(pagina, totalExtrato, POR_PAGINA_EXTRATO);
+  paginaExtrato = pag.pagina;
+
+  const { data: extrato } = totalExtrato ? await sb
     .from("transacoes")
     .select("valor, tipo, descricao, criado_em")
     .eq("perfil_id", euEco.id)
     .order("criado_em", { ascending: false })
-    .limit(60);
+    .range(pag.inicio, pag.fim) : { data: [] };
 
   el.innerHTML = `
     <div class="caixa eco-diario">
@@ -209,7 +220,8 @@ async function abaCarteira(el) {
             <span class="extrato-desc">${esc(t.descricao)}<small>${new Date(t.criado_em).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}</small></span>
             <b class="${t.valor >= 0 ? "entrada" : "saida"}">${t.valor >= 0 ? "+" : "−"} ${moeda(Math.abs(t.valor))}</b>
           </li>`).join("")}
-      </ul>` : '<p class="aviso" style="margin: 0">Nenhuma movimentação ainda.</p>'}
+      </ul>
+      ${htmlPaginacao({ pagina: paginaExtrato, total: totalExtrato, porPagina: POR_PAGINA_EXTRATO, rotulo: totalExtrato === 1 ? "movimentação" : "movimentações" })}` : '<p class="aviso" style="margin: 0">Nenhuma movimentação ainda.</p>'}
     </div>`;
 
   el.querySelector("#pegar-diario").addEventListener("click", async (e) => {
@@ -218,7 +230,12 @@ async function abaCarteira(el) {
     if (error) return avisoEco(esc(error.message), "erro");
     avisoEco(`Bônus diário: <b>+ ${moeda(data.ganho)}</b>${data.rendimento ? ` (rendimento: ${moeda(data.rendimento)})` : ""}`, "ganho");
     await atualizarCarteira();
-    await abaCarteira(el);
+    await abaCarteira(el, 1);
+  });
+
+  el.querySelector(".paginacao")?.addEventListener("click", async (e) => {
+    const b = e.target.closest("[data-pagina]");
+    if (b && !b.disabled) await abaCarteira(el, Number(b.dataset.pagina));
   });
 }
 

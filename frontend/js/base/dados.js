@@ -278,3 +278,37 @@ function abrirJanelaAviso(mensagem, textoBotao, comCancelar) {
 function sortear(lista) {
   return lista[Math.floor(Math.random() * lista.length)];
 }
+
+// ---------------- Paginação padronizada ----------------
+// Calcula inicio/fim (para usar no .range(inicio, fim) do Supabase ou .slice)
+function calcularPaginacao(pagina = 1, total = 0, porPagina = 12) {
+  const nTotal = Math.max(0, Number(total) || 0);
+  const tam = Math.max(1, Number(porPagina) || 12);
+  const totalPaginas = Math.max(1, Math.ceil(nTotal / tam));
+  const atual = Math.min(totalPaginas, Math.max(1, Math.floor(Number(pagina) || 1)));
+  const inicio = (atual - 1) * tam;
+  const fim = inicio + tam - 1;
+  return {
+    pagina: atual,
+    total: nTotal,
+    porPagina: tam,
+    totalPaginas,
+    inicio,
+    fim,
+    temAnterior: atual > 1,
+    temProxima: atual < totalPaginas,
+  };
+}
+
+// Barra "← Anterior · Página X de Y · Próxima →" (some sozinha quando cabe em 1 página)
+function htmlPaginacao({ pagina = 1, total = 0, porPagina = 12, rotulo = "itens", alvo = "" } = {}) {
+  const p = calcularPaginacao(pagina, total, porPagina);
+  if (p.total <= p.porPagina) return "";
+  const attrAlvo = alvo ? ` data-alvo="${esc(alvo)}"` : "";
+  return `
+    <nav class="paginacao" aria-label="Paginação"${attrAlvo}>
+      <button type="button" class="botao-pequeno" data-pagina="${p.pagina - 1}" ${p.temAnterior ? "" : "disabled"}>← Anterior</button>
+      <span class="paginacao-info">Página <b>${p.pagina}</b> de <b>${p.totalPaginas}</b> <small>· ${p.total} ${esc(rotulo)}</small></span>
+      <button type="button" class="botao-pequeno" data-pagina="${p.pagina + 1}" ${p.temProxima ? "" : "disabled"}>Próxima →</button>
+    </nav>`;
+}

@@ -13,6 +13,8 @@ if (!eu.katequista) {
 }
 
 // ================= MOSTRAR AS ENQUETES =================
+const POR_PAGINA_ENCERRADAS = 6;
+let paginaEncerradas = 1;
 let enquetes = [];
 
 // Quanto tempo falta, em palavras: "em 2 dias", "em 5 h", "em 12 min"
@@ -92,26 +94,31 @@ async function mostrarEnquetes() {
     return;
   }
 
-  // Organiza os dados para achar rápido: opções de cada enquete e resultado de cada opção
   const opcoesDe = {};
   (opcoes || []).forEach(o => (opcoesDe[o.enquete_id] ||= []).push(o));
   const resultadoDe = {};
   (resultados || []).forEach(r => resultadoDe[r.opcao_id] = r);
   const meusVotos = new Set((votos || []).map(v => v.opcao_id));
-  const links = await linksDosArquivos(enquetes.map(e => e.foto_path));
 
   const agora = new Date();
-  const abertas = enquetes.filter(e => new Date(e.termina_em) > agora);              // as que acabam antes primeiro
-  const encerradas = enquetes.filter(e => new Date(e.termina_em) <= agora).reverse(); // a mais recente primeiro
+  const abertas = enquetes.filter(e => new Date(e.termina_em) > agora);
+  const todasEncerradas = enquetes.filter(e => new Date(e.termina_em) <= agora).reverse();
+
+  const pag = calcularPaginacao(paginaEncerradas, todasEncerradas.length, POR_PAGINA_ENCERRADAS);
+  paginaEncerradas = pag.pagina;
+  const encerradas = todasEncerradas.slice(pag.inicio, pag.fim + 1);
+
+  const links = await linksDosArquivos([...abertas, ...encerradas].map(e => e.foto_path));
   const cartao = (e) => htmlEnquete(e, opcoesDe[e.id] || [], resultadoDe, meusVotos, links[e.foto_path]);
 
   $("enquetes").innerHTML = `
     <h2 class="subtitulo">Abertas</h2>
     ${abertas.length ? `<div class="lista-enquetes">${abertas.map(cartao).join("")}</div>`
                      : '<p class="vazio">Nenhuma enquete aberta.</p>'}
-    ${encerradas.length ? `
+    ${todasEncerradas.length ? `
       <h2 class="subtitulo">Encerradas</h2>
-      <div class="lista-enquetes">${encerradas.map(cartao).join("")}</div>` : ""}`;
+      <div class="lista-enquetes">${encerradas.map(cartao).join("")}</div>
+      ${htmlPaginacao({ pagina: paginaEncerradas, total: todasEncerradas.length, porPagina: POR_PAGINA_ENCERRADAS, rotulo: todasEncerradas.length === 1 ? "enquete encerrada" : "enquetes encerradas" })}` : ""}`;
 }
 await mostrarEnquetes();
 
@@ -127,6 +134,12 @@ $("enquetes").addEventListener("submit", async (evento) => {
 });
 
 $("enquetes").addEventListener("click", async (e) => {
+  const pag = e.target.closest("[data-pagina]");
+  if (pag && !pag.disabled) {
+    paginaEncerradas = Number(pag.dataset.pagina);
+    await mostrarEnquetes();
+    return;
+  }
   const retirar = e.target.closest("[data-retirar]");
   const apagar = e.target.closest("[data-apagar]");
   if (retirar) {

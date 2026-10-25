@@ -63,18 +63,24 @@ async function iniciarPagina({ soAdmin = false } = {}) {
   const { data: { session } } = await sb.auth.getSession();
   if (!session) return irPara("login.html");
 
-  const { data: perfil } = await sb.from("perfis").select("*").eq("id", session.user.id).maybeSingle();
+  // Busca perfil, permissão de katequista, config do site e cargos ao mesmo tempo (abre mais rápido)
+  const [
+    { data: perfil },
+    { data: ehKatequista, error: erroKatequista },
+    { data: config, error },
+  ] = await Promise.all([
+    sb.from("perfis").select("*").eq("id", session.user.id).maybeSingle(),
+    sb.rpc("eh_katequista"),
+    sb.from("config").select("dados").eq("id", 1).maybeSingle(),
+    carregarCargos(),
+  ]);
+
   if (!perfil || perfil.status !== "aprovado") return irPara("login.html");
   if (soAdmin && !perfil.admin) return irPara("index.html");
 
-  // Katequista (membro oficial) tem acesso completo; os outros aprovados são visitantes.
-  // Se o supabase-4.sql ainda não rodou, a função não existe e todo aprovado conta como katequista.
-  const { data: ehKatequista, error: erroKatequista } = await sb.rpc("eh_katequista");
   perfil.katequista = erroKatequista ? true : !!ehKatequista;
   perfilAtual = perfil;
 
-  // Carrega as frases e o membro da semana (só funciona para aprovados, por causa do RLS)
-  const { data: config, error } = await sb.from("config").select("dados").eq("id", 1).maybeSingle();
   if (error || !config) {
     return mostrarErroFatal("Não consegui carregar os dados do site. Confira se o <b>supabase.sql</b> foi executado.");
   }
@@ -82,9 +88,6 @@ async function iniciarPagina({ soAdmin = false } = {}) {
 
   // Tema global ligado pelo admin (ex: Halloween): passa por cima da paleta de cada um
   aplicarTemaGlobal(config.dados.temaGlobal || null);
-
-  // Cargos de todo mundo (Presidente, Deputado, Admin), usados ao lado dos nomes em todo o site
-  await carregarCargos();
 
   montarMenu(perfil);
   document.documentElement.classList.remove("carregando"); // agora sim, mostra a página

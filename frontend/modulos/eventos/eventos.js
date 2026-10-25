@@ -5,32 +5,38 @@
 const eu = await iniciarPagina();
 const $ = (id) => document.getElementById(id);
 const form = $("form-evento");
+const POR_PAGINA_ANTERIORES = 6;
 
-// Visitantes só olham: sem botão de criar, e um aviso do que estão vendo
+let paginaAnteriores = 1;
+
 if (!eu.katequista) {
   $("abrir-form").hidden = true;
   $("subtitulo").textContent = "Você está vendo os eventos liberados para visitantes.";
 }
 
 // ---------- Mostrar a lista ----------
-async function mostrarEventos() {
+async function mostrarEventos(pagina = paginaAnteriores) {
   const eventos = await buscarEventos();
   if (!eventos.length) {
     $("eventos").innerHTML = '<p class="vazio">Por enquanto não há eventos ativos.</p>';
     return;
   }
 
-  // Respostas de presença de todos os eventos de uma vez, e as fotos de perfil de quem respondeu
-  const presencas = await buscarPresencas(eventos.map(ev => ev.id));
-  const fotosPerfis = Object.values(presencas).flat().map(r => r.perfis?.foto_path);
-  const links = await linksDosArquivos([...eventos.map(ev => ev.foto_path), ...fotosPerfis]);
   const hoje = new Date();
   hoje.setHours(0, 0, 0, 0);
   const proximos = eventos.filter(ev => lerData(ev.data) >= hoje);
-  const anteriores = eventos.filter(ev => lerData(ev.data) < hoje).reverse(); // mais recente primeiro
+  const todosAnteriores = eventos.filter(ev => lerData(ev.data) < hoje).reverse();
 
-  // Quem criou o evento ou um admin pode apagar
-  // Só katequistas respondem, e só enquanto o evento não passou
+  const pag = calcularPaginacao(pagina, todosAnteriores.length, POR_PAGINA_ANTERIORES);
+  paginaAnteriores = pag.pagina;
+  const anteriores = todosAnteriores.slice(pag.inicio, pag.fim + 1);
+
+  // Só busca presença e assina links dos eventos visíveis nesta página
+  const visiveis = [...proximos, ...anteriores];
+  const presencas = await buscarPresencas(visiveis.map(ev => ev.id));
+  const fotosPerfis = Object.values(presencas).flat().map(r => r.perfis?.foto_path);
+  const links = await linksDosArquivos([...visiveis.map(ev => ev.foto_path), ...fotosPerfis]);
+
   const cartao = (ev, passou) => htmlEvento(ev, links[ev.foto_path], passou,
     eu.katequista && (ev.autor_id === eu.id || eu.admin), eu.katequista,
     htmlPresenca(ev, presencas[ev.id] || [], links, eu.katequista && !passou, passou));
@@ -40,11 +46,12 @@ async function mostrarEventos() {
     ${proximos.length
       ? `<div class="lista-eventos">${proximos.map(ev => cartao(ev, false)).join("")}</div>`
       : '<p class="vazio">Por enquanto não há eventos ativos.</p>'}
-    ${anteriores.length ? `
+    ${todosAnteriores.length ? `
       <h2 class="subtitulo">Anteriores</h2>
-      <div class="lista-eventos">${anteriores.map(ev => cartao(ev, true)).join("")}</div>` : ""}`;
+      <div class="lista-eventos">${anteriores.map(ev => cartao(ev, true)).join("")}</div>
+      ${htmlPaginacao({ pagina: paginaAnteriores, total: todosAnteriores.length, porPagina: POR_PAGINA_ANTERIORES, rotulo: todosAnteriores.length === 1 ? "evento anterior" : "eventos anteriores" })}` : ""}`;
 }
-await mostrarEventos();
+await mostrarEventos(1);
 
 // ---------- Abrir e fechar o formulário ----------
 $("abrir-form").addEventListener("click", () => {
@@ -67,7 +74,6 @@ form.addEventListener("submit", async (evento) => {
   $("progresso").textContent = "Publicando...";
 
   try {
-    // Se escolheu uma foto, envia primeiro e guarda o caminho dela
     let foto_path = null;
     const arquivo = $("foto").files[0];
     if (arquivo) {
@@ -87,7 +93,7 @@ form.addEventListener("submit", async (evento) => {
     if (error) throw error;
 
     fecharForm();
-    await mostrarEventos();
+    await mostrarEventos(paginaAnteriores);
   } catch (erro) {
     $("progresso").textContent = "Não foi possível publicar: " + erro.message;
   } finally {
@@ -95,23 +101,29 @@ form.addEventListener("submit", async (evento) => {
   }
 });
 
-// ---------- Confirmar presença ----------
+// ---------- Paginação, presença e apagar ----------
 $("eventos").addEventListener("click", async (e) => {
-  const botao = e.target.closest("[data-presenca]");
-  if (!botao) return;
-  const cartao = botao.closest("[data-evento]");
-  cartao.querySelectorAll("[data-presenca]").forEach(b => b.disabled = true);
-  const { error } = await responderPresenca(Number(cartao.dataset.evento), botao.dataset.presenca, botao.dataset.atual || null);
-  if (error) await avisarJanela("Não foi possível responder: " + error.message);
-  await mostrarEventos();
-});
+  const pag = e.target.closest("[data-pagina]");
+  if (pag && !pag.disabled) {
+    await mostrarEventos(Number(pag.dataset.pagina));
+    return;
+  }
 
-// ---------- Apagar (um ouvinte só na lista inteira) ----------
-$("eventos").addEventListener("click", async (e) => {
-  const botao = e.target.closest("[data-apagar]");
-  if (!botao || !(await confirmar("Apagar este evento?", "Apagar"))) return;
-  const { data: ev } = await sb.from("eventos").select("foto_path").eq("id", botao.dataset.apagar).maybeSingle();
-  await sb.from("eventos").delete().eq("id", botao.dataset.apagar);
-  await apagarArquivo(ev?.foto_path);
-  await mostrarEventos();
+  const botaoPresenca = e.target.closest("[data-presenca]");
+  if (botaoPresenca) {
+    const cartao = botaoPresenca.closest("[data-evento]");
+    cartao.querySelectorAll("[data-presenca]").forEach(b => b.disabled = true);
+    const { error } = await responderPresenca(Number(cartao.dataset.evento), botaoPresenca.dataset.presenca, botaoPresenca.dataset.atual || null);
+    if (error) await avisarJanela("Não foi possível responder: " + error.message);
+    await mostrarEventos(paginaAnteriores);
+    return;
+  }
+
+  const botaoApagar = e.target.closest("[data-apagar]");
+  if (botaoApagar && await confirmar("Apagar este evento?", "Apagar")) {
+    const { data: ev } = await sb.from("eventos").select("foto_path").eq("id", botaoApagar.dataset.apagar).maybeSingle();
+    await sb.from("eventos").delete().eq("id", botaoApagar.dataset.apagar);
+    await apagarArquivo(ev?.foto_path);
+    await mostrarEventos(paginaAnteriores);
+  }
 });

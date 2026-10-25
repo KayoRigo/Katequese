@@ -39,6 +39,7 @@ describe("Guardrail 1: Organização de pastas (raiz e frontend sem arquivos sol
       ".github",
       ".gitignore",
       ".gitattributes",
+      "netlify.toml",
       "README.md",
       "CLAUDE.md",
       "backend",
@@ -183,6 +184,17 @@ describe("Guardrail 4: Regras críticas de segurança no JS e no SQL", () => {
         tabelasSemIfNotExists,
         null,
         `O arquivo ${arq} tem "create table" sem "if not exists".`
+      );
+    }
+  });
+
+  test("listas que crescem com o tempo (midias, mural, atualizacoes, economia, eventos, enquetes) usam htmlPaginacao", () => {
+    const comPaginacao = ["midias", "mural", "atualizacoes", "economia", "eventos", "enquetes"];
+    for (const mod of comPaginacao) {
+      const codigo = ler(`frontend/modulos/${mod}/${mod}.js`);
+      assert.ok(
+        codigo.includes("htmlPaginacao("),
+        `O módulo ${mod}.js precisa usar htmlPaginacao() para não travar quando a lista crescer.`
       );
     }
   });

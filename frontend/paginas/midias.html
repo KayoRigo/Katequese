@@ -49,12 +49,14 @@
     <div id="galeria"></div>
   </main>
 
-  <!-- Janela para ver a foto em tamanho grande -->
+  <!-- Janela para ver a foto em tamanho grande (com botões Anterior/Próxima) -->
   <dialog class="janela" id="janela">
     <div class="janela-midia" id="janela-midia"></div>
     <div class="janela-info">
       <div id="janela-texto"></div>
       <div class="acoes">
+        <button class="botao-pequeno" id="foto-ant" title="Foto anterior (←)">←</button>
+        <button class="botao-pequeno" id="foto-prox" title="Próxima foto (→)">→</button>
         <button class="botao-pequeno perigo" id="apagar" hidden>Apagar</button>
         <button class="botao-pequeno" id="fechar">Fechar</button>
       </div>

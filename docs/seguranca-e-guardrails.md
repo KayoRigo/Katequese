@@ -36,6 +36,7 @@ Para facilitar a localização, os **testes de lógica** e os **guardrails de pr
 * `testes/4-economia.test.js` — Testa fórmulas de nível/XP, equipamentos por linha, limite de 60% na espera e trava anti-exploit de revenda.
 * `testes/5-banco-seguranca.sql` — Script SQL transacional (`BEGIN ... ROLLBACK`) para colar no SQL Editor do Supabase e validar se as travas do banco estão ativas sem sujar dados.
 * `testes/6-armazenamento-e-sorteio.test.js` — Testa `limparFotosAntigas()` para não acumular imagens órfãs no limite de 1 GB do Supabase.
+* `testes/7-paginacao.test.js` — Testa `calcularPaginacao()` e `htmlPaginacao()` (fatias `.range()` do Supabase e barra de navegação).
 
 ### Pasta `guardrails/` (Travas Automáticas de Arquitetura e Responsividade):
 * `guardrails/1-arquitetura-e-pastas.test.js` — **Guardrail automático da estrutura:**

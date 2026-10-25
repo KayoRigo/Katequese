@@ -1,35 +1,47 @@
 // =====================================================================
-// modulos/atualizacoes/atualizacoes.js — histórico de mudanças (atualizacoes.html).
+// modulos/atualizacoes/atualizacoes.js — histórico paginado (atualizacoes.html).
 // =====================================================================
 
 const eu = await iniciarPagina();
 const $ = (id) => document.getElementById(id);
 const form = $("form-atualizacao");
+const POR_PAGINA = 15;
 
+let paginaAtual = 1;
 const TIPOS = { nova: "Novidade", melhoria: "Melhoria", correcao: "Correção", banco: "Banco de dados" };
 
 // Pessoas com conta (para ligar o nome digitado à conta e mostrar o cargo)
 const { data: pessoas } = await sb.from("perfis").select("id, nome, apelido, usuario").eq("status", "aprovado");
 
-// ---------- Linha do tempo ----------
-async function mostrar() {
-  const { data, error } = await sb.from("atualizacoes").select("*").order("criado_em", { ascending: false });
-  if (error) {
+// ---------- Linha do tempo (15 por página) ----------
+async function mostrar(pagina = paginaAtual) {
+  const { count, error: erroContagem } = await sb.from("atualizacoes").select("id", { count: "exact", head: true });
+  if (erroContagem) {
     $("linha-do-tempo").innerHTML = eu.katequista
       ? '<p class="vazio">A aba Atualizações ainda não está pronta no banco. O admin precisa rodar o <b>supabase-13.sql</b>.</p>'
       : '<p class="vazio">Só Katequistas veem as atualizações do site.</p>';
     return;
   }
-  if (!data.length) {
+  const total = count || 0;
+  if (!total) {
     $("linha-do-tempo").innerHTML = eu.katequista
       ? '<p class="vazio">Nenhuma atualização registrada ainda.</p>'
       : '<p class="vazio">Só Katequistas veem as atualizações do site.</p>';
     return;
   }
 
+  const pag = calcularPaginacao(pagina, total, POR_PAGINA);
+  paginaAtual = pag.pagina;
+
+  const { data } = await sb
+    .from("atualizacoes")
+    .select("*")
+    .order("criado_em", { ascending: false })
+    .range(pag.inicio, pag.fim);
+
   // Agrupa por dia: "sábado, 24 de outubro"
   const porDia = {};
-  data.forEach(a => {
+  (data || []).forEach(a => {
     const dia = new Date(a.criado_em).toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
     (porDia[dia] ||= []).push(a);
   });
@@ -55,9 +67,9 @@ async function mostrar() {
             </div>
           </li>`).join("")}
       </ol>
-    </section>`).join("");
+    </section>`).join("") + htmlPaginacao({ pagina: paginaAtual, total, porPagina: POR_PAGINA, rotulo: total === 1 ? "mudança" : "mudanças" });
 }
-await mostrar();
+await mostrar(1);
 
 // ---------- Formulário (admin) ----------
 if (eu.admin) {
@@ -100,12 +112,18 @@ form.addEventListener("submit", async (e) => {
   });
   if (error) return $("progresso").textContent = "Não foi possível registrar: " + error.message;
   fecharForm();
-  await mostrar();
+  await mostrar(1);
 });
 
 $("linha-do-tempo").addEventListener("click", async (e) => {
+  const pag = e.target.closest("[data-pagina]");
+  if (pag && !pag.disabled) {
+    await mostrar(Number(pag.dataset.pagina));
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    return;
+  }
   const botao = e.target.closest("[data-apagar]");
   if (!botao || !(await confirmar("Apagar esta atualização do registro?", "Apagar"))) return;
   await sb.from("atualizacoes").delete().eq("id", botao.dataset.apagar);
-  await mostrar();
+  await mostrar(paginaAtual);
 });
