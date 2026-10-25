@@ -31,9 +31,9 @@ function lerData(texto) {
   return new Date(texto + "T00:00:00");
 }
 
-// Data e hora exatas em que o evento começa ("20:00:00" vem do banco com segundos)
+// Data e hora em que o evento termina de valer na capa (sem hora = fim do dia, 23:59)
 function inicioEvento(ev) {
-  return new Date(`${ev.data}T${(ev.hora || "00:00").slice(0, 5)}:00`);
+  return new Date(`${ev.data}T${(ev.hora || "23:59").slice(0, 5)}:00`);
 }
 
 // Nome que aparece para os outros: o apelido, se tiver; senão, o nome
@@ -163,11 +163,12 @@ function quandoAniversario(dias) {
 function cargosVisiveis(idPerfil) {
   const lista = cargosDe(idPerfil);
   if (!lista.length) return [];
+  const ehBase = (c) => c.sistema && (c.nome === "Katequista" || c.nome === "Visitante");
+  const destaque = lista.find(c => c.nome !== "Admin" && !ehBase(c));
   if (lista[0].nome === "Admin") {
-    const proxima = lista.find(c => c.nome !== "Admin" && !(c.sistema && ["Katequista", "Visitante"].includes(c.nome)));
-    return proxima ? [lista[0], proxima] : [lista[0]];
+    return destaque ? [lista[0], destaque] : [lista[0]];
   }
-  return [lista[0]];
+  return [destaque || lista[0]];
 }
 
 function htmlCargos(idPerfil) {

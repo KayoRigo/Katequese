@@ -229,29 +229,43 @@
         </div>`;
 
       const roleta = $("roleta");
+      let girando = false;
       pararEm(roleta, s.itens, historico[0]?.item || "?");
       if (!janela.open) janela.showModal();
 
       // Sortear: o banco escolhe, depois a roleta gira até o resultado
       $("botao-sortear")?.addEventListener("click", async (e) => {
+        if (girando) return;
+        girando = true;
         const botao = e.currentTarget;
         botao.disabled = true;
+        if ($("rever")) $("rever").disabled = true;
         botao.textContent = "Sorteando...";
         const { data: resultado, error } = await sb.rpc("sortear", { id_sorteio: s.id });
         if (error) {
+          girando = false;
           botao.textContent = "Sortear";
           botao.disabled = false;
+          if ($("rever")) $("rever").disabled = false;
           return avisarJanela(error.message);
         }
         await girar(roleta, s.itens, resultado);
         await carregar();
         mostrarLista();
-        // Reabre a janela já com o histórico atualizado, sem perder a roleta parada no resultado
-        setTimeout(() => abrirSorteio(s.id), 1400);
+        // Atualiza a janela se ela continuar aberta, sem perder a roleta parada no resultado
+        setTimeout(() => { if (janela.open) abrirSorteio(s.id); }, 1400);
       });
 
       // Rever: gira de novo até o último resultado (não sorteia nada)
-      $("rever")?.addEventListener("click", () => girar(roleta, s.itens, historico[0].item));
+      $("rever")?.addEventListener("click", async (e) => {
+        if (girando) return;
+        girando = true;
+        const botao = e.currentTarget;
+        botao.disabled = true;
+        await girar(roleta, s.itens, historico[0].item);
+        botao.disabled = false;
+        girando = false;
+      });
 
       $("limpar")?.addEventListener("click", async () => {
         if (!(await confirmar("Apagar todo o histórico deste sorteio? Os itens voltam a poder sair.", "Limpar"))) return;

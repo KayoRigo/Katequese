@@ -67,4 +67,15 @@ describe("Hierarquia de cargos: cargosVisiveis() e temCargo()", () => {
     const visiveis = site.cargosVisiveis("u3").map(c => c.nome);
     assert.deepEqual([...visiveis], ["Presidente"]);
   });
+
+  test("tag criada pelo admin aparece na frente de Katequista/Visitante mesmo se ordem vier trocada", () => {
+    site.definir("cargosPorPerfil", {
+      u4: [
+        { nome: "Katequista", cor: "#f26b3a", sistema: true, ordem: 30 },
+        { nome: "Campeão", cor: "#5fbf77", sistema: false, ordem: 500 },
+      ],
+    });
+    const visiveis = site.cargosVisiveis("u4").map(c => c.nome);
+    assert.deepEqual([...visiveis], ["Campeão"]);
+  });
 });

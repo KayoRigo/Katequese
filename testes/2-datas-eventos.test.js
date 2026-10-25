@@ -25,10 +25,11 @@ describe("Datas de eventos", () => {
     assert.equal(d.getMinutes(), 30);
   });
 
-  test("inicioEvento funciona quando o evento não tem hora definida", () => {
+  test("inicioEvento sem hora definida usa o fim do dia (23:59) para não sumir da capa no próprio dia", () => {
     const d = site.inicioEvento({ data: "2026-11-15", hora: null });
     assert.equal(d.getDate(), 15);
-    assert.equal(d.getHours(), 0);
+    assert.equal(d.getHours(), 23);
+    assert.equal(d.getMinutes(), 59);
   });
 });
 

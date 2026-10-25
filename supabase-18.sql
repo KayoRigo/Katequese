@@ -210,7 +210,71 @@ create policy "katequese: membros enviam arquivos" on storage.objects
 
 
 -- ---------------------------------------------------------------------
--- 6) REGISTRO EM ATUALIZAÇÕES (entra só uma vez)
+-- 6) TAGS E CÂMARA: mantém Katequista/Visitante no fim da hierarquia e
+--    não encerra proposta antes do prazo quando ainda há 0 deputados
+-- ---------------------------------------------------------------------
+create or replace function public.ordenar_tags(ids bigint[]) returns void
+language plpgsql security definer set search_path = public as $$
+begin
+  if not eh_admin() then raise exception 'Só administradores.'; end if;
+  update tags t set ordem = case
+      when t.sistema and t.nome = 'Katequista' then 900
+      when t.sistema and t.nome = 'Visitante'  then 950
+      else k.pos * 10 end
+    from unnest(ids) with ordinality as k(id, pos)
+   where t.id = k.id;
+end;
+$$;
+
+create or replace function public.apurar_proposta(pid bigint) returns void
+language plpgsql security definer set search_path = public as $$
+declare
+  p     propostas_lei%rowtype;
+  sim   int;
+  nao   int;
+  total int;
+begin
+  select * into p from propostas_lei where id = pid for update;
+  if not found then return; end if;
+
+  if p.status = 'camara' then
+    select count(*) filter (where voto), count(*) filter (where not voto)
+      into sim, nao from votos_camara where proposta_id = pid;
+    total := total_deputados();
+    -- Se ainda não houver nenhum deputado cadastrado (total = 0), espera até o prazo acabar
+    if now() < p.fim_camara and (total = 0 or sim + nao < total) then return; end if;
+    if sim > nao then
+      perform aplicar_proposta(pid);
+      update propostas_lei set status = 'aprovada', encerrada_em = now(),
+        resultado = format('Aprovada pela Câmara: %s a %s.', sim, nao) where id = pid;
+    elsif nao > sim then
+      update propostas_lei set status = 'rejeitada', encerrada_em = now(),
+        resultado = format('Rejeitada pela Câmara: %s a %s.', nao, sim) where id = pid;
+    else
+      update propostas_lei set status = 'empate',
+        resultado = format('Empate na Câmara: %s a %s.', sim, nao) where id = pid;
+    end if;
+
+  elsif p.status = 'popular' and now() >= p.fim_popular then
+    select count(*) filter (where voto), count(*) filter (where not voto)
+      into sim, nao from votos_populares where proposta_id = pid;
+    if sim > nao then
+      perform aplicar_proposta(pid);
+      update propostas_lei set status = 'aprovada', encerrada_em = now(),
+        resultado = p.resultado || format(' Aprovada no voto popular: %s a %s.', sim, nao) where id = pid;
+    else
+      update propostas_lei set status = 'rejeitada', encerrada_em = now(),
+        resultado = p.resultado || format(' Rejeitada no voto popular: %s a %s%s.', nao, sim,
+          case when sim = nao then ' (empate mantém como está)' else '' end) where id = pid;
+    end if;
+  end if;
+end;
+$$;
+revoke execute on function public.apurar_proposta(bigint) from public, anon, authenticated;
+
+
+-- ---------------------------------------------------------------------
+-- 7) REGISTRO EM ATUALIZAÇÕES (entra só uma vez)
 -- ---------------------------------------------------------------------
 insert into public.atualizacoes (criado_em, tipo, titulo, descricao, autor_nome, autor_id)
 select v.criado_em::timestamptz, v.tipo, v.titulo, v.descricao, 'Kayo',

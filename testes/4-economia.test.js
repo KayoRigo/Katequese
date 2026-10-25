@@ -72,7 +72,7 @@ describe("Loja: descontos e trava anti-exploit na revenda", () => {
     site.definir("bonusItens", { desconto: 0.5 });
     const item = { preco: 800, revenda: 0.8 };
     const pagoNaCompra = site.comDesconto(item.preco); // K$ 400
-    const recebidoNaVenda = Math.floor(site.comDesconto(item.preco) * Math.min(1, item.revenda)); // K$ 320
+    const recebidoNaVenda = site.valorRevenda(item);   // K$ 320
     assert.ok(recebidoNaVenda <= pagoNaCompra, "Revenda não pode pagar mais do que custou para comprar");
     assert.equal(pagoNaCompra, 400);
     assert.equal(recebidoNaVenda, 320);

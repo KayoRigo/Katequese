@@ -125,8 +125,9 @@ async function carregarBonusItens() {
   return bonusItens;
 }
 const bonusDoTrabalho = (id) => ({ pagamento: 0, espera: 0, extra: 0, ajuda: 0, xp: 0, ...(bonusItens.por_trabalho?.[id] || {}) });
-// Preço com o desconto dos itens
+// Preço com o desconto dos itens e valor de revenda (nunca passa do preço com desconto)
 const comDesconto = (preco) => Math.ceil(Number(preco) * (1 - Number(bonusItens.desconto || 0)));
+const valorRevenda = (i) => Math.floor(comDesconto(i.preco) * Math.min(1, Number(i.revenda || 0)));
 
 const AVISO_SQL15 = '<p class="vazio">Falta atualizar o banco: o admin precisa rodar o <b>supabase-15.sql</b>.</p>';
 
@@ -549,7 +550,7 @@ async function lojaItens(conteudo, el) {
               return `<span class="item-inv">
                 <b>${m.quantidade}×</b> ${esc(i.nome || "Item")}
                 ${i.duracao_horas ? `<button class="botao-link" data-usar="${m.item_id}" data-nome="${esc(i.nome)}">Usar</button>` : ""}
-                ${Number(i.revenda) > 0 ? `<button class="botao-link" data-vender="${m.item_id}" data-nome="${esc(i.nome)}" data-valor="${Math.floor(comDesconto(i.preco) * Math.min(1, i.revenda))}">Vender</button>` : ""}
+                ${Number(i.revenda) > 0 ? `<button class="botao-link" data-vender="${m.item_id}" data-nome="${esc(i.nome)}" data-valor="${valorRevenda(i)}">Vender</button>` : ""}
               </span>`;
             }).join("")}
           </div>`
@@ -1057,6 +1058,7 @@ const MODELOS_ITEM = [
 
 let itemEditando = null;   // id do item que está sendo editado (null = criando um novo)
 let fotoItem = null;       // caminho da imagem do item no formulário
+let fotosItemTemp = [];    // imagens antigas/enviadas para limpar as que sobrarem
 
 async function abaAdmin(el) {
   const [{ data: pessoas }, tags, { data: itens }, { data: trabalhos }, { data: equips }] = await Promise.all([
@@ -1251,6 +1253,7 @@ async function abaAdmin(el) {
     $("item-foto-previa").textContent = "Enviando...";
     try {
       fotoItem = await enviarArquivo("loja", await reduzirImagem(arquivo, 600));
+      fotosItemTemp.push(fotoItem);
     } catch (erro) {
       avisoEco("Não foi possível enviar: " + esc(erro.message), "erro");
     }
@@ -1276,6 +1279,7 @@ async function abaAdmin(el) {
       $("it-" + col).value = v ? +(v * escala).toFixed(2) : "";
     }
     fotoItem = i.foto_path || null;
+    fotosItemTemp = fotoItem ? [fotoItem] : [];
     mostrarFoto();
   }
   function modoCriar() {
@@ -1283,6 +1287,7 @@ async function abaAdmin(el) {
     $("form-item").reset();
     duracao.disabled = true;
     fotoItem = null;
+    fotosItemTemp = [];
     mostrarFoto();
     $("item-titulo").textContent = "Novo item da loja";
     $("item-salvar").textContent = "Adicionar à loja";
@@ -1315,6 +1320,7 @@ async function abaAdmin(el) {
       ? await sb.from("itens_loja").update(dados).eq("id", itemEditando)
       : await sb.from("itens_loja").insert(dados);
     if (error) return avisoEco(esc(error.message), "erro");
+    await limparFotosAntigas(fotosItemTemp, [fotoItem]);
     avisoEco(itemEditando ? "Item atualizado" : "Item adicionado à loja", "ganho");
     itemEditando = null;
     await abaAdmin(el);
@@ -1347,7 +1353,9 @@ async function abaAdmin(el) {
       await sb.from("itens_loja").update({ ativo: ativo.dataset.valor === "true" }).eq("id", id);
     } else if (e.target.closest("[data-apagar-item]")) {
       if (!(await confirmar("Apagar este item? Ele some também do inventário de quem comprou.", "Apagar"))) return;
+      const item = itens.find(i => i.id === id);
       await sb.from("itens_loja").delete().eq("id", id);
+      await limparFotosAntigas([item?.foto_path], []);
     } else return;
     await abaAdmin(el);
   });

@@ -131,6 +131,14 @@ async function apagarArquivo(caminho) {
   if (caminho) await sb.storage.from(BALDE).remove([caminho]);
 }
 
+// Apaga do armazenamento todas as fotos de "antigas" que não estão mais em "atuais"
+async function limparFotosAntigas(antigas = [], atuais = []) {
+  const usadas = new Set(atuais.filter(Boolean));
+  for (const cam of new Set(antigas.filter(Boolean))) {
+    if (!usadas.has(cam)) await apagarArquivo(cam);
+  }
+}
+
 // Recebe uma lista de caminhos e devolve { caminho: link } para usar em <img src>
 async function linksDosArquivos(caminhos) {
   const unicos = [...new Set(caminhos.filter(Boolean))];
@@ -239,9 +247,12 @@ async function carregarCargos() {
   cargosPorPerfil = {};
   (comTags || []).forEach(({ perfil_id, tags }) => {
     if (!tags) return;
+    const ordemFixa = tags.sistema && tags.nome === "Katequista" ? 900
+      : tags.sistema && tags.nome === "Visitante" ? 950
+      : (tags.ordem ?? ordemAntiga[tags.nome] ?? 500);
     (cargosPorPerfil[perfil_id] ||= []).push({
       nome: tags.nome, cor: tags.cor, sistema: tags.sistema,
-      ordem: tags.ordem ?? ordemAntiga[tags.nome] ?? 500,
+      ordem: ordemFixa,
     });
   });
   // Admin não é tag, mas fica sempre no topo da hierarquia

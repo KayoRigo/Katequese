@@ -12,6 +12,7 @@ const vm = require("node:vm");
 
 // Cria um ambiente limpo que imita o básico do navegador e carrega os arquivos pedidos
 function carregarSite(arquivos = []) {
+  const arquivosRemovidos = [];
   const contexto = vm.createContext({
     console,
     Date,
@@ -29,11 +30,20 @@ function carregarSite(arquivos = []) {
     clearTimeout,
     setInterval,
     clearInterval,
-    // Config falsa só para o banco.js não tentar conectar de verdade nos testes
-    SUPABASE_URL: "COLE_AQUI",
+    arquivosRemovidos,
+    // Config de teste para o banco.js criar o cliente mockado sem rede
+    SUPABASE_URL: "https://teste.supabase.co",
     SUPABASE_ANON_KEY: "chave-teste",
     EMAIL_BASE: "grupo@gmail.com",
-    supabase: { createClient: () => null },
+    supabase: {
+      createClient: () => ({
+        storage: {
+          from: () => ({
+            remove: async (lista) => arquivosRemovidos.push(...lista),
+          }),
+        },
+      }),
+    },
     location: { pathname: "/index.html", hash: "", replace: () => {} },
     history: { replaceState: () => {} },
     // Imita o document.createElement("div") usado pelo esc() no dados.js

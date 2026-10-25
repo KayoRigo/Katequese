@@ -315,7 +315,7 @@
     // ================= MEMBRO DA SEMANA =================
     // Rascunho próprio: só vai para o banco no botão "Salvar membro da semana"
     let semana = { nome: "", descricao: "", foto: null, ...(dados.membroSemana || {}) };
-    const fotoOriginal = semana.foto;
+    const fotosSemana = [semana.foto].filter(Boolean);
 
     async function mostrarSemana() {
       const link = (await linksDosArquivos([semana.foto]))[semana.foto];
@@ -334,6 +334,7 @@
       $("semana-msg").textContent = "Enviando foto...";
       try {
         semana.foto = await enviarArquivo("semana", await reduzirImagem(arquivo, 800));
+        fotosSemana.push(semana.foto);
         semana.nome = $("semana-nome").value;
         semana.descricao = $("semana-descricao").value;
         await mostrarSemana();
@@ -359,6 +360,8 @@
       if (!semana.nome) return $("semana-msg").textContent = "Coloque pelo menos o nome.";
       try {
         await gravarSemana(semana);
+        await limparFotosAntigas(fotosSemana, [semana.foto]);
+        fotosSemana.splice(0, fotosSemana.length, ...(semana.foto ? [semana.foto] : []));
         $("semana-msg").textContent = "Salvo. Já aparece na página inicial.";
       } catch (erro) {
         $("semana-msg").textContent = "Não foi possível salvar: " + erro.message;
@@ -368,8 +371,8 @@
     $("semana-limpar").addEventListener("click", async () => {
       if (!(await confirmar("Tirar o membro da semana da página inicial?", "Remover"))) return;
       await gravarSemana(null);
-      await apagarArquivo(semana.foto);
-      if (fotoOriginal && fotoOriginal !== semana.foto) await apagarArquivo(fotoOriginal);
+      await limparFotosAntigas(fotosSemana, []);
+      fotosSemana.length = 0;
       semana = { nome: "", descricao: "", foto: null };
       await mostrarSemana();
       $("semana-msg").textContent = "Removido.";
