@@ -40,7 +40,8 @@ de forma simples e mantenha comentários em português no código (o Kayo aprend
 | `style.css` | todo o visual; paletas no topo; tema de Halloween no fim |
 | `index.html` | início: nome gigante, faixa, acesso rápido, próximo encontro, membro da semana, números, frase do dia |
 | `eventos.html`, `midias.html`, `membros.html`, `enquetes.html`, `sorteios.html`, `economia.html` (+ `economia.js` e `minijogos.js`), `mural.html`, `atualizacoes.html`, `politica.html`, `perfil.html`, `admin.html`, `login.html` | as páginas |
-| `supabase.sql` até `supabase-17.sql` | estrutura do banco (rodados em ordem no SQL Editor do Supabase) |
+| `supabase.sql` até `supabase-18.sql` | estrutura do banco (rodados em ordem no SQL Editor do Supabase) |
+| `testes/` | testes automatizados separados por assunto (`node --test testes/*.test.js` e `5-banco-seguranca.sql`) |
 
 Menu: barra com Início · Eventos · Mídias · Política · Economia + botão "Mais" com grupos:
 Grupo (Membros, Mural) · Atividades (Enquetes, Sorteios) · Conta (Perfil, Atualizações [só katequistas], Admin). Página nova = entra num grupo.
@@ -84,7 +85,7 @@ Pedidos dos amigos, a fazer por partes (Sorteios e Mural já feitos): voltar Reg
 - Funções: `eh_aprovado`, `eh_admin`, `eh_katequista`, `pode_ver_arquivo`, `uso_do_espaco`,
   `criar_enquete`, `votar`, `resultados_enquetes`, `evento_aberto`, `sortear` (o banco escolhe o item; só autor ou admin),
   `tem_tag(nome)`, `pode_anunciar()` (admin/Presidente/Deputado), `pode_priorizar()` (admin/Presidente).
-- **Mudança na estrutura do banco = novo arquivo `supabase-N.sql`** (o próximo é o 18), feito para
+- **Mudança na estrutura do banco = novo arquivo `supabase-N.sql`** (o próximo é o 19), feito para
   poder rodar mais de uma vez, e o Kayo roda no SQL Editor. Mudança só de conteúdo vai pelo Admin.
 - Plano grátis: 500 MB de banco, 1 GB de arquivos, 5 GB de tráfego por mês.
 
@@ -238,7 +239,7 @@ Futuro: quando o site estiver no GitHub, uma GitHub Action pode registrar cada c
 - Fluxo de publicar: editar na pasta → testar com `python3 -m http.server 5173` (abrir `http://localhost:5173`,
   com http, e Cmd+Shift+R para fugir do cache) → GitHub Desktop: Commit → Push → Netlify publica sozinho.
   Netlify grátis: 300 créditos/mês, cada publicação gasta 15 → juntar mudanças antes do Push.
-- SQL novo: rodar no SQL Editor do Supabase ANTES ou junto do Push. Já rodados: até supabase-17.sql.
+- SQL novo: rodar no SQL Editor do Supabase ANTES ou junto do Push. Já rodados: até supabase-17.sql (falta rodar o `supabase-18.sql`).
 - Repositório GitHub privado "Katequese" (GitHub Desktop). Amigos podem virar colaboradores (Settings → Collaborators).
 - Ideia em aberto: juntar o site de votação e a rede social do amigo neste site (base: este repositório,
   mantendo Supabase e login).

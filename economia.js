@@ -549,7 +549,7 @@ async function lojaItens(conteudo, el) {
               return `<span class="item-inv">
                 <b>${m.quantidade}×</b> ${esc(i.nome || "Item")}
                 ${i.duracao_horas ? `<button class="botao-link" data-usar="${m.item_id}" data-nome="${esc(i.nome)}">Usar</button>` : ""}
-                ${Number(i.revenda) > 0 ? `<button class="botao-link" data-vender="${m.item_id}" data-nome="${esc(i.nome)}" data-valor="${Math.floor(i.preco * Math.min(1, i.revenda))}">Vender</button>` : ""}
+                ${Number(i.revenda) > 0 ? `<button class="botao-link" data-vender="${m.item_id}" data-nome="${esc(i.nome)}" data-valor="${Math.floor(comDesconto(i.preco) * Math.min(1, i.revenda))}">Vender</button>` : ""}
               </span>`;
             }).join("")}
           </div>`

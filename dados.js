@@ -18,12 +18,12 @@ function usarDados(d) {
 
 const MESES = ["JAN", "FEV", "MAR", "ABR", "MAI", "JUN", "JUL", "AGO", "SET", "OUT", "NOV", "DEZ"];
 
-// Protege contra código malicioso: transforma < > & " em texto comum.
+// Protege contra código malicioso: transforma < > & " ' em texto comum.
 // Sempre use isso antes de colocar texto digitado por alguém dentro de innerHTML.
 function esc(texto) {
   const div = document.createElement("div");
   div.textContent = texto ?? "";
-  return div.innerHTML.replace(/"/g, "&quot;");
+  return div.innerHTML.replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 }
 
 // Transforma "2026-11-07" em um objeto Date (meia-noite, no horário local)
