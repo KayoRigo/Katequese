@@ -1,0 +1,144 @@
+/* =====================================================================
+   modulos/inicio/inicio.css — estilos específicos da página inicial.
+   ===================================================================== */
+
+/* Primeira tela: ocupa a altura toda, com o nome no meio */
+.capa {
+  min-height: calc(100vh - 60px);
+  min-height: calc(100dvh - 60px);
+  padding: 40px var(--pad-tela);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  position: relative;
+}
+.nome-grupo {
+  font-size: clamp(2.2rem, 13.5vw, 11rem);
+  line-height: 1;
+  white-space: nowrap;
+  user-select: none;
+}
+.nome-grupo span { display: inline-block; transition: transform 0.2s, color 0.2s; }
+.nome-grupo span:hover { transform: translateY(-0.08em); color: var(--destaque); }
+.nome-grupo span.chegando { animation: entrar 0.5s ease-out backwards; }
+@keyframes entrar { from { opacity: 0; transform: translateY(0.25em); } }
+.nome-grupo span.pulando { animation: pulo 0.45s; }
+@keyframes pulo { 40% { transform: translateY(-0.22em) rotate(-5deg); color: var(--destaque); } }
+
+.traco { width: 64px; height: 4px; margin: 22px auto 0; background: var(--destaque); border-radius: 2px; }
+
+.lema {
+  margin-top: 22px;
+  min-height: 1.6em;
+  padding-right: 3px;
+  font-size: clamp(1rem, 2.2vw, 1.25rem);
+  color: var(--texto-suave);
+  border-right: 2px solid var(--destaque);
+  animation: piscar 0.9s step-end infinite;
+}
+@keyframes piscar { 50% { border-color: transparent; } }
+
+.continua { position: absolute; bottom: 28px; font-size: 0.85rem; text-decoration: none; color: var(--texto-suave); }
+.continua:hover { color: var(--texto); }
+
+.faixa {
+  overflow: hidden;
+  white-space: nowrap;
+  padding: 10px 0;
+  background: var(--destaque);
+  color: var(--sobre-destaque);
+  font-weight: 800;
+  font-stretch: 112%;
+  font-size: 0.85rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.faixa-trilho { display: inline-block; animation: deslizar 40s linear infinite; }
+.faixa-trilho span { padding: 0 16px; }
+@keyframes deslizar { to { transform: translateX(-50%); } }
+
+.secao { max-width: 1100px; margin: 0 auto; padding: clamp(24px, 4vw, 36px) var(--pad-tela) 0; }
+.secao:last-of-type { padding-bottom: 56px; }
+.secao-titulo {
+  margin-bottom: 14px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--texto-suave);
+}
+
+.atalhos { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(150px, 100%), 1fr)); gap: 12px; }
+.atalho {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: var(--superficie);
+  border: 1px solid var(--borda);
+  border-radius: var(--raio);
+  font-weight: 600;
+  text-decoration: none;
+  transition: border-color 0.15s, background 0.15s;
+}
+.atalho svg { width: 22px; height: 22px; color: var(--texto-suave); flex-shrink: 0; transition: color 0.15s; }
+.atalho:hover { border-color: var(--destaque); background: var(--superficie-2); }
+.atalho:hover svg { color: var(--destaque); }
+
+.destaques { display: grid; grid-template-columns: 1.3fr 1fr; gap: 16px; }
+@media (max-width: 800px) { .destaques { grid-template-columns: 1fr; } }
+.destaques h3 { font-size: 1.4rem; font-weight: 700; line-height: 1.25; }
+.detalhe { color: var(--texto-suave); }
+
+.contagem { display: grid; grid-template-columns: repeat(4, 1fr); gap: clamp(6px, 2vw, 10px); margin: 18px 0 14px; }
+.contagem div {
+  padding: 12px 4px;
+  text-align: center;
+  background: var(--fundo);
+  border: 1px solid var(--borda);
+  border-radius: 6px;
+}
+.contagem b {
+  display: block;
+  font-size: clamp(1.35rem, 4.5vw, 2.4rem);
+  font-weight: 800;
+  line-height: 1.1;
+  color: var(--destaque);
+  font-variant-numeric: tabular-nums;
+}
+.contagem small { font-size: 0.75rem; color: var(--texto-suave); }
+
+.membro-semana { display: flex; gap: 18px; align-items: center; }
+.membro-semana .foto-semana {
+  width: 112px;
+  height: 112px;
+  border-radius: var(--raio);
+  object-fit: cover;
+  flex-shrink: 0;
+  background: var(--superficie-2);
+  border: 1px solid var(--borda);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.4rem;
+  font-weight: 700;
+}
+.membro-semana p { margin-top: 6px; color: var(--texto-suave); white-space: pre-wrap; }
+@media (max-width: 420px) { .membro-semana { flex-direction: column; text-align: center; } }
+
+.numeros { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(170px, 100%), 1fr)); gap: 12px; }
+.numero { padding: var(--pad-caixa); }
+.numero b { display: block; font-size: 2.2rem; font-weight: 800; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.numero span { font-size: 0.9rem; color: var(--texto-suave); }
+
+.citacao { padding: 28px 24px; border-left: 4px solid var(--destaque); }
+.citacao p { font-size: clamp(1.15rem, 2.6vw, 1.5rem); font-weight: 500; line-height: 1.4; }
+.citacao small { display: block; margin-top: 10px; font-size: 0.8rem; color: var(--texto-suave); }
+
+.aparecer { opacity: 0; transform: translateY(14px); transition: opacity 0.5s, transform 0.5s; }
+.aparecer.visivel { opacity: 1; transform: none; }
+
+.confete { position: fixed; top: -20px; width: 8px; height: 14px; z-index: 50; pointer-events: none; animation: cair linear forwards; }
+@keyframes cair { to { transform: translateY(110vh) rotate(720deg); } }

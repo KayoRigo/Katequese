@@ -4,8 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Economia · Katequese</title>
-  <link rel="stylesheet" href="css/style.css">
-  <script src="js/base/tema.js"></script>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../modulos/economia/economia.css">
+  <script src="../js/base/tema.js"></script>
 </head>
 
 <body>
@@ -63,15 +64,11 @@
   <footer>Katequese © 2026</footer>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-  <script src="js/base/config.js"></script>
-  <script src="js/base/dados.js"></script>
-  <script src="js/base/menu.js"></script>
-  <script src="js/base/banco.js"></script>
-  <script src="js/paginas/economia.js"></script>
-  <script src="js/paginas/minijogos.js"></script>
-  <script type="module">
-    const eu = await iniciarPagina();
-    await iniciarEconomia(eu);
-  </script>
+  <script src="../js/base/config.js"></script>
+  <script src="../js/base/dados.js"></script>
+  <script src="../js/base/menu.js"></script>
+  <script src="../js/base/banco.js"></script>
+  <script src="../modulos/economia/minijogos.js"></script>
+  <script src="../modulos/economia/economia.js"></script>
 </body>
 </html>

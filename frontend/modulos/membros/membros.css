@@ -1,0 +1,16 @@
+/* =====================================================================
+   modulos/membros/membros.css — grade de membros (Katequistas e Visitantes).
+   ===================================================================== */
+
+.membros { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(210px, 100%), 1fr)); gap: 12px; }
+.membro {
+  padding: 22px 16px;
+  text-align: center;
+  background: var(--superficie);
+  border: 1px solid var(--borda);
+  border-radius: var(--raio);
+}
+.membro strong { display: block; }
+.abas-membros { max-width: 360px; background: var(--superficie); border: 1px solid var(--borda); }
+.membros.sem-ninguem { display: block; }
+.membro small { display: block; margin-bottom: 10px; color: var(--texto-suave); }

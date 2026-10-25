@@ -1,0 +1,33 @@
+/* =====================================================================
+   modulos/eventos/eventos.css — cartões de evento e presença.
+   ===================================================================== */
+
+.lista-eventos { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr)); gap: 16px; }
+.evento-card {
+  overflow: hidden;
+  background: var(--superficie);
+  border: 1px solid var(--borda);
+  border-radius: var(--raio);
+}
+.evento-card.passou { opacity: 0.55; }
+.evento-card img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
+.evento-corpo { padding: var(--pad-caixa); }
+.evento-topo { display: flex; gap: 14px; align-items: flex-start; }
+.evento-topo h3 { font-size: 1.1rem; line-height: 1.3; }
+.evento-info { font-size: 0.88rem; color: var(--texto-suave); }
+.evento-desc { margin-top: 12px; font-size: 0.95rem; white-space: pre-wrap; word-break: break-word; }
+.evento-rodape { margin-top: 14px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px 10px; font-size: 0.8rem; color: var(--texto-suave); }
+.data {
+  min-width: 54px;
+  padding: 7px 6px;
+  text-align: center;
+  background: var(--superficie-2);
+  border: 1px solid var(--borda);
+  border-radius: 6px;
+  font-size: 1.35rem;
+  font-weight: 800;
+  line-height: 1.05;
+  color: var(--destaque);
+  flex-shrink: 0;
+}
+.data small { display: block; font-size: 0.68rem; font-weight: 600; color: var(--texto-suave); }

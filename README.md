@@ -11,14 +11,27 @@ Plataforma privada do grupo **Katequese** — eventos, mídias, mural, enquetes,
 ```text
 Katequese/
 ├── frontend/
-│   ├── *.html              # Páginas do site
-│   ├── css/style.css       # Estilos, paletas e temas globais (Halloween/Natal)
-│   └── js/
-│       ├── base/           # Scripts globais (config, banco, dados, menu, tema)
-│       └── paginas/        # Scripts de páginas específicas (economia, minijogos, leis)
+│   ├── paginas/            # Todas as 14 páginas HTML limpas (sem JS inline)
+│   ├── css/style.css       # Estilo base global, paletas e temas (Halloween/Natal)
+│   ├── js/base/            # Scripts globais (config, banco, dados, menu, tema)
+│   └── modulos/            # Cada seção isolada em seu próprio módulo (.js e .css)
+│       ├── inicio/
+│       ├── login/
+│       ├── eventos/
+│       ├── midias/
+│       ├── membros/
+│       ├── mural/
+│       ├── enquetes/
+│       ├── sorteios/
+│       ├── economia/       # economia.js, minijogos.js e economia.css
+│       ├── politica/       # politica.js, leis.js e politica.css
+│       ├── perfil/
+│       ├── atualizacoes/
+│       └── admin/
 ├── backend/
 │   └── sql/                # Migrações e funções do Supabase (supabase.sql até supabase-18.sql)
-├── testes/                 # Testes automatizados e guardrails de arquitetura
+├── testes/                 # Testes unitários da lógica e banco
+├── guardrails/             # Guardrails automáticos de arquitetura e responsividade
 ├── docs/                   # Documentação dividida por assunto
 └── CLAUDE.md               # Índice rápido e regras principais
 ```
@@ -44,7 +57,14 @@ Katequese/
 Antes de fazer commit, rode no terminal (precisa apenas do Node.js instalado, sem `npm install`):
 
 ```bash
+# Rodar tudo (testes + guardrails)
+node --test testes/*.test.js guardrails/*.test.js
+
+# Rodar só os testes de lógica
 node --test testes/*.test.js
+
+# Rodar só os guardrails de arquitetura e responsividade
+node --test guardrails/*.test.js
 ```
 
 ---

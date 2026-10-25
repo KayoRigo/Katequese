@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="carregando">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Perfil · Katequese</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../modulos/perfil/perfil.css">
+  <script src="../js/base/tema.js"></script>
+</head>
+
+<body>
+  <!-- O menu é preenchido pelo menu.js -->
+  <header id="menu"></header>
+
+  <main>
+    <div class="cabecalho-pagina">
+      <div>
+        <h1>Perfil</h1>
+        <p>Seus dados no site.</p>
+      </div>
+    </div>
+
+    <div class="perfil">
+      <!-- Ficha que mostra como o perfil aparece para os outros -->
+      <div class="caixa ficha">
+        <div id="ver-foto"></div>
+        <div class="botoes-foto">
+          <!-- O <input type="file"> fica escondido; o botão "Trocar foto" abre ele -->
+          <input id="arquivo-foto" type="file" accept="image/*" hidden>
+          <button class="botao-pequeno" id="trocar-foto">Trocar foto</button>
+          <button class="botao-pequeno perigo" id="remover-foto" hidden>Remover</button>
+        </div>
+        <div class="nome" id="ver-nome"></div>
+        <div class="usuario" id="ver-usuario"></div>
+        <div class="apelido" id="ver-apelido"></div>
+        <p class="bio" id="ver-bio"></p>
+        <!-- Tags (como os cargos do Discord): só o admin distribui -->
+        <div class="tags centro" id="ver-tags"></div>
+        <p class="aviso" id="foto-msg"></p>
+      </div>
+
+      <div class="pilha">
+        <!-- Economia: saldo e nível (só para katequistas; aparece depois que o banco responde) -->
+        <div class="caixa" id="caixa-economia" hidden>
+          <h2>Economia</h2>
+          <div class="eco-perfil">
+            <strong id="perfil-saldo"></strong>
+            <span id="perfil-nivel"></span>
+            <div class="barra-xp"><div id="perfil-barra"></div></div>
+          </div>
+          <a class="link-mais" href="economia.html">Abrir economia →</a>
+        </div>
+
+        <!-- Formulário para editar. A ficha ao lado muda enquanto você digita -->
+        <form class="caixa" id="form-perfil">
+          <h2>Editar perfil</h2>
+          <label class="campo"><span>Nome</span><input id="nome" maxlength="40" required></label>
+          <label class="campo"><span>Apelido</span><input id="apelido" maxlength="30"></label>
+          <label class="campo"><span>Aniversário (os outros veem só o dia e o mês)</span><input id="aniversario" type="date"></label>
+          <label class="campo"><span>Bio</span><textarea id="bio" rows="3" maxlength="140"></textarea></label>
+          <button class="botao" type="submit">Salvar</button>
+          <span id="salvo" class="aviso" style="margin-left: 10px"></span>
+        </form>
+
+        <!-- Troca de senha -->
+        <form class="caixa" id="form-senha">
+          <h2>Trocar senha</h2>
+          <label class="campo"><span>Nova senha</span><input id="nova-senha" type="password" autocomplete="new-password" minlength="4" required></label>
+          <label class="campo"><span>Repita a nova senha</span><input id="nova-senha2" type="password" autocomplete="new-password" minlength="4" required></label>
+          <button class="botao" type="submit">Trocar senha</button>
+          <span id="senha-msg" class="aviso" style="margin-left: 10px"></span>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <footer>Katequese © 2026</footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+  <script src="../js/base/config.js"></script>
+  <script src="../js/base/dados.js"></script>
+  <script src="../js/base/menu.js"></script>
+  <script src="../js/base/banco.js"></script>
+  <script type="module" src="../modulos/perfil/perfil.js"></script>
+</body>
+</html>

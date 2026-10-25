@@ -1,0 +1,32 @@
+/* =====================================================================
+   modulos/midias/midias.css — galeria de fotos e janela de visualização.
+   ===================================================================== */
+
+.galeria { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(200px, 100%), 1fr)); gap: 12px; }
+@media (max-width: 420px) {
+  .galeria { grid-template-columns: repeat(auto-fill, minmax(min(140px, 100%), 1fr)); }
+}
+.item-midia {
+  position: relative;
+  overflow: hidden;
+  padding: 0;
+  aspect-ratio: 1;
+  background: var(--superficie-2);
+  border: 1px solid var(--borda);
+  border-radius: var(--raio);
+  cursor: pointer;
+}
+.item-midia img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.25s; }
+.item-midia:hover img { transform: scale(1.03); }
+.item-midia .legenda {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 18px 10px 8px;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.75));
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-align: left;
+}

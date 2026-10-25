@@ -1,0 +1,89 @@
+/* =====================================================================
+   modulos/sorteios/sorteios.css — cartões de sorteio e roleta animada.
+   ===================================================================== */
+
+.lista-sorteios { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(260px, 100%), 1fr)); gap: 16px; }
+.sorteio-card {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  overflow: hidden;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  background: var(--superficie);
+  border: 1px solid var(--borda);
+  border-radius: var(--raio);
+  cursor: pointer;
+  transition: border-color 0.15s, transform 0.15s;
+}
+.sorteio-card:hover { border-color: var(--texto-suave); transform: translateY(-2px); }
+.sorteio-card img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
+.sorteio-corpo { display: flex; flex-direction: column; gap: 4px; padding: 14px 16px 16px; }
+.sorteio-corpo strong { font-size: 1.1rem; }
+.sorteio-corpo small { color: var(--texto-suave); font-size: 0.82rem; }
+.sorteio-ultimo { margin-top: 6px; font-size: 0.9rem; color: var(--texto-suave); }
+.sorteio-ultimo b { color: var(--destaque); }
+
+dialog.janela-sorteio { width: min(720px, 94vw); }
+.sorteio-janela { padding: var(--pad-caixa); }
+.sorteio-topo { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 12px 16px; margin-bottom: 16px; }
+.sorteio-topo h2 { font-size: 1.4rem; line-height: 1.2; }
+.sorteio-topo small { color: var(--texto-suave); }
+.sorteio-imagem { width: 100%; max-height: 220px; object-fit: cover; border-radius: var(--raio); margin-bottom: 16px; }
+
+.roleta {
+  --linha-roleta: 64px;
+  position: relative;
+  height: calc(var(--linha-roleta) * 3);
+  overflow: hidden;
+  background: var(--fundo);
+  border: 1px solid var(--borda);
+  border-radius: var(--raio);
+  -webkit-mask-image: linear-gradient(transparent, #000 30%, #000 70%, transparent);
+  mask-image: linear-gradient(transparent, #000 30%, #000 70%, transparent);
+}
+.roleta::before {
+  content: "";
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  top: var(--linha-roleta);
+  height: var(--linha-roleta);
+  border: 2px solid var(--destaque);
+  border-radius: 8px;
+  pointer-events: none;
+  z-index: 1;
+}
+.roleta-fita { will-change: transform; }
+.roleta-item {
+  height: var(--linha-roleta);
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: clamp(1.1rem, 4vw, 1.6rem);
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.roleta-item.vencedor { color: var(--destaque); }
+.roleta.parou .roleta-item.vencedor { animation: vencedor 0.6s ease-out; }
+@keyframes vencedor {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.18); }
+  100% { transform: scale(1); }
+}
+
+.sorteio-acoes { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 14px 0 22px; }
+.sorteio-acoes .botao { min-width: 160px; }
+.sorteio-acoes .aviso { margin: 0; }
+.sorteio-colunas { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+@media (max-width: 560px) { .sorteio-colunas { grid-template-columns: 1fr; } }
+.sorteio-itens { display: flex; flex-wrap: wrap; gap: 6px; max-height: 220px; overflow-y: auto; }
+.sorteio-itens span { padding: 4px 10px; font-size: 0.85rem; background: var(--superficie-2); border: 1px solid var(--borda); border-radius: 999px; }
+.sorteio-itens span.saiu { text-decoration: line-through; opacity: 0.5; }
+.sorteio-historico { display: grid; gap: 8px; max-height: 220px; overflow-y: auto; padding-left: 20px; }
+.sorteio-historico small { display: block; font-size: 0.8rem; color: var(--texto-suave); }
+.sorteio-rodape { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; padding-top: 14px; border-top: 1px solid var(--borda); }

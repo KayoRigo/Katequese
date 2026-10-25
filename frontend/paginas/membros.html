@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="carregando">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Membros · Katequese</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../modulos/membros/membros.css">
+  <script src="../js/base/tema.js"></script>
+</head>
+
+<body>
+  <!-- O menu é preenchido pelo menu.js -->
+  <header id="menu"></header>
+
+  <main>
+    <div class="cabecalho-pagina">
+      <div>
+        <h1>Membros</h1>
+        <p id="subtitulo-membros">Integrantes oficiais do grupo.</p>
+      </div>
+    </div>
+
+    <!-- Abas: Katequistas / Visitantes -->
+    <div class="abas abas-membros">
+      <button class="aba ativa" data-aba="katequistas">Katequistas</button>
+      <button class="aba" data-aba="visitantes">Visitantes</button>
+    </div>
+
+    <!-- Os cartões são criados pelo JavaScript lá embaixo -->
+    <div class="membros" id="membros"></div>
+  </main>
+
+  <footer>Katequese © 2026</footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+  <script src="../js/base/config.js"></script>
+  <script src="../js/base/dados.js"></script>
+  <script src="../js/base/menu.js"></script>
+  <script src="../js/base/banco.js"></script>
+  <script type="module" src="../modulos/membros/membros.js"></script>
+</body>
+</html>

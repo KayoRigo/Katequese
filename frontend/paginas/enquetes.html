@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="carregando">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Enquetes · Katequese</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../modulos/enquetes/enquetes.css">
+  <script src="../js/base/tema.js"></script>
+</head>
+
+<body>
+  <!-- O menu é preenchido pelo menu.js -->
+  <header id="menu"></header>
+
+  <main>
+    <div class="cabecalho-pagina">
+      <div>
+        <h1>Enquetes</h1>
+        <p id="subtitulo">Votações do grupo.</p>
+      </div>
+      <!-- Só katequistas veem esse botão (o JavaScript esconde para visitantes) -->
+      <button class="botao" id="abrir-form">Criar enquete</button>
+    </div>
+
+    <!-- Formulário de nova enquete (escondido até clicar em "Criar enquete") -->
+    <form class="caixa formulario-novo" id="form-enquete" hidden>
+      <h2>Nova enquete</h2>
+      <label class="campo"><span>Título</span>
+        <input id="titulo" required maxlength="120">
+      </label>
+      <label class="campo"><span>Descrição (opcional)</span>
+        <textarea id="descricao" rows="2" maxlength="500"></textarea>
+      </label>
+      <label class="campo"><span>Imagem (opcional)</span>
+        <input id="foto" type="file" accept="image/*">
+      </label>
+
+      <div class="campo">
+        <span>Opções</span>
+        <div class="lista-opcoes" id="lista-opcoes"></div>
+        <button type="button" class="botao-pequeno" id="mais-opcao">+ Adicionar opção</button>
+      </div>
+
+      <div class="linha-campos">
+        <label class="campo"><span>Duração</span>
+          <select id="duracao">
+            <option value="3600000">1 hora</option>
+            <option value="21600000">6 horas</option>
+            <option value="86400000">1 dia</option>
+            <option value="259200000">3 dias</option>
+            <option value="604800000" selected>1 semana</option>
+            <option value="1209600000">2 semanas</option>
+            <option value="2592000000">1 mês</option>
+            <option value="data">Escolher data e hora</option>
+          </select>
+        </label>
+        <label class="campo" id="campo-fim" hidden><span>Termina em</span>
+          <input id="fim" type="datetime-local">
+        </label>
+      </div>
+
+      <label class="campo-check"><input id="multipla" type="checkbox"> Permitir votar em mais de uma opção</label>
+      <label class="campo-check"><input id="anonima" type="checkbox"> Votos anônimos (ninguém vê quem votou em quê)</label>
+      <label class="campo-check"><input id="visivel" type="checkbox"> Visitantes podem ver esta enquete</label>
+      <label class="campo-check" id="linha-visitantes-votam" hidden><input id="visitantes-votam" type="checkbox"> Visitantes também podem votar</label>
+
+      <div class="botoes">
+        <button class="botao" type="submit" id="publicar">Publicar enquete</button>
+        <button class="botao-pequeno" type="button" id="cancelar">Cancelar</button>
+      </div>
+      <p class="progresso" id="progresso"></p>
+    </form>
+
+    <!-- A lista é montada pelo JavaScript -->
+    <div id="enquetes"></div>
+  </main>
+
+  <footer>Katequese © 2026</footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+  <script src="../js/base/config.js"></script>
+  <script src="../js/base/dados.js"></script>
+  <script src="../js/base/menu.js"></script>
+  <script src="../js/base/banco.js"></script>
+  <script type="module" src="../modulos/enquetes/enquetes.js"></script>
+</body>
+</html>

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="carregando">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mídias · Katequese</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../modulos/midias/midias.css">
+  <script src="../js/base/tema.js"></script>
+</head>
+
+<body>
+  <!-- O menu é preenchido pelo menu.js -->
+  <header id="menu"></header>
+
+  <main>
+    <div class="cabecalho-pagina">
+      <div>
+        <h1>Mídias</h1>
+        <p id="subtitulo">Fotos do grupo.</p>
+      </div>
+      <!-- Só katequistas veem esse botão (o JavaScript esconde para visitantes) -->
+      <button class="botao" id="abrir-form">Adicionar foto</button>
+    </div>
+
+    <!-- Formulário de envio (escondido até clicar em "Adicionar foto") -->
+    <form class="caixa formulario-novo" id="form-midia" hidden>
+      <h2>Nova foto</h2>
+      <label class="campo"><span>Foto</span>
+        <input id="arquivo" type="file" accept="image/*" required>
+      </label>
+      <label class="campo"><span>Nome (opcional)</span>
+        <input id="titulo" maxlength="80">
+      </label>
+      <label class="campo"><span>Descrição (opcional)</span>
+        <textarea id="descricao" rows="2" maxlength="300"></textarea>
+      </label>
+      <label class="campo-check">
+        <input id="visivel" type="checkbox"> Visitantes podem ver esta foto
+      </label>
+      <div class="botoes">
+        <button class="botao" type="submit" id="enviar">Enviar</button>
+        <button class="botao-pequeno" type="button" id="cancelar">Cancelar</button>
+      </div>
+      <p class="progresso" id="progresso"></p>
+    </form>
+
+    <!-- A galeria é montada pelo JavaScript -->
+    <div id="galeria"></div>
+  </main>
+
+  <!-- Janela para ver a foto em tamanho grande -->
+  <dialog class="janela" id="janela">
+    <div class="janela-midia" id="janela-midia"></div>
+    <div class="janela-info">
+      <div id="janela-texto"></div>
+      <div class="acoes">
+        <button class="botao-pequeno perigo" id="apagar" hidden>Apagar</button>
+        <button class="botao-pequeno" id="fechar">Fechar</button>
+      </div>
+    </div>
+  </dialog>
+
+  <footer>Katequese © 2026</footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+  <script src="../js/base/config.js"></script>
+  <script src="../js/base/dados.js"></script>
+  <script src="../js/base/menu.js"></script>
+  <script src="../js/base/banco.js"></script>
+  <script type="module" src="../modulos/midias/midias.js"></script>
+</body>
+</html>

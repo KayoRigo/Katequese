@@ -1,0 +1,10 @@
+/* =====================================================================
+   modulos/mural/mural.css — estilos da página Mural (anúncios e recados).
+   ===================================================================== */
+
+.pagina-mural { max-width: 820px; }
+.abas-mural { max-width: 420px; background: var(--superficie); border: 1px solid var(--borda); }
+.escrever { margin-bottom: 20px; }
+.escrever-rodape { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.escrever-rodape .botao { margin-left: auto; }
+.contador-letras { color: var(--texto-suave); font-size: 0.8rem; }

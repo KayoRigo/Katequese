@@ -1,0 +1,17 @@
+/* =====================================================================
+   modulos/login/login.css — estilos da tela de login e cadastro.
+   ===================================================================== */
+
+.tela-login { min-height: 100vh; min-height: 100dvh; padding: 32px var(--pad-tela); display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.nome-login { font-size: clamp(2.2rem, 11vw, 4.4rem); line-height: 1; }
+.tela-login .sub { margin: 10px 0 24px; color: var(--texto-suave); }
+.caixa-login { width: 100%; max-width: 400px; }
+.caixa-login .botao { width: 100%; }
+.mensagem { min-height: 1.4em; margin-top: 12px; text-align: center; font-size: 0.9rem; }
+.mensagem.erro { color: var(--perigo); }
+.mensagem.ok { color: var(--texto-suave); }
+
+.estado { text-align: center; }
+.estado h2 { margin-bottom: 8px; font-size: 1.3rem; font-weight: 700; letter-spacing: 0; text-transform: none; color: var(--texto); }
+.estado p { margin-bottom: 18px; color: var(--texto-suave); }
+.estado .botoes { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }

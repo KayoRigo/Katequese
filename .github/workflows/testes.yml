@@ -15,4 +15,4 @@ jobs:
         with:
           node-version: 22
       - name: Rodar testes e guardrails de arquitetura
-        run: node --test testes/*.test.js
+        run: node --test testes/*.test.js guardrails/*.test.js

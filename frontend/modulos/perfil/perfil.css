@@ -1,0 +1,14 @@
+/* =====================================================================
+   modulos/perfil/perfil.css — ficha e formulários do perfil.
+   ===================================================================== */
+
+.perfil { display: grid; grid-template-columns: 1fr 1.3fr; gap: 16px; align-items: start; }
+@media (max-width: 760px) { .perfil { grid-template-columns: 1fr; } }
+.ficha { text-align: center; }
+.ficha .nome { font-size: 1.5rem; font-weight: 700; }
+.ficha .usuario { color: var(--texto-suave); }
+.ficha .apelido { margin-top: 6px; color: var(--destaque); font-weight: 600; }
+.ficha .bio { margin-top: 10px; color: var(--texto-suave); }
+.ficha .tags { margin-top: 16px; }
+.ficha .botoes-foto { display: flex; gap: 6px; justify-content: center; margin-bottom: 16px; }
+.pilha { display: grid; gap: 16px; }

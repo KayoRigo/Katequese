@@ -8,13 +8,14 @@ Mantenha explicações e comentários em **português** simples e direto no cód
 
 ## 1. Mapa do Projeto (Onde fica cada coisa)
 
-Para não acumular tudo na raiz nem num único documento, o projeto é dividido em **4 pastas**:
+Para não acumular tudo na raiz nem num único documento, o projeto é dividido em **5 pastas**:
 
 | Pasta | O que fica ali |
 | :--- | :--- |
-| `frontend/` | **Todo o site:** páginas `.html`, `css/style.css`, `js/base/` (config, banco, dados, menu, tema) e `js/paginas/` (economia, minijogos, leis). |
+| `frontend/` | **Todo o site:** `paginas/*.html`, `css/style.css` (base global), `js/base/` (config, banco, dados, menu, tema) e `modulos/<secao>/` (cada seção isolada com seu `.js` e `.css`). |
 | `backend/sql/` | Estrutura e funções do Supabase (`supabase.sql` até `supabase-18.sql`), rodados em ordem. |
-| `testes/` | Testes automatizados e guardrails (`node --test testes/*.test.js` + `5-banco-seguranca.sql`). |
+| `testes/` | Testes unitários da lógica e banco (`node --test testes/*.test.js` + `5-banco-seguranca.sql`). |
+| `guardrails/` | Travas automáticas de arquitetura e responsividade (`node --test guardrails/*.test.js`). |
 | `docs/` | Documentação detalhada dividida por assunto (leia só o documento da parte em que for mexer). |
 
 ---
@@ -33,11 +34,11 @@ Para não acumular tudo na raiz nem num único documento, o projeto é dividido 
 
 ## 3. Guardrails Obrigatórios (Para os 3 Devs e IAs)
 
-1. **Rode os testes antes de cada commit:**
+1. **Rode os testes e guardrails antes de cada commit:**
    ```bash
-   node --test testes/*.test.js
+   node --test testes/*.test.js guardrails/*.test.js
    ```
-   O teste `7-guardrails-arquitetura.test.js` trava automaticamente se alguém deixar arquivos `.sql`/`.js`/`.css` soltos na raiz, esquecer login numa página nova, quebrar um caminho de script ou passar de 120 linhas neste `CLAUDE.md`.
+   A pasta `guardrails/` trava automaticamente se alguém deixar arquivos soltos na raiz ou em `frontend/`, esquecer login numa página nova, quebrar a responsividade ou passar de 120 linhas neste `CLAUDE.md`.
 2. **Segurança no banco primeiro:**
    * Nenhuma regra crítica (saldo `K$`, sorteios, votos, permissões) pode confiar só no navegador. Use sempre RLS e funções `security definer`.
    * Todo texto vindo de usuário dentro de `innerHTML` **precisa** passar por `esc()` (`frontend/js/dados.js`).

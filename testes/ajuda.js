@@ -69,10 +69,13 @@ function carregarSite(arquivos = []) {
   });
 
   for (const arq of arquivos) {
+    const pastaMod = arq.replace(/\.js$/, "");
     const candidatos = [
       path.join(__dirname, "..", arq),
       path.join(__dirname, "..", "frontend", "js", "base", arq),
-      path.join(__dirname, "..", "frontend", "js", "paginas", arq),
+      path.join(__dirname, "..", "frontend", "modulos", pastaMod, arq),
+      path.join(__dirname, "..", "frontend", "modulos", "economia", arq),
+      path.join(__dirname, "..", "frontend", "modulos", "politica", arq),
     ];
     const caminho = candidatos.find(c => fs.existsSync(c));
     const codigo = fs.readFileSync(caminho, "utf8");

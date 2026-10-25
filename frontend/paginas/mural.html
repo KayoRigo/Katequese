@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="carregando">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mural · Katequese</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../modulos/mural/mural.css">
+  <script src="../js/base/tema.js"></script>
+</head>
+
+<body>
+  <!-- O menu é preenchido pelo menu.js -->
+  <header id="menu"></header>
+
+  <main class="pagina-mural">
+    <div class="cabecalho-pagina">
+      <div>
+        <h1>Mural</h1>
+        <p id="subtitulo">Recados do grupo e anúncios oficiais.</p>
+      </div>
+    </div>
+
+    <div class="abas abas-mural">
+      <button class="aba ativa" data-aba="anuncios">Anúncios oficiais</button>
+      <button class="aba" data-aba="recados">Recados</button>
+    </div>
+
+    <!-- ===================== RECADOS ===================== -->
+    <section id="secao-recados">
+      <form class="caixa escrever" id="form-recado">
+        <label class="campo" style="margin-bottom: 10px">
+          <span>Escrever um recado</span>
+          <textarea id="recado-texto" rows="3" maxlength="1000" required placeholder="Escreva aqui"></textarea>
+        </label>
+        <div class="escrever-rodape">
+          <label class="campo-check" style="margin: 0">
+            <input id="recado-visivel" type="checkbox"> Visitantes podem ver
+          </label>
+          <small class="contador-letras" id="recado-letras">0/1000</small>
+          <button class="botao" type="submit">Publicar</button>
+        </div>
+        <p class="progresso" id="recado-msg"></p>
+      </form>
+      <div class="lista-recados" id="lista-recados"></div>
+    </section>
+
+    <!-- ===================== ANÚNCIOS ===================== -->
+    <section id="secao-anuncios" hidden>
+      <!-- Só aparece para Presidente, Deputados e admins -->
+      <form class="caixa escrever" id="form-anuncio" hidden>
+        <h2>Novo anúncio oficial</h2>
+        <label class="campo"><span>Título</span><input id="anuncio-titulo" maxlength="100" required></label>
+        <label class="campo"><span>Texto</span><textarea id="anuncio-texto" rows="4" maxlength="2000" required></textarea></label>
+        <label class="campo-check" id="linha-prioridade" hidden>
+          <input id="anuncio-prioridade" type="checkbox"> Prioridade (fica no topo, em destaque, e aparece na página inicial)
+        </label>
+        <label class="campo-check">
+          <input id="anuncio-visivel" type="checkbox"> Visitantes podem ver
+        </label>
+        <button class="botao" type="submit">Publicar anúncio</button>
+        <p class="progresso" id="anuncio-msg"></p>
+      </form>
+      <p class="aviso" id="aviso-anuncio" hidden>Só o Presidente, os Deputados e os administradores publicam anúncios oficiais.</p>
+      <div class="lista-anuncios" id="lista-anuncios"></div>
+    </section>
+  </main>
+
+  <footer>Katequese © 2026</footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+  <script src="../js/base/config.js"></script>
+  <script src="../js/base/dados.js"></script>
+  <script src="../js/base/menu.js"></script>
+  <script src="../js/base/banco.js"></script>
+  <script type="module" src="../modulos/mural/mural.js"></script>
+</body>
+</html>

@@ -1,0 +1,89 @@
+/* =====================================================================
+   modulos/politica/politica.css — Governo, eleições, leis e Câmara.
+   ===================================================================== */
+
+.eleicao { border-left: 4px solid var(--borda); }
+.eleicao.aberta { border-left-color: #4caf68; }
+.eleicao.em-breve { border-left-color: var(--destaque); }
+.eleicao-titulo { display: flex; align-items: center; gap: 10px; font-size: 1.35rem; font-weight: 700; }
+.eleicao-texto { margin: 6px 0 16px; color: var(--texto-suave); }
+.eleicao-aviso { font-size: 0.9rem; color: var(--texto-suave); }
+.eleicao .botao { display: inline-block; text-decoration: none; }
+.eleicao .botao-pequeno { display: inline-block; text-decoration: none; }
+.ponto-aberta { width: 10px; height: 10px; border-radius: 50%; background: #4caf68; animation: ponto-pisca 1.6s ease-in-out infinite; }
+@keyframes ponto-pisca { 50% { opacity: 0.3; } }
+
+.presidente { display: flex; align-items: center; gap: 22px; }
+.presidente img, .presidente .iniciais {
+  width: 150px;
+  height: 150px;
+  margin: 0;
+  border-radius: var(--raio);
+  object-fit: cover;
+  object-position: center 25%;
+  font-size: 3rem;
+}
+.presidente .cargo { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--destaque); }
+.presidente strong { display: block; margin-top: 4px; font-size: clamp(1.4rem, 3.5vw, 1.9rem); line-height: 1.2; }
+.partido-atual { margin-top: 4px; font-weight: 600; color: var(--texto-suave); }
+.cargo-desde { margin-top: 6px; font-size: 0.9rem; color: var(--texto-suave); }
+@media (max-width: 480px) { .presidente { flex-direction: column; text-align: center; } }
+
+.deputados { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(150px, 100%), 1fr)); gap: 12px; }
+.deputado { padding: 18px 12px; text-align: center; background: var(--superficie-2); border: 1px solid var(--borda); border-radius: var(--raio); }
+.deputado strong { display: block; }
+.deputado small { color: var(--texto-suave); }
+.deputado.vaga { background: none; border-style: dashed; }
+.deputado.vaga .iniciais { background: none; border-style: dashed; color: var(--texto-suave); font-size: 1.1rem; }
+.deputado.vaga strong { color: var(--texto-suave); font-weight: 600; }
+
+/* Candidatos */
+.candidatos-resumo { margin: -4px 0 16px; color: var(--texto-suave); font-size: 0.95rem; }
+.chapas { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(270px, 100%), 1fr)); gap: 12px; align-items: start; }
+.chapa { padding: 18px; background: var(--superficie-2); border: 1px solid var(--borda); border-radius: var(--raio); }
+.chapa-topo { display: flex; gap: 14px; align-items: center; margin-bottom: 12px; }
+.chapa-foto, .deputado-foto { flex-shrink: 0; background-color: var(--superficie); background-repeat: no-repeat; border: 1px solid var(--borda); }
+.chapa-foto { width: 84px; height: 84px; border-radius: var(--raio); }
+.chapa-numero { display: block; font-size: 2.4rem; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
+.chapa-partido { display: block; margin-top: 4px; font-size: 0.8rem; color: var(--texto-suave); }
+.chapa-nome { display: block; font-size: 1.2rem; }
+.chapa-cargo { font-size: 0.85rem; color: var(--destaque); }
+.chapa-slogan { margin-top: 8px; color: var(--texto-suave); font-style: italic; }
+.candidato-deputado { display: flex; gap: 12px; padding: 10px 0; border-top: 1px solid var(--borda); }
+.deputado-foto { width: 48px; height: 48px; border-radius: 50%; }
+.candidato-deputado p { margin-top: 2px; font-size: 0.88rem; color: var(--texto-suave); }
+.numero-deputado { margin-left: 4px; font-size: 0.85rem; color: var(--texto-suave); font-variant-numeric: tabular-nums; }
+.propostas { margin-top: 10px; }
+.propostas summary { cursor: pointer; font-size: 0.88rem; font-weight: 600; color: var(--destaque); }
+.propostas ol { margin: 8px 0 0; padding-left: 18px; display: grid; gap: 8px; }
+.propostas li strong { display: block; font-size: 0.92rem; }
+.propostas li span { font-size: 0.88rem; color: var(--texto-suave); }
+
+/* Leis e Câmara */
+.pagina-leis { max-width: 860px; }
+.pol-secao[hidden] { display: none; }
+.lei, .proposta { margin-bottom: 12px; }
+.lei h2, .proposta h3 { margin: 4px 0 8px; }
+.lei-numero { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--destaque); }
+.lei-texto { white-space: pre-wrap; line-height: 1.55; }
+.lei small, .proposta small { display: block; margin-top: 8px; font-size: 0.8rem; color: var(--texto-suave); }
+.revogadas summary { cursor: pointer; color: var(--texto-suave); }
+.revogadas p { margin: 12px 0 0; color: var(--texto-suave); }
+.proposta { border-left: 4px solid var(--borda); }
+.proposta.camara, .proposta.popular { border-left-color: var(--destaque); }
+.proposta.empate { border-left-color: #f2c94c; }
+.proposta.aprovada { border-left-color: #4caf68; }
+.proposta.rejeitada, .proposta.cancelada { opacity: 0.75; }
+.proposta-topo { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.selo-status { padding: 2px 10px; font-size: 0.75rem; font-weight: 700; border: 1px solid var(--borda); border-radius: 999px; white-space: nowrap; }
+.justificativa { margin-top: 8px; font-size: 0.9rem; color: var(--texto-suave); }
+.etapa { margin: 12px 0 0; padding-top: 10px; border-top: 1px solid var(--borda); font-size: 0.92rem; }
+.etapa + .etapa { border-top: none; padding-top: 0; margin-top: 4px; }
+.voto-botoes { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 10px; }
+.voto-botoes small { margin: 0 !important; }
+.voto-botoes .votado { color: var(--sobre-destaque); background: var(--destaque); border-color: var(--destaque); }
+.campo-inline { display: inline-flex; align-items: center; gap: 6px; font-size: 0.88rem; color: var(--texto-suave); }
+.campo-inline select, #aba-gestao select { padding: 6px 8px; font: inherit; color: var(--texto); background: var(--superficie-2); border: 1px solid var(--borda); border-radius: 6px; }
+.titulo-secao { margin: 18px 0 10px; font-size: 1.05rem; }
+.titulo-secao:first-child { margin-top: 0; }
+.proposta .botao-link { margin-top: 10px; }

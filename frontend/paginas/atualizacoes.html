@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="carregando">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Atualizações · Katequese</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../modulos/atualizacoes/atualizacoes.css">
+  <script src="../js/base/tema.js"></script>
+</head>
+
+<body>
+  <!-- O menu é preenchido pelo menu.js -->
+  <header id="menu"></header>
+
+  <main class="pagina-atualizacoes">
+    <div class="cabecalho-pagina">
+      <div>
+        <h1>Atualizações</h1>
+        <p>Tudo o que mudou no site: quem fez, o quê e quando.</p>
+      </div>
+      <!-- Só admins veem esse botão -->
+      <button class="botao" id="abrir-form" hidden>Registrar mudança</button>
+    </div>
+
+    <!-- Formulário (só admin) -->
+    <form class="caixa formulario-novo" id="form-atualizacao" hidden>
+      <h2>Registrar mudança</h2>
+      <label class="campo"><span>O que mudou (título curto)</span>
+        <input id="titulo" maxlength="120" required placeholder="Ex: Aba de regras">
+      </label>
+      <label class="campo"><span>Detalhes (opcional)</span>
+        <textarea id="descricao" rows="3" maxlength="2000"></textarea>
+      </label>
+      <div class="linha-campos">
+        <label class="campo"><span>Tipo</span>
+          <select id="tipo">
+            <option value="nova">Novidade</option>
+            <option value="melhoria" selected>Melhoria</option>
+            <option value="correcao">Correção</option>
+            <option value="banco">Banco de dados</option>
+          </select>
+        </label>
+        <label class="campo"><span>Quem fez</span>
+          <input id="autor" maxlength="60" required list="pessoas">
+          <datalist id="pessoas"></datalist>
+        </label>
+        <label class="campo"><span>Quando</span>
+          <input id="quando" type="datetime-local" required>
+        </label>
+      </div>
+      <div class="botoes">
+        <button class="botao" type="submit">Registrar</button>
+        <button class="botao-pequeno" type="button" id="cancelar">Cancelar</button>
+      </div>
+      <p class="progresso" id="progresso"></p>
+    </form>
+
+    <div id="linha-do-tempo"></div>
+  </main>
+
+  <footer>Katequese © 2026</footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+  <script src="../js/base/config.js"></script>
+  <script src="../js/base/dados.js"></script>
+  <script src="../js/base/menu.js"></script>
+  <script src="../js/base/banco.js"></script>
+  <script type="module" src="../modulos/atualizacoes/atualizacoes.js"></script>
+</body>
+</html>

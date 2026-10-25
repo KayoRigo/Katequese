@@ -24,24 +24,27 @@ Como o código agora está separado por responsabilidade, cada um pode mexer em 
 
 ---
 
-## 2. Como funcionam os Testes e Guardrails (`testes/`)
+## 2. Como funcionam os Testes (`testes/`) e os Guardrails (`guardrails/`)
 
-Os testes foram divididos em **arquivos independentes** para que seja fácil adicionar ou alterar testes no futuro:
+Para facilitar a localização, os **testes de lógica** e os **guardrails de proteção** ficam em pastas separadas na raiz:
 
-* `testes/ajuda.js` — Carrega os arquivos de `frontend/js/` num ambiente isolado do Node.js (sem precisar de biblioteca externa).
+### Pasta `testes/` (Testes de Lógica e Banco):
+* `testes/ajuda.js` — Carrega os arquivos de `frontend/js/` e `frontend/modulos/` num ambiente isolado do Node.js.
 * `testes/1-seguranca-login.test.js` — Testa `esc()` (contra XSS em HTML e atributos) e formatação de login/senha.
 * `testes/2-datas-eventos.test.js` — Testa datas locais, eventos sem hora (`23:59`), aniversários e anos bissextos (`29/02`).
 * `testes/3-cargos-tags.test.js` — Testa `ehKatequistaPerfil`, `temCargo` e a hierarquia de `cargosVisiveis`.
 * `testes/4-economia.test.js` — Testa fórmulas de nível/XP, equipamentos por linha, limite de 60% na espera e trava anti-exploit de revenda.
 * `testes/5-banco-seguranca.sql` — Script SQL transacional (`BEGIN ... ROLLBACK`) para colar no SQL Editor do Supabase e validar se as travas do banco estão ativas sem sujar dados.
 * `testes/6-armazenamento-e-sorteio.test.js` — Testa `limparFotosAntigas()` para não acumular imagens órfãs no limite de 1 GB do Supabase.
-* `testes/7-guardrails-arquitetura.test.js` — **Guardrail automático da estrutura:**
-  * Garante que nenhum `.html`, `.sql`, `.js` ou `.css` fique jogado na raiz;
+
+### Pasta `guardrails/` (Travas Automáticas de Arquitetura e Responsividade):
+* `guardrails/1-arquitetura-e-pastas.test.js` — **Guardrail automático da estrutura:**
+  * Garante que nenhum arquivo fique solto na raiz nem em `frontend/` (tudo deve ficar em `paginas/`, `modulos/`, `js/` ou `css/`);
   * Garante que `CLAUDE.md` continue enxuto (`<= 120` linhas) e os arquivos de `docs/` existam;
-  * Confere se todos os `<script src>` e `<link href>` de todas as páginas `.html` apontam para arquivos reais;
-  * Confere se toda página interna tem `class="carregando"` e chama `iniciarPagina()`;
+  * Confere se todos os `<script src>` e `<link href>` de todas as páginas em `frontend/paginas/*.html` apontam para arquivos reais;
+  * Confere se toda página interna tem `class="carregando"` e seu módulo chama `iniciarPagina()`;
   * Confere se todos os SQLs em `backend/sql/` usam `create table if not exists` e se `config.js` não vazou nenhuma chave `service_role`.
-* `testes/8-responsividade.test.js` — **Guardrail automático de responsividade (celular/tablet/PC):**
+* `guardrails/2-responsividade.test.js` — **Guardrail automático de responsividade (celular/tablet/PC):**
   * Garante `<meta name="viewport">` em todas as páginas `.html`;
   * Proíbe grids rígidos (`minmax(300px, 1fr)` sem `min(300px, 100%)`) e larguras fixas (`width > 320px`) que criam barra de rolagem horizontal em celulares pequenos;
   * Garante o uso de `--pad-tela`, `--pad-caixa`, `overflow-x: clip`, `100dvh`, fonte `>= 16px` nos inputs (anti-zoom iOS) e recálculo de decorações ao girar a tela (`resize`).

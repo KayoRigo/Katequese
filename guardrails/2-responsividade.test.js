@@ -11,14 +11,32 @@ const path = require("node:path");
 
 const RAIZ = path.join(__dirname, "..");
 const FRONTEND = path.join(RAIZ, "frontend");
-const lerCss = () => fs.readFileSync(path.join(FRONTEND, "css", "style.css"), "utf8");
+const PAGINAS = path.join(FRONTEND, "paginas");
 const lerTema = () => fs.readFileSync(path.join(FRONTEND, "js", "base", "tema.js"), "utf8");
 
+// Lê o CSS base + o CSS de todos os módulos em frontend/modulos/*/*.css
+function lerTodoCss() {
+  let total = fs.readFileSync(path.join(FRONTEND, "css", "style.css"), "utf8");
+  const pastaModulos = path.join(FRONTEND, "modulos");
+  if (fs.existsSync(pastaModulos)) {
+    for (const mod of fs.readdirSync(pastaModulos)) {
+      const dir = path.join(pastaModulos, mod);
+      if (!fs.statSync(dir).isDirectory()) continue;
+      for (const arq of fs.readdirSync(dir).filter(f => f.endsWith(".css"))) {
+        total += "\n" + fs.readFileSync(path.join(dir, arq), "utf8");
+      }
+    }
+  }
+  return total;
+}
+const lerCss = lerTodoCss;
+
 describe("Responsividade 1: Meta viewport obrigatória em todas as páginas", () => {
-  test("todas as páginas .html em frontend/ possuem <meta name=\"viewport\"> configurado", () => {
-    const htmls = fs.readdirSync(FRONTEND).filter(f => f.endsWith(".html"));
+  test("todas as páginas .html em frontend/paginas/ possuem <meta name=\"viewport\"> configurado", () => {
+    const htmls = fs.existsSync(PAGINAS) ? fs.readdirSync(PAGINAS).filter(f => f.endsWith(".html")) : [];
+    assert.ok(htmls.length >= 14, "As páginas .html devem estar em frontend/paginas/.");
     for (const pagina of htmls) {
-      const conteudo = fs.readFileSync(path.join(FRONTEND, pagina), "utf8");
+      const conteudo = fs.readFileSync(path.join(PAGINAS, pagina), "utf8");
       assert.ok(
         /<meta\s+name="viewport"\s+content="width=device-width,\s*initial-scale=1\.0"/i.test(conteudo),
         `A página ${pagina} está sem <meta name="viewport" content="width=device-width, initial-scale=1.0">.`

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<!-- "carregando" deixa a página invisível até o login ser conferido -->
+<html lang="pt-BR" class="carregando">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Katequese</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../modulos/inicio/inicio.css">
+  <!-- tema.js vem aqui no <head> para aplicar a paleta antes da página aparecer -->
+  <script src="../js/base/tema.js"></script>
+</head>
+
+<body>
+  <!-- O menu é preenchido pelo menu.js -->
+  <header id="menu"></header>
+
+  <!-- ===================== PRIMEIRA TELA: o nome do grupo no meio ===================== -->
+  <section class="capa">
+    <div class="nome-grupo fonte-nome" id="nome-grupo">Katequese</div>
+    <div class="traco"></div>
+    <p class="lema" id="lema"></p>
+    <a class="continua" href="#conteudo">↓</a>
+  </section>
+
+  <!-- ===================== FAIXA CORRENDO ===================== -->
+  <div class="faixa">
+    <!-- O texto está duplicado de propósito: é isso que faz o loop não ter "pulo" -->
+    <div class="faixa-trilho">
+      <span>Resenha</span><span>/</span><span>Churrasco</span><span>/</span><span>Futebol</span><span>/</span>
+      <span>Aniversários</span><span>/</span><span>Viagens</span><span>/</span><span>Katequese</span><span>/</span>
+      <span>Resenha</span><span>/</span><span>Churrasco</span><span>/</span><span>Futebol</span><span>/</span>
+      <span>Aniversários</span><span>/</span><span>Viagens</span><span>/</span><span>Katequese</span><span>/</span>
+    </div>
+  </div>
+
+  <div id="conteudo">
+    <!-- ===================== ACESSO RÁPIDO ===================== -->
+    <section class="secao aparecer">
+      <h2 class="secao-titulo">Acesso rápido</h2>
+      <!-- Ícones desenhados em SVG (linhas simples) -->
+      <div class="atalhos">
+        <a class="atalho" href="eventos.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          Eventos
+        </a>
+        <a class="atalho" href="midias.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          Mídias
+        </a>
+        <a class="atalho" href="membros.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          Membros
+        </a>
+        <a class="atalho" href="mural.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          Mural
+        </a>
+        <a class="atalho" href="enquetes.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          Enquetes
+        </a>
+        <a class="atalho" href="sorteios.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8" cy="8" r="1.2"/><circle cx="16" cy="8" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="8" cy="16" r="1.2"/><circle cx="16" cy="16" r="1.2"/></svg>
+          Sorteios
+        </a>
+        <a class="atalho" href="economia.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M15 9.5c-.5-1-1.6-1.5-3-1.5-1.7 0-3 .9-3 2s1.3 1.7 3 2 3 .9 3 2-1.3 2-3 2c-1.4 0-2.5-.5-3-1.5M12 6.5V8M12 16v1.5"/></svg>
+          Economia
+        </a>
+        <a class="atalho" href="politica.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          Política
+        </a>
+        <a class="atalho" href="perfil.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          Perfil
+        </a>
+      </div>
+    </section>
+
+    <!-- ===================== PRÓXIMO ENCONTRO + MEMBRO DA SEMANA ===================== -->
+    <section class="secao aparecer">
+      <div class="destaques">
+        <div class="caixa">
+          <h2>Próximo encontro</h2>
+          <!-- Se não houver evento, mostra só a mensagem; senão, a contagem -->
+          <p class="detalhe" id="sem-evento" hidden>Por enquanto não há eventos ativos.</p>
+          <div id="com-evento" hidden>
+            <h3 id="proximo-titulo"></h3>
+            <div class="contagem">
+              <div><b id="cd-dias">00</b><small>dias</small></div>
+              <div><b id="cd-horas">00</b><small>horas</small></div>
+              <div><b id="cd-min">00</b><small>min</small></div>
+              <div><b id="cd-seg">00</b><small>seg</small></div>
+            </div>
+            <p class="detalhe" id="proximo-detalhe"></p>
+            <p class="detalhe" id="proximo-presenca"></p>
+          </div>
+          <a class="link-mais" href="eventos.html">Ver eventos →</a>
+        </div>
+
+        <!-- Definido só pelo painel de Admin -->
+        <div class="caixa">
+          <h2>Membro da semana</h2>
+          <div id="membro-semana"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== MURAL (anúncio com prioridade + últimos recados) ===================== -->
+    <section class="secao aparecer" id="secao-mural" hidden>
+      <div id="anuncio-destaque"></div>
+      <div class="caixa">
+        <h2>Últimos recados</h2>
+        <div id="ultimos-recados"></div>
+        <a class="link-mais" href="mural.html#recados">Ver mural →</a>
+      </div>
+    </section>
+
+    <!-- ===================== ANIVERSÁRIOS ===================== -->
+    <section class="secao aparecer">
+      <div class="caixa">
+        <h2>Aniversários</h2>
+        <div id="aniversarios"></div>
+      </div>
+    </section>
+
+    <!-- ===================== NÚMEROS DO GRUPO ===================== -->
+    <section class="secao aparecer">
+      <h2 class="secao-titulo">Em números</h2>
+      <!-- data-chave diz qual contagem mostrar; o JavaScript conta do zero até ela -->
+      <div class="numeros">
+        <div class="caixa numero"><b class="contador" data-chave="membros">0</b><span>membros</span></div>
+        <div class="caixa numero"><b class="contador" data-chave="visitantes">0</b><span>visitantes</span></div>
+        <div class="caixa numero"><b class="contador" data-chave="eventos">0</b><span>eventos ativos</span></div>
+      </div>
+    </section>
+
+    <!-- ===================== FRASE DO DIA ===================== -->
+    <section class="secao aparecer">
+      <div class="caixa citacao">
+        <p id="sabedoria"></p>
+        <small>Frase do dia</small>
+      </div>
+    </section>
+  </div>
+
+  <footer>Katequese © 2026</footer>
+
+  <!-- Biblioteca do Supabase + nossos arquivos (a ordem importa) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+  <script src="../js/base/config.js"></script>
+  <script src="../js/base/dados.js"></script>
+  <script src="../js/base/menu.js"></script>
+  <script src="../js/base/banco.js"></script>
+  <script type="module" src="../modulos/inicio/inicio.js"></script>
+</body>
+</html>

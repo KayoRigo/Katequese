@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Entrar · Katequese</title>
+  <meta name="robots" content="noindex">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../modulos/login/login.css">
+  <script src="../js/base/tema.js"></script>
+</head>
+
+<body>
+  <div class="tela-login">
+    <div class="nome-login fonte-nome">Katequese</div>
+    <p class="sub">Acesso restrito aos membros</p>
+
+    <div class="caixa caixa-login">
+      <!-- ============ ENTRAR / CADASTRAR-SE ============ -->
+      <div id="tela-formularios">
+        <div class="abas">
+          <button class="aba ativa" data-aba="entrar">Entrar</button>
+          <button class="aba" data-aba="cadastro">Cadastrar-se</button>
+        </div>
+
+        <form id="form-entrar">
+          <label class="campo"><span>Nome de usuário</span>
+            <input id="entrar-usuario" class="campo-usuario" autocomplete="username" required autocapitalize="none"
+                   spellcheck="false" placeholder="@">
+          </label>
+          <label class="campo"><span>Senha</span>
+            <input id="entrar-senha" type="password" autocomplete="current-password" required>
+          </label>
+          <button class="botao" type="submit">Entrar</button>
+        </form>
+
+        <form id="form-cadastro" hidden>
+          <label class="campo"><span>Nome de usuário</span>
+            <input id="cad-usuario" class="campo-usuario" autocomplete="username" required autocapitalize="none"
+                   spellcheck="false" placeholder="@usuario" maxlength="20">
+          </label>
+          <label class="campo"><span>Nome</span>
+            <input id="cad-nome" required maxlength="40" placeholder="Seu nome">
+          </label>
+          <label class="campo"><span>Senha</span>
+            <input id="cad-senha" type="password" autocomplete="new-password" required minlength="4">
+          </label>
+          <label class="campo"><span>Repita a senha</span>
+            <input id="cad-senha2" type="password" autocomplete="new-password" required minlength="4">
+          </label>
+          <button class="botao" type="submit">Cadastrar-se</button>
+          <p class="aviso" style="text-align: center">Você entra como visitante. O acesso completo é liberado por um administrador.</p>
+        </form>
+
+        <p class="mensagem" id="mensagem"></p>
+      </div>
+
+      <!-- ============ AGUARDANDO APROVAÇÃO (só aparece se o supabase-10.sql não tiver rodado) ============ -->
+      <div class="estado" id="tela-aguardando" hidden>
+        <h2>Cadastro recebido</h2>
+        <p>Seu acesso será liberado assim que um administrador aprovar o cadastro.</p>
+        <div class="botoes">
+          <button class="botao" id="verificar">Verificar novamente</button>
+          <button class="botao-pequeno" id="sair-aguardando">Sair</button>
+        </div>
+      </div>
+
+      <!-- ============ BLOQUEADO (status "recusado" no banco) ============ -->
+      <div class="estado" id="tela-recusado" hidden>
+        <h2>Acesso bloqueado</h2>
+        <p>Seu acesso ao site foi bloqueado. Fale com um administrador.</p>
+        <div class="botoes"><button class="botao-pequeno" id="sair-recusado">Sair</button></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+  <script src="../js/base/config.js"></script>
+  <script src="../js/base/dados.js"></script>
+  <script src="../js/base/menu.js"></script>
+  <script src="../js/base/banco.js"></script>
+  <script type="module" src="../modulos/login/login.js"></script>
+</body>
+</html>

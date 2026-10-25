@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="carregando">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Eventos · Katequese</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../modulos/eventos/eventos.css">
+  <script src="../js/base/tema.js"></script>
+</head>
+
+<body>
+  <!-- O menu é preenchido pelo menu.js -->
+  <header id="menu"></header>
+
+  <main>
+    <div class="cabecalho-pagina">
+      <div>
+        <h1>Eventos</h1>
+        <p id="subtitulo">Encontros marcados pelo grupo.</p>
+      </div>
+      <!-- Só katequistas veem esse botão (o JavaScript esconde para visitantes) -->
+      <button class="botao" id="abrir-form">Adicionar evento</button>
+    </div>
+
+    <!-- Formulário de novo evento (escondido até clicar em "Adicionar evento") -->
+    <form class="caixa formulario-novo" id="form-evento" hidden>
+      <h2>Novo evento</h2>
+      <label class="campo"><span>Nome do evento</span>
+        <input id="titulo" required maxlength="80">
+      </label>
+      <div class="linha-campos">
+        <label class="campo"><span>Data</span><input id="data" type="date" required></label>
+        <label class="campo"><span>Horário</span><input id="hora" type="time"></label>
+      </div>
+      <label class="campo"><span>Local</span>
+        <input id="local" maxlength="120">
+      </label>
+      <label class="campo"><span>Descrição</span>
+        <textarea id="descricao" rows="3" maxlength="500"></textarea>
+      </label>
+      <label class="campo"><span>Foto (opcional)</span>
+        <input id="foto" type="file" accept="image/*">
+      </label>
+      <label class="campo-check">
+        <input id="visivel" type="checkbox"> Visitantes podem ver este evento
+      </label>
+      <div class="botoes">
+        <button class="botao" type="submit" id="salvar">Publicar evento</button>
+        <button class="botao-pequeno" type="button" id="cancelar">Cancelar</button>
+      </div>
+      <p class="progresso" id="progresso"></p>
+    </form>
+
+    <!-- A lista é montada pelo JavaScript -->
+    <div id="eventos"></div>
+  </main>
+
+  <footer>Katequese © 2026</footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+  <script src="../js/base/config.js"></script>
+  <script src="../js/base/dados.js"></script>
+  <script src="../js/base/menu.js"></script>
+  <script src="../js/base/banco.js"></script>
+  <script type="module" src="../modulos/eventos/eventos.js"></script>
+</body>
+</html>

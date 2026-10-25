@@ -15,45 +15,49 @@
 
 ---
 
-## Estrutura de Arquivos do Front-end
+## Estrutura de Arquivos e Módulos do Front-end
 
-Todo o front-end fica dentro de `frontend/`, dividido entre as páginas `.html`, `css/` e `js/` (`base/` para os scripts globais e `paginas/` para os scripts específicos):
+Todo o front-end fica dentro de `frontend/`, dividido entre a base global (`css/style.css` e `js/base/`) e os **módulos independentes de cada seção (`modulos/<secao>/`)**:
 
-| Arquivo | Papel |
+| Caminho | Papel |
 | :--- | :--- |
-| `frontend/*.html` | As páginas do site (`index.html`, `eventos.html`, `economia.html`, etc.). |
-| `frontend/js/base/config.js` | `SUPABASE_URL`, `SUPABASE_ANON_KEY` (chave pública `publishable`) e `EMAIL_BASE`. |
-| `frontend/js/base/banco.js` | Conexão com o Supabase (`sb`), `iniciarPagina()` (protege as páginas), envio/links/limpeza de imagens no Storage (`reduzirImagem`, `enviarArquivo`, `limparFotosAntigas`), busca de eventos, presenças, aniversários, mural e cargos. |
-| `frontend/js/base/dados.js` | Funções de ajuda: `esc()` (anti-XSS), datas (`lerData`, `inicioEvento`, `diasAteAniversario`), cartões HTML (`htmlEvento`, `htmlPresenca`, `htmlAvatar`, `htmlTag`, `htmlNome`, `htmlCargos`, `cargosVisiveis`, `htmlRecado`, `htmlAnuncio`) e janelas `confirmar()` / `avisarJanela()`. |
-| `frontend/js/base/menu.js` | Cabeçalho único de todas as páginas: `ABAS_FIXAS` (barra principal: Início, Eventos, Mídias, Política, Economia) + `GRUPOS_MENU` (botão "Mais" no PC / "Menu" no celular: Grupo, Atividades, Conta). |
-| `frontend/js/base/tema.js` | Paletas individuais (`localStorage`) + temas globais ativados pelo Admin (`halloween` e `natal`) desenhados em SVG puro. |
-| `frontend/js/paginas/economia.js` | Lógica da página `economia.html` (Carteira, Trabalhos, Transferir, Loja, Cassino, Ranking e Admin da Economia). |
-| `frontend/js/paginas/minijogos.js` | Janela de turno e os 5 minijogos das profissões + efeitos visuais/sonoros (Web Audio API) compartilhados com o Cassino. |
-| `frontend/js/paginas/leis.js` | Sub-abas da página `politica.html`: Leis em vigor, Câmara e Gestão (`iniciarLeis(eu)`). |
-| `frontend/css/style.css` | Todo o visual do site; variáveis das paletas no topo e temas globais (Halloween e Natal) no final. |
+| `frontend/paginas/*.html` | Marcação HTML limpa de cada página (sem `<script>` inline). |
+| `frontend/css/style.css` | Base global (paletas, cabeçalho/menu, botões, campos, componentes compartilhados e temas Halloween/Natal). |
+| `frontend/js/base/config.js` | `SUPABASE_URL`, `SUPABASE_ANON_KEY` e `EMAIL_BASE`. |
+| `frontend/js/base/banco.js` | Conexão (`sb`), `iniciarPagina()`, Storage (`reduzirImagem`, `enviarArquivo`, `limparFotosAntigas`) e buscas compartilhadas. |
+| `frontend/js/base/dados.js` | `esc()` (anti-XSS), datas, cartões HTML e janelas `confirmar()` / `avisarJanela()`. |
+| `frontend/js/base/menu.js` | Cabeçalho único de todas as páginas (`ABAS_FIXAS` + `GRUPOS_MENU`). |
+| `frontend/js/base/tema.js` | Paletas individuais (`localStorage`) + temas globais (`halloween` e `natal`). |
+| `frontend/modulos/<secao>/` | **13 módulos independentes** (`inicio`, `login`, `eventos`, `midias`, `membros`, `mural`, `enquetes`, `sorteios`, `economia`, `politica`, `perfil`, `atualizacoes`, `admin`), cada um com seu `<secao>.js` e `<secao>.css`. |
 
 ---
 
-## Como criar uma página nova
+## Como criar um módulo / página nova
 
-1. Crie o arquivo `.html` dentro de `frontend/` começando com `<html lang="pt-BR" class="carregando">` (para não exibir nada antes de checar o login).
-2. Inclua no `<head>`:
+1. Crie a pasta `frontend/modulos/nome/` com `nome.js` e `nome.css`.
+2. Crie `frontend/paginas/nome.html` começando com `<html lang="pt-BR" class="carregando">`:
    ```html
-   <link rel="stylesheet" href="css/style.css">
-   <script src="js/base/tema.js"></script>
+   <head>
+     <meta charset="UTF-8">
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <title>Nome · Katequese</title>
+     <link rel="stylesheet" href="../css/style.css">
+     <link rel="stylesheet" href="../modulos/nome/nome.css">
+     <script src="../js/base/tema.js"></script>
+   </head>
+   <body>
+     <header id="menu"></header>
+     <main>...</main>
+     <footer>Katequese © 2026</footer>
+     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+     <script src="../js/base/config.js"></script>
+     <script src="../js/base/dados.js"></script>
+     <script src="../js/base/menu.js"></script>
+     <script src="../js/base/banco.js"></script>
+     <script type="module" src="../modulos/nome/nome.js"></script>
+   </body>
    ```
-3. No fim do `<body>`, carregue o SDK do Supabase e os scripts base:
-   ```html
-   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-   <script src="js/base/config.js"></script>
-   <script src="js/base/dados.js"></script>
-   <script src="js/base/menu.js"></script>
-   <script src="js/base/banco.js"></script>
-   <script type="module">
-     const eu = await iniciarPagina();
-     // código da página aqui
-   </script>
-   ```
+3. No começo de `frontend/modulos/nome/nome.js`, chame `const eu = await iniciarPagina();`.
 4. Adicione a página no grupo correspondente em `frontend/js/base/menu.js` (`GRUPOS_MENU`).
 
 ---

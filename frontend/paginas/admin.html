@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="carregando">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Administração · Katequese</title>
+  <meta name="robots" content="noindex">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../modulos/admin/admin.css">
+  <script src="../js/base/tema.js"></script>
+</head>
+
+<body>
+  <!-- O menu é preenchido pelo menu.js (a aba Admin só aparece para administradores) -->
+  <header id="menu"></header>
+
+  <main>
+    <div class="cabecalho-pagina">
+      <div>
+        <h1>Administração</h1>
+        <p>Cadastros, tags e conteúdo do site.</p>
+      </div>
+    </div>
+
+    <nav class="admin-nav" id="admin-nav">
+      <a href="#sec-pessoas">Pessoas</a>
+      <a href="#sec-cadastro">Cadastro</a>
+      <a href="#sec-tema">Tema do site</a>
+      <a href="#sec-semana">Membro da semana</a>
+      <a href="#sec-politica">Política</a>
+      <a href="#sec-tags">Tags</a>
+      <a href="#sec-uso">Uso do espaço</a>
+      <a href="#sec-frases">Frases</a>
+    </nav>
+
+    <div class="admin-secoes">
+      <!-- PESSOAS: pedidos de cadastro e membros -->
+      <section class="caixa" id="sec-pessoas">
+        <h2>Pessoas</h2>
+        <p class="dica-admin">Quem se cadastra entra como visitante (ou já como Katequista, se desligar em Cadastro). Dê a tag Katequista para liberar o acesso completo. As ações desta seção valem na hora.</p>
+        <div id="lista-pessoas"></div>
+      </section>
+
+      <!-- CADASTRO: novos cadastros entram como Visitante ou já como Katequista -->
+      <section class="caixa" id="sec-cadastro">
+        <h2>Cadastro</h2>
+        <label class="opcao-tema">
+          <input type="checkbox" id="visitantes-ativos">
+          <span><strong>Novos cadastros entram como Visitante</strong>
+            <small>Desligado: quem se cadastrar já entra como Katequista (bom para quando mandar o link no grupo).
+              Ligado: entra como Visitante e você libera um por um. Não muda quem já tem conta. Muda na hora.</small></span>
+        </label>
+        <p class="progresso" id="cadastro-msg"></p>
+      </section>
+
+      <!-- TEMA DO SITE (vale para todos) -->
+      <section class="caixa" id="sec-tema">
+        <h2>Tema do site</h2>
+        <p class="dica-admin">Vale para todo mundo e passa por cima da paleta que cada um escolheu.
+          Com "Nenhum", cada pessoa volta a ver a própria paleta. Muda na hora.</p>
+        <div class="temas-globais" id="temas-globais"></div>
+        <p class="progresso" id="tema-msg"></p>
+      </section>
+
+      <!-- MEMBRO DA SEMANA -->
+      <section class="caixa" id="sec-semana">
+        <h2>Membro da semana</h2>
+        <p class="dica-admin">Aparece na página inicial. A foto pode ser qualquer imagem.</p>
+        <div class="editor-semana">
+          <div>
+            <div id="semana-foto"></div>
+            <input id="semana-arquivo" type="file" accept="image/*" hidden>
+            <button class="botao-pequeno" id="semana-trocar" style="margin-top: 8px; width: 140px">Escolher foto</button>
+          </div>
+          <div>
+            <label class="campo"><span>Nome</span><input id="semana-nome" maxlength="40"></label>
+            <label class="campo"><span>O que ele(a) fez</span><textarea id="semana-descricao" rows="3" maxlength="300"></textarea></label>
+            <div class="acoes">
+              <button class="botao" id="semana-salvar">Salvar membro da semana</button>
+              <button class="botao-pequeno perigo" id="semana-limpar">Remover</button>
+            </div>
+            <p class="progresso" id="semana-msg"></p>
+          </div>
+        </div>
+      </section>
+
+      <!-- POLÍTICA: presidente, deputados, datas da eleição e link da votação -->
+      <section class="caixa" id="sec-politica">
+        <h2>Política</h2>
+        <div id="politica-form">
+          <p class="rotulo">Presidente</p>
+          <div class="admin-politica-linha" data-vaga="presidente"></div>
+          <label class="campo" style="max-width: 220px"><span>No cargo desde (opcional)</span><input id="pol-desde" type="date"></label>
+
+          <p class="rotulo" style="margin-top: 22px">Deputados (deixe o nome vazio para "Vaga aberta")</p>
+          <div class="admin-politica-linha" data-vaga="0"></div>
+          <div class="admin-politica-linha" data-vaga="1"></div>
+          <div class="admin-politica-linha" data-vaga="2"></div>
+          <div class="admin-politica-linha" data-vaga="3"></div>
+
+          <p class="rotulo" style="margin-top: 22px">Eleição</p>
+          <div class="grade-campos">
+            <label class="campo"><span>Votação abre</span><input id="pol-abre" type="datetime-local"></label>
+            <label class="campo"><span>Votação fecha</span><input id="pol-fecha" type="datetime-local"></label>
+          </div>
+          <label class="campo"><span>Link do site da votação (só Katequistas veem)</span><input id="pol-link" type="url" placeholder="https://..."></label>
+          <input id="pol-arquivo" type="file" accept="image/*" hidden>
+          <button class="botao" id="pol-salvar">Salvar política</button>
+          <p class="progresso" id="pol-msg"></p>
+        </div>
+      </section>
+
+      <!-- TAGS -->
+      <section class="caixa" id="sec-tags">
+        <h2>Tags</h2>
+        <p class="dica-admin">Crie tags com nome e cor e escolha quem recebe cada uma. As ações desta seção valem na hora.
+          Quem tem <b>Katequista</b> tem acesso completo; os outros aprovados são <b>Visitantes</b> e só veem o que for liberado para eles.</p>
+        <form class="nova-tag" id="form-tag">
+          <label class="campo"><span>Nome da tag</span><input id="tag-nome" maxlength="30" required></label>
+          <label class="campo"><span>Cor</span><input id="tag-cor" type="color" value="#f26b3a"></label>
+          <button class="botao" type="submit">Criar tag</button>
+        </form>
+        <div id="lista-tags"></div>
+      </section>
+
+      <!-- USO DO ESPAÇO (limites do plano grátis do Supabase) -->
+      <section class="caixa" id="sec-uso">
+        <h2>Uso do espaço</h2>
+        <p class="dica-admin">Limites do plano grátis do Supabase. Quando uma barra passar de 80%, ela fica vermelha.</p>
+        <div class="usos" id="usos"></div>
+      </section>
+
+      <!-- FRASES -->
+      <section class="caixa" id="sec-frases">
+        <h2>Frases</h2>
+        <p class="dica-admin">Uma frase por linha. Linhas vazias são ignoradas.</p>
+        <label class="campo"><span>Frases da página inicial (embaixo do nome)</span><textarea id="t-lemas" rows="5"></textarea></label>
+        <label class="campo"><span>Frases ao clicar nas letras do nome</span><textarea id="t-gritos" rows="6"></textarea></label>
+        <label class="campo"><span>Frase do dia</span><textarea id="t-sabedorias" rows="6"></textarea></label>
+      </section>
+    </div>
+  </main>
+
+  <!-- Barra fixa com o botão de salvar (vale para as Frases) -->
+  <div class="barra-salvar">
+    <span id="status">Nenhuma alteração.</span>
+    <button class="botao" id="salvar">Salvar</button>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+  <script src="../js/base/config.js"></script>
+  <script src="../js/base/dados.js"></script>
+  <script src="../js/base/menu.js"></script>
+  <script src="../js/base/banco.js"></script>
+  <script type="module" src="../modulos/admin/admin.js"></script>
+</body>
+</html>

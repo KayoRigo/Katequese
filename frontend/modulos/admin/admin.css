@@ -1,0 +1,111 @@
+/* =====================================================================
+   modulos/admin/admin.css — painel de administração.
+   ===================================================================== */
+
+.admin-nav { position: sticky; top: 64px; z-index: 5; display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 24px; padding: 6px; background: var(--superficie); border: 1px solid var(--borda); border-radius: var(--raio); }
+.admin-nav a { padding: 6px 12px; border: 1px solid var(--borda); border-radius: 6px; font-size: 0.88rem; text-decoration: none; color: var(--texto-suave); }
+.admin-nav a:hover { color: var(--texto); border-color: var(--texto-suave); }
+.admin-nav a.ativa { color: var(--texto); border-color: var(--destaque); box-shadow: inset 0 -2px 0 var(--destaque); }
+
+.admin-secoes { display: grid; gap: 16px; padding-bottom: 90px; }
+.admin-secoes .caixa { scroll-margin-top: 80px; }
+.admin-secoes > section[hidden] { display: none; }
+.dica-admin { margin: -6px 0 14px; font-size: 0.88rem; color: var(--texto-suave); }
+.grade-campos { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(170px, 100%), 1fr)); gap: 0 14px; }
+
+.pessoa { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--borda); }
+.pessoa:last-child { border-bottom: none; }
+.pessoa .info { flex: 1; min-width: 180px; }
+.pessoa .info small { display: block; font-size: 0.85rem; color: var(--texto-suave); }
+
+.usos { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr)); gap: 14px; }
+.uso { padding: 14px; background: var(--fundo); border: 1px solid var(--borda); border-radius: 6px; }
+.uso-topo { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; margin-bottom: 10px; }
+.uso-topo span { font-size: 0.85rem; color: var(--texto-suave); }
+.trilho { height: 8px; overflow: hidden; border-radius: 4px; background: var(--superficie-2); }
+.trilho div { height: 100%; min-width: 2px; border-radius: 4px; background: var(--destaque); }
+.uso.alerta .trilho div { background: var(--perigo); }
+.uso small { display: block; margin-top: 8px; font-size: 0.82rem; color: var(--texto-suave); }
+.uso small a { color: var(--destaque); }
+
+.editor-semana { display: grid; grid-template-columns: 140px 1fr; gap: 20px; align-items: start; }
+@media (max-width: 600px) { .editor-semana { grid-template-columns: 1fr; } }
+.editor-semana .foto-semana { width: 140px; height: 140px; }
+
+.nova-tag { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; margin-bottom: 18px; }
+.nova-tag .campo { margin-bottom: 0; }
+.nova-tag .campo:first-child { flex: 1; min-width: 180px; }
+.item-tag { padding: 12px 0; border-top: 1px solid var(--borda); }
+.item-tag-topo { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.item-tag-topo .tag { font-size: 0.72rem; padding: 2px 8px; }
+.item-tag-topo > :last-child { margin-left: auto; }
+.contagem-tag { font-size: 0.78rem; color: var(--texto-suave); }
+.selo-sistema { padding: 1px 7px; border: 1px solid var(--borda); border-radius: 4px; font-size: 0.72rem; color: var(--texto-suave); }
+
+.membros-tag { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.pessoa-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px 4px 2px 10px;
+  border-radius: 999px;
+  background: var(--superficie-2);
+  font-size: 0.78rem;
+}
+.pessoa-chip button { padding: 0 4px; background: none; border: none; font-size: 0.95rem; line-height: 1; color: var(--texto-suave); cursor: pointer; }
+.pessoa-chip button:hover { color: var(--perigo); }
+select.mini {
+  width: auto;
+  padding: 3px 10px;
+  border: 1px dashed var(--borda);
+  border-radius: 999px;
+  background: transparent;
+  font-size: 0.78rem;
+  color: var(--texto-suave);
+  cursor: pointer;
+}
+
+.setas-ordem { display: inline-flex; gap: 2px; margin-right: 4px; }
+.setas-ordem button { width: 26px; height: 26px; padding: 0; font: inherit; color: var(--texto-suave); background: var(--superficie-2); border: 1px solid var(--borda); border-radius: 5px; cursor: pointer; }
+.setas-ordem button:hover:not(:disabled) { color: var(--texto); border-color: var(--texto-suave); }
+.setas-ordem button:disabled { opacity: 0.35; cursor: default; }
+
+.temas-globais { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(220px, 100%), 1fr)); gap: 10px; }
+.opcao-tema {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 14px;
+  background: var(--fundo);
+  border: 1px solid var(--borda);
+  border-radius: var(--raio);
+  cursor: pointer;
+}
+.opcao-tema:has(input:checked) { border-color: var(--destaque); }
+.opcao-tema input { width: 16px; height: 16px; margin-top: 3px; accent-color: var(--destaque); }
+.opcao-tema small { display: block; font-size: 0.82rem; color: var(--texto-suave); }
+
+.admin-politica-linha { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; margin-bottom: 14px; }
+.admin-politica-linha .campo { flex: 1 1 160px; margin: 0; }
+.admin-politica-linha img, .admin-politica-linha .iniciais { width: 48px; height: 48px; margin: 0; font-size: 1rem; }
+
+.barra-salvar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 15;
+  padding: 12px 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  background: var(--superficie);
+  border-top: 1px solid var(--borda);
+}
+.barra-salvar[hidden] { display: none; }
+.barra-salvar span { font-size: 0.9rem; color: var(--texto-suave); }
+@media (max-width: 600px) {
+  .barra-salvar { flex-wrap: wrap; gap: 10px; }
+  .barra-salvar .botao { width: 100%; }
+}

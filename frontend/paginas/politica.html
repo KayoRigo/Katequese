@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="carregando">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Política · Katequese</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../modulos/politica/politica.css">
+  <script src="../js/base/tema.js"></script>
+</head>
+
+<body>
+  <!-- O menu é preenchido pelo menu.js -->
+  <header id="menu"></header>
+
+  <main>
+    <div class="cabecalho-pagina">
+      <div>
+        <h1>Política</h1>
+        <p>Presidente, deputados, leis e eleições da Katequese. As eleições acontecem a cada 6 meses.</p>
+      </div>
+    </div>
+
+    <!-- Sub-abas (Câmara e Gestão só aparecem para quem pode) -->
+    <nav class="eco-abas" id="pol-abas">
+      <button data-aba="governo" class="ativa">Governo</button>
+      <button data-aba="vigor">Leis em vigor</button>
+      <button data-aba="camara" hidden>Câmara</button>
+      <button data-aba="gestao" hidden>Gestão</button>
+    </nav>
+
+    <!-- Governo: montado pelo JavaScript lá embaixo. Leis: pelo leis.js -->
+    <section class="pol-secao" id="aba-governo"><div id="politica"></div></section>
+    <section class="pol-secao pagina-leis" id="aba-vigor" hidden></section>
+    <section class="pol-secao pagina-leis" id="aba-camara" hidden></section>
+    <section class="pol-secao pagina-leis" id="aba-gestao" hidden></section>
+  </main>
+
+  <footer>Katequese © 2026</footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+  <script src="../js/base/config.js"></script>
+  <script src="../js/base/dados.js"></script>
+  <script src="../js/base/menu.js"></script>
+  <script src="../js/base/banco.js"></script>
+  <script src="../modulos/politica/leis.js"></script>
+  <script type="module" src="../modulos/politica/politica.js"></script>
+</body>
+</html>

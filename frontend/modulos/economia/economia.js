@@ -1371,3 +1371,8 @@ async function abaAdmin(el) {
     avisoEco("Equipamento salvo", "ganho");
   }));
 }
+
+// Inicia automaticamente quando aberto na página Economia (no navegador)
+if (typeof document !== "undefined" && document.querySelector(".pagina-economia")) {
+  iniciarPagina().then(eu => iniciarEconomia(eu));
+}

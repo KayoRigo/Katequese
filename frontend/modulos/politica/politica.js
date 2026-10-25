@@ -1,0 +1,205 @@
+// =====================================================================
+// modulos/politica/politica.js — Governo, candidatos e eleição (politica.html).
+// As sub-abas de Leis e Câmara ficam em modulos/politica/leis.js.
+// =====================================================================
+
+const eu = await iniciarPagina();
+iniciarLeis(eu);   // sub-abas de Leis (não espera: o Governo aparece logo)
+const area = document.getElementById("politica");
+
+// Presidente, deputados e datas (todo aprovado consegue ler)
+const { data: pol, error } = await sb.from("politica").select("*").eq("id", 1).maybeSingle();
+if (error || !pol) {
+  area.innerHTML = `<p class="vazio">A aba Política ainda não está pronta no banco. O admin precisa rodar o <b>supabase-6.sql</b>.</p>`;
+  throw new Error("tabela politica não encontrada");
+}
+
+// O link da votação: o banco só entrega para katequistas.
+let link = "";
+if (eu.katequista) {
+  const { data } = await sb.from("politica_link").select("link").eq("id", 1).maybeSingle();
+  link = data?.link || "";
+}
+
+// Candidatos da eleição (tabela que só katequistas leem; visitantes recebem vazio)
+let eleicao = null;
+if (eu.katequista) {
+  const { data } = await sb.from("politica_eleicao").select("dados").eq("id", 1).maybeSingle();
+  if (data?.dados?.chapas?.length) eleicao = data.dados;
+}
+
+// Fotos (presidente + deputados) de uma vez só
+const deputados = [0, 1, 2, 3].map(i => pol.deputados[i] || null).map(d => d && d.nome ? d : null);
+const fotos = await linksDosArquivos([pol.presidente_foto, ...deputados.map(d => d?.foto)]);
+
+// ---------- Datas ----------
+const formatar = (data) => {
+  const dia = data.toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "2-digit" });
+  const hora = data.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+  return `${dia} às ${hora}`;
+};
+
+function falta(ms) {
+  const min = Math.max(1, Math.round(ms / 60000));
+  const d = Math.floor(min / 1440), h = Math.floor((min % 1440) / 60), m = min % 60;
+  const p = (n, s, pl) => `${n} ${n === 1 ? s : pl}`;
+  if (d) return p(d, "dia", "dias") + (h ? " e " + p(h, "hora", "horas") : "");
+  if (h) return p(h, "hora", "horas") + (m ? " e " + p(m, "minuto", "minutos") : "");
+  return p(m, "minuto", "minutos");
+}
+
+// ---------- Cartão da eleição ----------
+function htmlEleicao() {
+  const abre = pol.eleicao_abre ? new Date(pol.eleicao_abre) : null;
+  const fecha = pol.eleicao_fecha ? new Date(pol.eleicao_fecha) : null;
+  const agora = new Date();
+
+  let estado, titulo, texto;
+  if (!abre || !fecha) {
+    estado = "sem-data";
+    titulo = "Sem eleição marcada";
+    texto = "A data da próxima eleição ainda não foi definida.";
+  } else if (agora < abre) {
+    estado = "em-breve";
+    titulo = "Próxima eleição";
+    texto = `A votação abre ${formatar(abre)} e fecha ${formatar(fecha)}. Começa em ${falta(abre - agora)}.`;
+  } else if (agora < fecha) {
+    estado = "aberta";
+    titulo = "Votação aberta";
+    texto = `Vai até ${formatar(fecha)}. Faltam ${falta(fecha - agora)}.`;
+  } else {
+    const proxima = new Date(fecha);
+    proxima.setMonth(proxima.getMonth() + 6);
+    const mes = proxima.toLocaleDateString("pt-BR", { month: "long", year: "numeric" });
+    estado = "encerrada";
+    titulo = "Votação encerrada";
+    const meses = Math.max(1, Math.round((proxima - agora) / (30 * 86400000)));
+    texto = `A votação terminou ${formatar(fecha)}. Próxima eleição prevista para ${mes}, daqui a cerca de ${meses} ${meses === 1 ? "mês" : "meses"}.`;
+  }
+
+  let acao = "";
+  if (!eu.katequista) {
+    acao = `<p class="eleicao-aviso">Só Katequistas votam nas eleições.</p>`;
+  } else if (link && estado !== "encerrada") {
+    acao = `<a class="botao" href="${esc(link)}" target="_blank" rel="noopener noreferrer">Ir para o site da votação</a>`;
+  } else if (link) {
+    acao = `<a class="botao-pequeno" href="${esc(link)}" target="_blank" rel="noopener noreferrer">Ver o site da votação</a>`;
+  } else {
+    acao = `<p class="eleicao-aviso">O link da votação ainda não foi colocado.</p>`;
+  }
+
+  return `
+    <section class="caixa eleicao ${estado}">
+      <h2>Eleição</h2>
+      <p class="eleicao-titulo">${estado === "aberta" ? '<span class="ponto-aberta"></span>' : ""}${titulo}</p>
+      <p class="eleicao-texto">${esc(texto)}</p>
+      ${acao}
+    </section>`;
+}
+
+// ---------- Presidente ----------
+function htmlPresidente() {
+  if (!pol.presidente_nome) return `<p class="vazio">Sem presidente no momento.</p>`;
+  const foto = fotos[pol.presidente_foto];
+  const desde = pol.mandato_desde
+    ? `<p class="cargo-desde">No cargo desde ${lerData(pol.mandato_desde).toLocaleDateString("pt-BR")}</p>` : "";
+  return `
+    <div class="presidente">
+      ${foto ? `<img src="${esc(foto)}" alt="">`
+             : `<div class="iniciais">${esc(pol.presidente_nome[0].toUpperCase())}</div>`}
+      <div>
+        <span class="cargo">Presidente</span>
+        <strong>${esc(pol.presidente_nome)}</strong>
+        ${pol.presidente_partido ? `<p class="partido-atual">${esc(pol.presidente_partido)}</p>` : ""}
+        ${desde}
+      </div>
+    </div>`;
+}
+
+// ---------- Deputados (4 vagas) ----------
+function htmlDeputados() {
+  return deputados.map((d, i) => d ? `
+    <div class="deputado">
+      ${htmlAvatar({ nome: d.nome }, fotos[d.foto])}
+      <strong>${esc(d.nome)}</strong>
+      <small>Deputado${d.partido ? " · " + esc(d.partido) : ""}</small>
+    </div>` : `
+    <div class="deputado vaga">
+      <div class="iniciais">${i + 1}</div>
+      <strong>Vaga aberta</strong>
+      <small>Sem eleito</small>
+    </div>`).join("");
+}
+
+// ---------- Candidatos (só katequistas) ----------
+function htmlFoto(foto, classe) {
+  if (!foto) return `<div class="${classe}"></div>`;
+  const url = eleicao.fotosDe + foto.arquivo;
+  return `<div class="${classe}" style="background-image: url('${esc(url)}'); background-size: ${esc(foto.tamanho)}; background-position: ${esc(foto.posicao)}"></div>`;
+}
+function htmlPropostas(lista, rotulo) {
+  if (!lista?.length) return "";
+  return `
+    <details class="propostas">
+      <summary>${rotulo} (${lista.length})</summary>
+      <ol>${lista.map(p => `<li><strong>${esc(p.titulo)}</strong><span>${esc(p.texto)}</span></li>`).join("")}</ol>
+    </details>`;
+}
+function htmlCandidatos() {
+  if (!eleicao) return "";
+  const totalDeputados = eleicao.chapas.reduce((n, c) => n + c.deputados.length, 0);
+  return `
+    <section class="caixa" style="margin-top: 16px">
+      <h2>Candidatos · ${esc(eleicao.titulo)}</h2>
+      <p class="candidatos-resumo">${eleicao.chapas.length} chapas para presidente e ${totalDeputados} candidatos a deputado.
+        Os ${eleicao.vagasDeputado} deputados mais votados são eleitos.</p>
+      <div class="chapas">
+        ${eleicao.chapas.map(c => `
+          <article class="chapa">
+            <div class="chapa-topo">
+              ${htmlFoto(c.foto, "chapa-foto")}
+              <div>
+                <span class="chapa-numero">${esc(c.numero)}</span>
+                <span class="chapa-partido">${esc(c.sigla)} · ${esc(c.partido)}</span>
+              </div>
+            </div>
+            <strong class="chapa-nome">${esc(c.presidente)}</strong>
+            <span class="chapa-cargo">Candidato a presidente${c.reeleicao ? " · tenta a reeleição" : ""}</span>
+            <p class="chapa-slogan">“${esc(c.slogan)}”</p>
+            ${htmlPropostas(c.propostas, "Propostas")}
+            <p class="rotulo" style="margin: 16px 0 8px">Deputados da chapa</p>
+            ${c.deputados.map(d => `
+              <div class="candidato-deputado">
+                ${htmlFoto(d.foto, "deputado-foto")}
+                <div>
+                  <strong>${esc(d.nome)}</strong> <span class="numero-deputado">${esc(d.numero)}</span>
+                  <p>“${esc(d.slogan)}”</p>
+                  ${htmlPropostas(d.propostas, "Propostas")}
+                </div>
+              </div>`).join("")}
+          </article>`).join("")}
+      </div>
+    </section>`;
+}
+
+function montar() {
+  const encerrada = pol.eleicao_fecha && new Date() >= new Date(pol.eleicao_fecha);
+  area.innerHTML = `
+    <section class="caixa">
+      <h2>Presidente atual</h2>
+      ${htmlPresidente()}
+    </section>
+    <section class="caixa" style="margin-top: 16px">
+      <h2>Deputados atuais</h2>
+      <div class="deputados">${htmlDeputados()}</div>
+    </section>
+    ${encerrada ? "" : htmlCandidatos()}
+    <div style="margin-top: 16px">${htmlEleicao()}</div>`;
+}
+montar();
+
+// Atualiza só o cartão da eleição a cada 30 segundos
+setInterval(() => {
+  const atual = area.querySelector(".eleicao");
+  if (atual) atual.outerHTML = htmlEleicao();
+}, 30000);

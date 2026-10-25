@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="carregando">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sorteios · Katequese</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../modulos/sorteios/sorteios.css">
+  <script src="../js/base/tema.js"></script>
+</head>
+
+<body>
+  <!-- O menu é preenchido pelo menu.js -->
+  <header id="menu"></header>
+
+  <main>
+    <div class="cabecalho-pagina">
+      <div>
+        <h1>Sorteios</h1>
+        <p id="subtitulo">Sorteios do grupo. O resultado é escolhido pelo banco de dados e fica salvo para todos verem.</p>
+      </div>
+      <!-- Só katequistas veem esse botão (o JavaScript esconde para visitantes) -->
+      <button class="botao" id="abrir-form">Novo sorteio</button>
+    </div>
+
+    <!-- Formulário de novo sorteio (escondido até clicar em "Novo sorteio") -->
+    <form class="caixa formulario-novo" id="form-sorteio" hidden>
+      <h2>Novo sorteio</h2>
+      <label class="campo"><span>Título</span>
+        <input id="titulo" required maxlength="100" placeholder="Ex: Quem leva o carvão">
+      </label>
+      <label class="campo"><span>Imagem (opcional)</span>
+        <input id="foto" type="file" accept="image/*">
+      </label>
+      <label class="campo"><span>Itens que vão ser sorteados (um por linha) · <b id="contador-itens">0 itens</b></span>
+        <textarea id="itens" rows="7" required placeholder="Um item por linha"></textarea>
+      </label>
+      <label class="campo-check">
+        <input id="sem-repetir" type="checkbox"> Não repetir: um item que já saiu não pode sair de novo
+      </label>
+      <label class="campo-check">
+        <input id="visivel" type="checkbox"> Visitantes podem ver este sorteio
+      </label>
+      <div class="botoes">
+        <button class="botao" type="submit" id="salvar">Criar sorteio</button>
+        <button class="botao-pequeno" type="button" id="cancelar">Cancelar</button>
+      </div>
+      <p class="progresso" id="progresso"></p>
+    </form>
+
+    <!-- A lista é montada pelo JavaScript -->
+    <div id="sorteios"></div>
+  </main>
+
+  <!-- Janela de um sorteio (a roleta fica aqui) -->
+  <dialog class="janela janela-sorteio" id="janela"></dialog>
+
+  <footer>Katequese © 2026</footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+  <script src="../js/base/config.js"></script>
+  <script src="../js/base/dados.js"></script>
+  <script src="../js/base/menu.js"></script>
+  <script src="../js/base/banco.js"></script>
+  <script type="module" src="../modulos/sorteios/sorteios.js"></script>
+</body>
+</html>
