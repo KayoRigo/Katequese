@@ -57,8 +57,6 @@ letras.forEach(letra => {
   letra.addEventListener("click", () => {
     cliques++;
 
-    // Reinicia a animação do pulo (tira a classe, força o navegador
-    // a "perceber" e coloca de novo)
     letra.classList.remove("pulando");
     void letra.offsetWidth;
     letra.classList.add("pulando");
@@ -67,7 +65,6 @@ letras.forEach(letra => {
     else if (cliques === 25) lema.textContent = "25 cliques. Você não tem vida não, porra?";
     else lema.textContent = sortear(gritos);
 
-    // Pausa a máquina de escrever e, depois, recomeça numa frase nova
     pausadoAte = Date.now() + 3500;
     iLetra = 0;
     apagando = false;
@@ -79,7 +76,7 @@ letras.forEach(letra => {
 let digitado = "";
 document.addEventListener("keydown", (e) => {
   if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
-  digitado = (digitado + e.key.toLowerCase()).slice(-9); // guarda só as últimas 9 teclas
+  digitado = (digitado + e.key.toLowerCase()).slice(-9);
   if (digitado === "katequese") {
     confete();
     lema.textContent = "Você achou o segredo, porra.";
@@ -99,13 +96,51 @@ function confete() {
     pedaco.style.animationDuration = 2 + Math.random() * 2 + "s";
     pedaco.style.animationDelay = Math.random() * 0.5 + "s";
     document.body.appendChild(pedaco);
-    setTimeout(() => pedaco.remove(), 5000); // limpa depois que caiu
+    setTimeout(() => pedaco.remove(), 5000);
   }
 }
 
+// Coloca um aviso discreto à direita de um botão do Acesso Rápido
+function infoAtalho(href, texto) {
+  if (!texto) return;
+  const link = document.querySelector(`.atalhos a[href="${href}"]`);
+  if (!link) return;
+  link.querySelector(".atalho-info")?.remove();
+  link.insertAdjacentHTML("beforeend", `<small class="atalho-info">${esc(texto)}</small>`);
+}
+
+// ================= BUSCA PARALELA DE TODAS AS SEÇÕES DA CAPA =================
+const [
+  todosEventos,
+  anuncios,
+  recados,
+  aniversarios,
+  { data: aprovados },
+  tagsDosPerfis,
+  { count: totalFotos },
+  { data: carteiraCapa },
+  { count: enquetesAbertas },
+] = await Promise.all([
+  buscarEventos(),
+  buscarAnuncios(1),
+  buscarRecados(3),
+  buscarAniversarios(),
+  sb.from("perfis").select("id, admin").eq("status", "aprovado"),
+  buscarTagsDosPerfis(),
+  sb.from("midias").select("id", { count: "exact", head: true }),
+  eu.katequista ? sb.from("carteiras").select("saldo").eq("perfil_id", eu.id).maybeSingle() : Promise.resolve({ data: null }),
+  sb.from("enquetes").select("id", { count: "exact", head: true }).gt("termina_em", new Date().toISOString()),
+]);
+
+// Gera numa única viagem os links das fotos de recados, aniversários e membro da semana
+const linksCapa = await linksDosArquivos([
+  ...(recados || []).map(r => r.perfis?.foto_path),
+  ...(aniversarios || []).map(p => p.foto_path),
+  membroSemana?.foto,
+]);
+
 // ================= PRÓXIMO ENCONTRO =================
 const agora = new Date();
-const todosEventos = await buscarEventos();
 const proximo = todosEventos.find(ev => inicioEvento(ev) > agora);
 document.getElementById("sem-evento").hidden = !!proximo;
 document.getElementById("com-evento").hidden = !proximo;
@@ -113,13 +148,16 @@ document.getElementById("com-evento").hidden = !proximo;
 const doisDigitos = n => String(n).padStart(2, "0");
 
 if (proximo) {
+  const dProx = lerData(proximo.data);
+  infoAtalho("eventos.html", `${String(dProx.getDate()).padStart(2, "0")}/${MESES[dProx.getMonth()]}`);
+
   document.getElementById("proximo-titulo").textContent = proximo.titulo;
-  const quando = lerData(proximo.data).toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long" });
+  const quando = dProx.toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long" });
   document.getElementById("proximo-detalhe").textContent =
     [quando, proximo.hora?.slice(0, 5), proximo.local].filter(Boolean).join(" · ");
 
   function atualizarContagem() {
-    const resta = Math.max(0, inicioEvento(proximo) - Date.now()); // em milissegundos
+    const resta = Math.max(0, inicioEvento(proximo) - Date.now());
     const s = Math.floor(resta / 1000);
     document.getElementById("cd-dias").textContent = doisDigitos(Math.floor(s / 86400));
     document.getElementById("cd-horas").textContent = doisDigitos(Math.floor(s / 3600) % 24);
@@ -127,57 +165,60 @@ if (proximo) {
     document.getElementById("cd-seg").textContent = doisDigitos(s % 60);
   }
   atualizarContagem();
-  setInterval(atualizarContagem, 1000); // atualiza a cada segundo
+  setInterval(atualizarContagem, 1000);
 
-  // Quantos confirmaram presença
-  const respostas = (await buscarPresencas([proximo.id]))[proximo.id] || [];
-  const vao = respostas.filter(r => r.resposta === "vou").length;
-  const minha = respostas.find(r => r.perfil_id === eu.id)?.resposta;
-  document.getElementById("proximo-presenca").textContent =
-    (vao ? `${vao} ${vao === 1 ? "confirmou" : "confirmaram"} presença` : "Ninguém confirmou presença ainda")
-    + (eu.katequista ? (minha ? ` · Sua resposta: ${RESPOSTAS[minha]}` : " · Você ainda não respondeu") : "");
+  // Botões Vou / Talvez / Não vou + avatares de quem vai direto na capa
+  const caixaPresenca = document.getElementById("proximo-presenca");
+  async function mostrarPresencaProximo() {
+    const respostas = (await buscarPresencas([proximo.id]))[proximo.id] || [];
+    const fotos = await linksDosArquivos(respostas.map(r => r.perfis?.foto_path));
+    caixaPresenca.innerHTML = htmlPresenca(proximo, respostas, fotos, eu.katequista, false);
+  }
+  await mostrarPresencaProximo();
+
+  caixaPresenca.addEventListener("click", async (e) => {
+    const botao = e.target.closest("[data-presenca]");
+    if (!botao) return;
+    caixaPresenca.querySelectorAll("[data-presenca]").forEach(b => b.disabled = true);
+    const { error } = await responderPresenca(proximo.id, botao.dataset.presenca, botao.dataset.atual || null);
+    if (error) await avisarJanela("Não foi possível responder: " + error.message);
+    await mostrarPresencaProximo();
+  });
 }
 
-// ================= MURAL =================
-// Anúncio oficial com prioridade (o mais recente) em destaque + os 3 últimos recados
-async function mostrarMural() {
-  const [anuncios, recados] = await Promise.all([buscarAnuncios(1), buscarRecados(3)]);
-  if (anuncios === null || recados === null) return; // supabase-12.sql ainda não rodou: não mostra nada
+// ================= ANÚNCIO COM PRIORIDADE E MURAL =================
+if (anuncios !== null && recados !== null) {
   document.getElementById("secao-mural").hidden = false;
 
   const destaque = anuncios.find(a => a.prioridade);
   if (destaque) {
+    document.getElementById("secao-anuncio").hidden = false;
     document.getElementById("anuncio-destaque").innerHTML =
       `<a class="anuncio-link" href="mural.html">${htmlAnuncio(destaque)}</a>`;
   }
 
-  const links = await linksDosArquivos(recados.map(r => r.perfis?.foto_path));
   document.getElementById("ultimos-recados").innerHTML = recados.length
-    ? `<div class="lista-recados compacta">${recados.map(r => htmlRecado(r, links[r.perfis?.foto_path])).join("")}</div>`
+    ? `<div class="lista-recados compacta">${recados.map(r => htmlRecado(r, linksCapa[r.perfis?.foto_path])).join("")}</div>`
     : '<p class="detalhe">Nenhum recado ainda.</p>';
 }
-await mostrarMural();
 
 // ================= ANIVERSÁRIOS =================
-// Mostra quem faz aniversário hoje (em destaque) e os próximos.
-const aniversarios = await buscarAniversarios();
 const caixaAniv = document.getElementById("aniversarios");
 if (!aniversarios.length) {
   caixaAniv.innerHTML = '<p class="detalhe">Ninguém colocou o aniversário no perfil ainda.</p>';
 } else {
-  const fotosAniv = await linksDosArquivos(aniversarios.map(p => p.foto_path));
   const hojeAniv = aniversarios.filter(p => p.faltam === 0);
   const proximos = aniversarios.filter(p => p.faltam > 0).slice(0, hojeAniv.length ? 3 : 4);
   caixaAniv.innerHTML = `
     ${hojeAniv.map(p => `
       <div class="aniversario-hoje">
-        ${htmlAvatar(p, fotosAniv[p.foto_path], "pequena")}
+        ${htmlAvatar(p, linksCapa[p.foto_path], "pequena")}
         <div><strong>Hoje é aniversário de ${esc(nomeDe(p))}</strong><small>${esc(diaDoAniversario(p.aniversario))}</small></div>
       </div>`).join("")}
     <ul class="lista-aniversarios">
       ${proximos.map(p => `
         <li>
-          ${htmlAvatar(p, fotosAniv[p.foto_path], "pequena")}
+          ${htmlAvatar(p, linksCapa[p.foto_path], "pequena")}
           <span class="nome">${esc(nomeDe(p))}</span>
           <span class="aniv-data">${esc(diaDoAniversario(p.aniversario))}</span>
           <span class="quando">${quandoAniversario(p.faltam)}</span>
@@ -191,9 +232,8 @@ if (!eu.aniversario) {
 // ================= MEMBRO DA SEMANA =================
 const caixaSemana = document.getElementById("membro-semana");
 if (membroSemana?.nome) {
-  const links = await linksDosArquivos([membroSemana.foto]);
-  const foto = links[membroSemana.foto]
-    ? `<img class="foto-semana" src="${esc(links[membroSemana.foto])}" alt="">`
+  const foto = linksCapa[membroSemana.foto]
+    ? `<img class="foto-semana" src="${esc(linksCapa[membroSemana.foto])}" alt="">`
     : `<div class="foto-semana">${esc(membroSemana.nome[0].toUpperCase())}</div>`;
   caixaSemana.innerHTML = `
     <div class="membro-semana">
@@ -208,16 +248,17 @@ if (membroSemana?.nome) {
 }
 
 // ================= FRASE DO DIA =================
-// O número do dia (desde 1970) escolhe a frase: muda sozinha todo dia
 const numeroDoDia = Math.floor((Date.now() - new Date().getTimezoneOffset() * 60000) / 86400000);
 document.getElementById("sabedoria").textContent = sabedorias[numeroDoDia % sabedorias.length];
 
-// ================= CONTADORES =================
-// Membros = katequistas; visitantes = os outros aprovados. Eventos = de hoje em diante.
-const [{ data: aprovados }, tagsDosPerfis] = await Promise.all([
-  sb.from("perfis").select("id, admin").eq("status", "aprovado"),
-  buscarTagsDosPerfis(),
-]);
+// ================= CONTADORES E INDICADORES DE ATALHO =================
+if (carteiraCapa?.saldo !== undefined) {
+  infoAtalho("economia.html", "K$ " + Number(carteiraCapa.saldo).toLocaleString("pt-BR"));
+}
+if (enquetesAbertas > 0) {
+  infoAtalho("enquetes.html", `${enquetesAbertas} ${enquetesAbertas === 1 ? "aberta" : "abertas"}`);
+}
+
 const totalKatequistas = (aprovados || []).filter(p => ehKatequistaPerfil(p, tagsDosPerfis[p.id])).length;
 const hoje = new Date();
 hoje.setHours(0, 0, 0, 0);
@@ -225,30 +266,30 @@ const contadores = {
   membros: totalKatequistas,
   visitantes: (aprovados || []).length - totalKatequistas,
   eventos: todosEventos.filter(ev => lerData(ev.data) >= hoje).length,
+  fotos: totalFotos || 0,
 };
 
 // ================= ANIMAÇÕES AO ROLAR A PÁGINA =================
 function contarAte(el) {
-  if (contadores[el.dataset.chave] === null) return; // sem número ainda: deixa o "—"
+  if (contadores[el.dataset.chave] === null) return;
   const alvo = contadores[el.dataset.chave];
   const inicio = performance.now();
   const duracao = 1200;
   function passo(momento) {
     const t = Math.min(1, (momento - inicio) / duracao);
-    const suave = 1 - Math.pow(1 - t, 3); // começa rápido e desacelera no fim
+    const suave = 1 - Math.pow(1 - t, 3);
     el.textContent = Math.round(alvo * suave).toLocaleString("pt-BR");
     if (t < 1) requestAnimationFrame(passo);
   }
   requestAnimationFrame(passo);
 }
 
-// O IntersectionObserver avisa quando um elemento aparece na tela
 const observador = new IntersectionObserver((entradas) => {
   entradas.forEach(entrada => {
     if (!entrada.isIntersecting) return;
     entrada.target.classList.add("visivel");
     entrada.target.querySelectorAll(".contador").forEach(contarAte);
-    observador.unobserve(entrada.target); // anima só uma vez
+    observador.unobserve(entrada.target);
   });
 }, { threshold: 0.15 });
 

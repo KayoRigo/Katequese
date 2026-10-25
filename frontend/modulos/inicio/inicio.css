@@ -40,8 +40,26 @@
 }
 @keyframes piscar { 50% { border-color: transparent; } }
 
-.continua { position: absolute; bottom: 28px; font-size: 0.85rem; text-decoration: none; color: var(--texto-suave); }
-.continua:hover { color: var(--texto); }
+.continua {
+  position: absolute;
+  bottom: 24px;
+  z-index: var(--z-decoracao);
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--borda);
+  border-radius: 50%;
+  background: var(--superficie);
+  font-size: 1rem;
+  text-decoration: none;
+  color: var(--texto-suave);
+  transition: color 0.15s, border-color 0.15s, transform 0.15s;
+}
+.continua:hover { color: var(--texto); border-color: var(--destaque); transform: translateY(2px); }
+/* Quando Halloween ou Natal estão ligados, sobe acima do chão de enfeites */
+:root[data-tema-global] .continua { bottom: 130px; }
 
 .faixa {
   overflow: hidden;
@@ -70,7 +88,14 @@
   color: var(--texto-suave);
 }
 
-.atalhos { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(150px, 100%), 1fr)); gap: 12px; }
+.atalhos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+@media (max-width: 680px) {
+  .atalhos { grid-template-columns: repeat(2, 1fr); }
+  .atalho:last-child:nth-child(odd) { grid-column: 1 / -1; }
+}
+@media (max-width: 340px) {
+  .atalhos { grid-template-columns: 1fr; }
+}
 .atalho {
   display: flex;
   align-items: center;
@@ -86,6 +111,17 @@
 .atalho svg { width: 22px; height: 22px; color: var(--texto-suave); flex-shrink: 0; transition: color 0.15s; }
 .atalho:hover { border-color: var(--destaque); background: var(--superficie-2); }
 .atalho:hover svg { color: var(--destaque); }
+.atalho-info {
+  margin-left: auto;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--superficie-2);
+  color: var(--texto-suave);
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
 
 .destaques { display: grid; grid-template-columns: 1.3fr 1fr; gap: 16px; }
 @media (max-width: 800px) { .destaques { grid-template-columns: 1fr; } }
@@ -128,7 +164,9 @@
 .membro-semana p { margin-top: 6px; color: var(--texto-suave); white-space: pre-wrap; }
 @media (max-width: 420px) { .membro-semana { flex-direction: column; text-align: center; } }
 
-.numeros { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(170px, 100%), 1fr)); gap: 12px; }
+.numeros { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+@media (max-width: 680px) { .numeros { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 340px) { .numeros { grid-template-columns: 1fr; } }
 .numero { padding: var(--pad-caixa); }
 .numero b { display: block; font-size: 2.2rem; font-weight: 800; line-height: 1.1; font-variant-numeric: tabular-nums; }
 .numero span { font-size: 0.9rem; color: var(--texto-suave); }

@@ -1,5 +1,6 @@
 # Arquivos que NÃO vão para o GitHub
 .DS_Store
+.playwright-mcp/
 historico-da-conversa.zip
 Katequese-site.zip
 *.log

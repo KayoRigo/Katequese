@@ -35,6 +35,11 @@
   </div>
 
   <div id="conteudo">
+    <!-- ===================== ANÚNCIO COM PRIORIDADE (aparece no topo se houver) ===================== -->
+    <section class="secao aparecer" id="secao-anuncio" hidden>
+      <div id="anuncio-destaque"></div>
+    </section>
+
     <!-- ===================== ACESSO RÁPIDO ===================== -->
     <section class="secao aparecer">
       <h2 class="secao-titulo">Acesso rápido</h2>
@@ -95,7 +100,7 @@
               <div><b id="cd-seg">00</b><small>seg</small></div>
             </div>
             <p class="detalhe" id="proximo-detalhe"></p>
-            <p class="detalhe" id="proximo-presenca"></p>
+            <div id="proximo-presenca"></div>
           </div>
           <a class="link-mais" href="eventos.html">Ver eventos →</a>
         </div>
@@ -108,9 +113,8 @@
       </div>
     </section>
 
-    <!-- ===================== MURAL (anúncio com prioridade + últimos recados) ===================== -->
+    <!-- ===================== MURAL (últimos recados) ===================== -->
     <section class="secao aparecer" id="secao-mural" hidden>
-      <div id="anuncio-destaque"></div>
       <div class="caixa">
         <h2>Últimos recados</h2>
         <div id="ultimos-recados"></div>
@@ -134,6 +138,7 @@
         <div class="caixa numero"><b class="contador" data-chave="membros">0</b><span>membros</span></div>
         <div class="caixa numero"><b class="contador" data-chave="visitantes">0</b><span>visitantes</span></div>
         <div class="caixa numero"><b class="contador" data-chave="eventos">0</b><span>eventos ativos</span></div>
+        <div class="caixa numero"><b class="contador" data-chave="fotos">0</b><span>fotos</span></div>
       </div>
     </section>
 

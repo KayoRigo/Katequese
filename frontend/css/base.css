@@ -7,6 +7,9 @@
 [hidden] { display: none !important; }
 html.carregando body { visibility: hidden; }
 
+html {
+  scroll-behavior: smooth;
+}
 html, body {
   overflow-x: clip;
 }
