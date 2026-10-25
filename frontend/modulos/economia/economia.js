@@ -631,385 +631,6 @@ function listaEfeitosItem(i, nomesTrab = {}) {
 }
 
 // =====================================================================
-// CASSINO: Cara ou Coroa, Roleta e Caça-níquel
-// =====================================================================
-
-// Desenhos dos símbolos do caça-níquel (SVG simples)
-const SIMBOLOS = {
-  cereja:  `<svg viewBox="0 0 40 40"><path d="M20 6c-2 8-8 12-10 18M20 6c2 8 6 12 8 16" fill="none" stroke="#4caf68" stroke-width="2.5" stroke-linecap="round"/><path d="M20 6c5-2 9 0 11 3-4 1-8 0-11-3z" fill="#4caf68"/><circle cx="11" cy="28" r="7" fill="#d83a3a"/><circle cx="28" cy="27" r="7" fill="#c42f2f"/><circle cx="9" cy="26" r="2" fill="#fff" opacity=".5"/></svg>`,
-  limao:   `<svg viewBox="0 0 40 40"><ellipse cx="20" cy="21" rx="14" ry="11" fill="#f2d33c"/><path d="M6 21c-2 0-3-1-3-2M34 21c2 0 3-1 3-2" stroke="#d9b82a" stroke-width="2.5" stroke-linecap="round"/><ellipse cx="15" cy="17" rx="4" ry="2" fill="#fff" opacity=".45"/></svg>`,
-  sino:    `<svg viewBox="0 0 40 40"><path d="M20 5c-7 0-11 6-11 13v7l-3 5h28l-3-5v-7c0-7-4-13-11-13z" fill="#e5a93a"/><circle cx="20" cy="33" r="3.5" fill="#b9802a"/><rect x="18" y="2" width="4" height="4" rx="1" fill="#b9802a"/></svg>`,
-  estrela: `<svg viewBox="0 0 40 40"><path d="M20 4l4.9 10.6 11.6 1.3-8.6 7.8 2.4 11.4L20 29.3 9.7 35.1l2.4-11.4-8.6-7.8 11.6-1.3z" fill="#f2c94c" stroke="#d9a520" stroke-width="1.5" stroke-linejoin="round"/></svg>`,
-  sete:    `<svg viewBox="0 0 40 40"><text x="20" y="32" text-anchor="middle" font-family="Archivo, sans-serif" font-size="32" font-weight="900" fill="#e5484d" stroke="#8f1f22" stroke-width="1.5">7</text></svg>`,
-};
-const NOMES_SIMBOLOS = Object.keys(SIMBOLOS);
-const VERMELHOS = [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36];
-const corDoNumero = (n) => n === 0 ? "verde" : VERMELHOS.includes(n) ? "vermelho" : "preto";
-// Ordem dos números numa roleta europeia de verdade (no sentido horário)
-const ORDEM_ROLETA = [0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23, 10, 5, 24, 16, 33, 1, 20, 14, 31, 9, 22, 18, 29, 7, 28, 12, 35, 3, 26];
-
-let jogoAtual = "moeda";
-// Guardam onde a moeda/roleta pararam, para a próxima jogada começar dali
-let anguloMoeda = 0;
-let roda = { angulo: 0, bola: 0, raioBola: 133 };
-let historicoRoleta = [];
-// Espera entre apostas (segundos, por jogo; o admin muda) e quando cada jogo libera de novo
-let esperaCassino = { moeda: 0, roleta: 0, slots: 0 };
-let proximaAposta = {};
-let vigiaCassino = null;
-
-async function carregarEsperaCassino() {
-  const [{ data: cfg }, { data: ultimas }] = await Promise.all([
-    sb.from("config").select("dados").eq("id", 1).single(),
-    sb.from("ultimas_apostas").select("jogo, em").eq("perfil_id", euEco.id),
-  ]);
-  esperaCassino = { moeda: 0, roleta: 0, slots: 0, ...(cfg?.dados?.cassinoEspera || {}) };
-  (ultimas || []).forEach(u => { proximaAposta[u.jogo] = new Date(u.em).getTime() + Number(esperaCassino[u.jogo] || 0) * 1000; });
-}
-
-async function abaCassino(el) {
-  await carregarEsperaCassino();
-  el.innerHTML = `
-    <div class="cassino-jogos">
-      <button data-jogo="moeda">Cara ou Coroa</button>
-      <button data-jogo="roleta">Roleta</button>
-      <button data-jogo="slots">Caça-níquel</button>
-    </div>
-    <div class="caixa cassino-mesa" id="mesa"></div>
-    <p class="eco-dica">Aposta mínima K$ 10 e máxima K$ 50.000. O resultado é sorteado pelo banco de dados.</p>`;
-
-  el.querySelector(".cassino-jogos").addEventListener("click", (e) => {
-    const b = e.target.closest("[data-jogo]");
-    if (b) { jogoAtual = b.dataset.jogo; montarMesa(el); }
-  });
-  montarMesa(el);
-}
-
-// Campo de valor da aposta com atalhos (10, 50, 100, metade, tudo)
-function htmlAposta() {
-  return `
-    <div class="aposta">
-      <label class="campo" style="margin: 0"><span>Aposta</span>
-        <input id="valor-aposta" type="number" min="10" step="1" value="${Math.min(50, Math.max(10, carteira.saldo))}">
-      </label>
-      <div class="atalhos-aposta">
-        <button type="button" data-valor="10">10</button>
-        <button type="button" data-valor="50">50</button>
-        <button type="button" data-valor="100">100</button>
-        <button type="button" data-valor="500">500</button>
-        <button type="button" data-valor="metade">Metade</button>
-        <button type="button" data-valor="tudo">Tudo</button>
-      </div>
-    </div>`;
-}
-
-function montarMesa(el) {
-  el.querySelectorAll(".cassino-jogos button").forEach(b => b.classList.toggle("ativa", b.dataset.jogo === jogoAtual));
-  // Troca a mesa por uma nova (assim os cliques do jogo anterior não ficam grudados nela)
-  const antiga = el.querySelector("#mesa");
-  const mesa = antiga.cloneNode(false);
-  antiga.replaceWith(mesa);
-
-  if (jogoAtual === "moeda") {
-    // A borda da moeda é feita de várias "fatias" empilhadas em 3D
-    const borda = [...Array(9)].map((_, i) => `<div class="moeda-borda" style="transform: translateZ(${i - 4}px)"></div>`).join("");
-    mesa.innerHTML = `
-      <h2>Cara ou Coroa</h2>
-      <p class="eco-dica" style="margin-top: 0">Acertou, recebe 2× a aposta.</p>
-      <div class="palco-moeda">
-        <div class="moeda-voo" id="moeda-voo">
-          <div class="moeda" id="moeda" style="transform: rotateX(${anguloMoeda}deg)">
-            <div class="face cara">Cara</div>${borda}<div class="face coroa">Coroa</div>
-          </div>
-        </div>
-        <div class="moeda-sombra" id="moeda-sombra"></div>
-      </div>
-      ${htmlAposta()}
-      <div class="botoes-jogo">
-        <button class="botao" data-escolha="cara">Apostar em Cara</button>
-        <button class="botao" data-escolha="coroa">Apostar em Coroa</button>
-      </div>
-      <p class="resultado-jogo" id="resultado"></p>`;
-  } else if (jogoAtual === "roleta") {
-    mesa.innerHTML = `
-      <h2>Roleta</h2>
-      <p class="eco-dica" style="margin-top: 0">Números de 0 a 36. Vermelho ou preto pagam 2×; verde (o 0) paga 36×.</p>
-      <div class="palco-roda">${svgRoda()}</div>
-      <div class="historico-roleta" id="historico-roleta">${htmlHistoricoRoleta()}</div>
-      ${htmlAposta()}
-      <div class="botoes-jogo">
-        <button class="botao cor-vermelho" data-escolha="vermelho">Vermelho · 2×</button>
-        <button class="botao cor-preto" data-escolha="preto">Preto · 2×</button>
-        <button class="botao cor-verde" data-escolha="verde">Verde · 36×</button>
-      </div>
-      <p class="resultado-jogo" id="resultado"></p>`;
-    posicionarRoda(mesa);
-  } else {
-    mesa.innerHTML = `
-      <h2>Caça-níquel</h2>
-      <div class="maquina-caixa">
-        <div class="maquina" id="maquina">
-          ${[0, 1, 2].map(i => `<div class="rolo"><div class="fita-rolo" id="rolo-${i}">${htmlSimbolos([sortear(NOMES_SIMBOLOS), sortear(NOMES_SIMBOLOS), sortear(NOMES_SIMBOLOS)])}</div></div>`).join("")}
-        </div>
-        <button class="alavanca" id="alavanca" data-escolha="slots" title="Girar"><span class="alavanca-haste"></span><span class="alavanca-bola"></span></button>
-      </div>
-      ${htmlAposta()}
-      <div class="botoes-jogo"><button class="botao" data-escolha="slots">Girar</button></div>
-      <p class="resultado-jogo" id="resultado"></p>
-      <details class="tabela-premios">
-        <summary>Tabela de prêmios</summary>
-        <ul>
-          <li>${SIMBOLOS.sete}${SIMBOLOS.sete}${SIMBOLOS.sete}<b>100×</b></li>
-          <li>${SIMBOLOS.estrela}${SIMBOLOS.estrela}${SIMBOLOS.estrela}<b>30×</b></li>
-          <li>${SIMBOLOS.sino}${SIMBOLOS.sino}${SIMBOLOS.sino}<b>15×</b></li>
-          <li>${SIMBOLOS.limao}${SIMBOLOS.limao}${SIMBOLOS.limao}<b>8×</b></li>
-          <li>${SIMBOLOS.cereja}${SIMBOLOS.cereja}${SIMBOLOS.cereja}<b>5×</b></li>
-          <li>${SIMBOLOS.cereja}${SIMBOLOS.cereja}<span class="qualquer">?</span><b>devolve</b></li>
-        </ul>
-      </details>`;
-  }
-
-  // Atalhos de valor
-  mesa.querySelector(".atalhos-aposta").addEventListener("click", (e) => {
-    const b = e.target.closest("[data-valor]");
-    if (!b) return;
-    const v = b.dataset.valor;
-    mesa.querySelector("#valor-aposta").value =
-      v === "tudo" ? Math.min(carteira.saldo, 50000) : v === "metade" ? Math.max(10, Math.floor(carteira.saldo / 2)) : v;
-  });
-
-  // Aviso de espera entre apostas (embaixo dos botões)
-  mesa.querySelector(".botoes-jogo").insertAdjacentHTML("afterend", '<p class="espera-aposta" id="espera-aposta"></p>');
-  let girando = false;
-  clearInterval(vigiaCassino);
-  vigiaCassino = setInterval(() => {
-    if (!mesa.isConnected) return clearInterval(vigiaCassino);
-    if (girando) return;
-    const resta = Math.ceil(((proximaAposta[jogoAtual] || 0) - Date.now()) / 1000);
-    mesa.querySelectorAll("[data-escolha]").forEach(x => x.disabled = resta > 0);
-    mesa.querySelector("#espera-aposta").textContent = resta > 0 ? `Próxima aposta neste jogo em ${resta} s` : "";
-  }, 200);
-
-  // Apostar (botões de baixo ou a alavanca)
-  mesa.addEventListener("click", async (e) => {
-    const b = e.target.closest("[data-escolha]");
-    if (!b || girando) return;
-    const valor = Number(mesa.querySelector("#valor-aposta").value);
-    const botoes = mesa.querySelectorAll("[data-escolha]");
-    girando = true;
-    botoes.forEach(x => x.disabled = true);
-    const resultadoEl = mesa.querySelector("#resultado");
-    resultadoEl.textContent = "";
-    resultadoEl.className = "resultado-jogo";
-    prepararSom();
-
-    const escolha = jogoAtual === "slots" ? null : b.dataset.escolha;
-    if (jogoAtual === "slots") puxarAlavanca(mesa);
-    const { data, error } = await sb.rpc("apostar", { jogo: jogoAtual, valor, escolha });
-    if (error) {
-      avisoEco(esc(error.message), "erro");
-      botoes.forEach(x => x.disabled = false);
-      girando = false;
-      return;
-    }
-    // Começa a contar a espera para a próxima aposta neste jogo
-    proximaAposta[jogoAtual] = Date.now() + Number(data.espera || 0) * 1000;
-    // O saldo cai na hora (a aposta saiu); o prêmio aparece quando a animação termina
-    mostrarSaldo(carteira.saldo - valor);
-
-    if (jogoAtual === "moeda") await animarMoeda(mesa, data.resultado.lado);
-    else if (jogoAtual === "roleta") await animarRoleta(mesa, data.resultado.numero);
-    else await animarSlots(mesa, data.resultado.rolos, data.premio > 0);
-
-    if (data.lucro > 0) {
-      resultadoEl.innerHTML = `Ganhou <b>${moeda(data.premio)}</b> (lucro de ${moeda(data.lucro)})`;
-      resultadoEl.classList.add("ganhou");
-      tocar(660, 0.12); setTimeout(() => tocar(880, 0.16), 120);
-      // Prêmio grande (10× ou mais): chuva de moedas
-      chuvaMoedas(mesa, data.premio >= valor * 10 ? 40 : 14);
-    } else if (data.lucro === 0) {
-      resultadoEl.innerHTML = "Empate: a aposta voltou.";
-    } else if (data.cashback > 0) {
-      resultadoEl.innerHTML = `Perdeu ${moeda(valor)}, mas voltaram ${moeda(data.cashback)} de cashback.`;
-      resultadoEl.classList.add("perdeu");
-    } else {
-      resultadoEl.innerHTML = `Perdeu ${moeda(valor)}.`;
-      resultadoEl.classList.add("perdeu");
-    }
-    mostrarSaldo(data.saldo);
-    await atualizarCarteira();
-    botoes.forEach(x => x.disabled = false);
-    girando = false;
-  });
-}
-
-// ---- Moeda: sobe girando, cai, quica e para na face sorteada ----
-async function animarMoeda(mesa, lado) {
-  const voo = mesa.querySelector("#moeda-voo");
-  const m = mesa.querySelector("#moeda");
-  const sombra = mesa.querySelector("#moeda-sombra");
-  const inicio = anguloMoeda % 360;                 // 0 (cara) ou 180 (coroa)
-  const fimMod = lado === "coroa" ? 180 : 0;
-  const final = inicio + 7 * 360 + ((fimMod - inicio + 360) % 360);
-  const dur = 2200;
-  anguloMoeda = fimMod;
-  tocar(1200, 0.05, "sine");
-  m.animate([{ transform: `rotateX(${inicio}deg)` }, { transform: `rotateX(${final}deg)` }],
-    { duration: dur * 0.86, easing: "cubic-bezier(.3,.55,.4,1)", fill: "forwards" });
-  voo.animate([
-    { transform: "translateY(0)", easing: "cubic-bezier(.2,.6,.4,1)" },
-    { transform: "translateY(-150px)", offset: 0.42, easing: "cubic-bezier(.6,0,.8,.4)" },
-    { transform: "translateY(0)", offset: 0.84, easing: "ease-out" },
-    { transform: "translateY(-16px)", offset: 0.92, easing: "ease-in" },
-    { transform: "translateY(0)" },
-  ], { duration: dur, fill: "forwards" });
-  sombra.animate([
-    { transform: "scale(1)", opacity: 0.5 },
-    { transform: "scale(0.45)", opacity: 0.15, offset: 0.42 },
-    { transform: "scale(1)", opacity: 0.5, offset: 0.84 },
-    { transform: "scale(0.85)", opacity: 0.4, offset: 0.92 },
-    { transform: "scale(1)", opacity: 0.5 },
-  ], { duration: dur, fill: "forwards" });
-  await espera(dur * 0.84);
-  tocar(900, 0.06, "sine");
-  await espera(dur * 0.16 + 50);
-  m.getAnimations().forEach(a => a.cancel());
-  m.style.transform = `rotateX(${fimMod}deg)`;
-  m.animate([{ transform: `rotateX(${fimMod}deg) scale(1)` }, { transform: `rotateX(${fimMod}deg) scale(1.08)` }, { transform: `rotateX(${fimMod}deg) scale(1)` }], { duration: 300 });
-}
-
-// ---- Roleta de verdade: a roda gira, a bola corre ao contrário e cai no número ----
-const RODA_C = 150;   // centro do desenho
-function polar(r, graus) {
-  const a = graus * Math.PI / 180;
-  return [RODA_C + r * Math.sin(a), RODA_C - r * Math.cos(a)];
-}
-function svgRoda() {
-  const passo = 360 / 37;
-  const casas = ORDEM_ROLETA.map((n, i) => {
-    const a0 = (i - 0.5) * passo, a1 = (i + 0.5) * passo;
-    const [x1, y1] = polar(127, a0), [x2, y2] = polar(127, a1), [x3, y3] = polar(96, a1), [x4, y4] = polar(96, a0);
-    const [tx, ty] = polar(114, i * passo);
-    return `<path class="casa-roda ${corDoNumero(n)}" d="M${x1},${y1} A127,127 0 0 1 ${x2},${y2} L${x3},${y3} A96,96 0 0 0 ${x4},${y4} Z"/>
-      <text x="${tx}" y="${ty}" transform="rotate(${i * passo} ${tx} ${ty})" class="num-roda">${n}</text>`;
-  }).join("");
-  const raios = [0, 90, 180, 270].map(a => { const [x, y] = polar(56, a); return `<line x1="150" y1="150" x2="${x}" y2="${y}"/>`; }).join("");
-  return `
-    <svg viewBox="0 0 300 300" class="roda">
-      <circle cx="150" cy="150" r="149" class="roda-aro"/>
-      <circle cx="150" cy="150" r="141" class="roda-pista"/>
-      <g id="roda-giro">
-        ${casas}
-        <circle cx="150" cy="150" r="96" class="roda-cone"/>
-        <circle cx="150" cy="150" r="70" class="roda-miolo"/>
-        <g class="roda-raios">${raios}</g>
-        <circle cx="150" cy="150" r="10" class="roda-centro"/>
-      </g>
-      <circle id="bola" r="5.5" class="bola"/>
-    </svg>`;
-}
-function posicionarRoda(mesa) {
-  mesa.querySelector("#roda-giro").setAttribute("transform", `rotate(${roda.angulo} 150 150)`);
-  const [x, y] = polar(roda.raioBola, roda.bola);
-  const bola = mesa.querySelector("#bola");
-  bola.setAttribute("cx", x);
-  bola.setAttribute("cy", y);
-}
-function htmlHistoricoRoleta() {
-  return historicoRoleta.map(n => `<span class="${corDoNumero(n)}">${n}</span>`).join("");
-}
-function animarRoleta(mesa, numero) {
-  return new Promise(ok => {
-    const giro = mesa.querySelector("#roda-giro");
-    const bola = mesa.querySelector("#bola");
-    const passo = 360 / 37;
-    const idx = ORDEM_ROLETA.indexOf(numero);
-    const T = 5600, QUEDA = 0.6;                       // duração e momento em que a bola cai
-    const W0 = roda.angulo, Wtotal = 360 * 3 + Math.random() * 360;
-    const W = (s) => W0 + Wtotal * (1 - Math.pow(1 - s, 3));   // ângulo da roda (desacelerando)
-    const casa = (s) => W(s) + idx * passo;                     // onde está o número sorteado
-    const ATRASO = 30;                                          // a bola cai um pouco antes da casa e escorrega
-    const B0 = roda.bola, R0 = roda.raioBola;
-    // A bola corre no sentido contrário (~5 voltas) e termina exatamente sobre (casa + ATRASO)
-    const alvo = casa(QUEDA) + ATRASO;
-    let Bq = B0 - 360 * 5;
-    Bq -= (((Bq - alvo) % 360) + 360) % 360;
-    const inicio = performance.now();
-    let ultimoTique = 0;
-
-    function quadro(t) {
-      const s = Math.min(1, (t - inicio) / T);
-      giro.setAttribute("transform", `rotate(${W(s)} 150 150)`);
-      let ang, raio;
-      if (s < QUEDA) {
-        const u = s / QUEDA;
-        ang = B0 + (Bq - B0) * (1 - Math.pow(1 - u, 2));
-        raio = s < 0.06 ? R0 + (133 - R0) * (s / 0.06) : 133;
-      } else {
-        const u = (s - QUEDA) / (1 - QUEDA);
-        ang = casa(s) + ATRASO * Math.pow(1 - u, 3);
-        // Cai quicando nas casas até parar
-        raio = 111 + 22 * Math.pow(1 - u, 2) * Math.abs(Math.cos(u * Math.PI * 3));
-        // "tique" de quando a bola bate nas divisórias
-        if (u < 0.6 && t - ultimoTique > 90 + u * 300) { tocar(1500, 0.02, "square"); ultimoTique = t; }
-      }
-      const [x, y] = polar(raio, ang);
-      bola.setAttribute("cx", x);
-      bola.setAttribute("cy", y);
-      if (s < 1) return requestAnimationFrame(quadro);
-      roda = { angulo: W(1) % 360, bola: casa(1) % 360, raioBola: 111 };
-      historicoRoleta = [numero, ...historicoRoleta].slice(0, 12);
-      const hist = mesa.querySelector("#historico-roleta");
-      hist.innerHTML = htmlHistoricoRoleta();
-      hist.firstElementChild?.classList.add("novo");
-      ok();
-    }
-    requestAnimationFrame(quadro);
-  });
-}
-
-// ---- Caça-níquel: alavanca, rolos borrados girando, parada com "tranco" ----
-function htmlSimbolos(lista) {
-  return lista.map(s => `<div class="simbolo">${SIMBOLOS[s]}</div>`).join("");
-}
-function puxarAlavanca(mesa) {
-  const a = mesa.querySelector("#alavanca");
-  if (!a) return;
-  a.classList.remove("puxada");
-  void a.offsetWidth;
-  a.classList.add("puxada");
-}
-async function animarSlots(mesa, rolos, ganhou) {
-  const ALTURA = 84; // altura de cada símbolo (igual ao CSS)
-  const maquina = mesa.querySelector("#maquina");
-  maquina.classList.remove("ganhou");
-  const vencedores = [];
-  await Promise.all(rolos.map((final, i) => {
-    const fita = mesa.querySelector("#rolo-" + i);
-    const lista = [...Array(26 + i * 9)].map(() => sortear(NOMES_SIMBOLOS));
-    const posicao = lista.length;
-    lista.push(final, sortear(NOMES_SIMBOLOS));
-    fita.style.transition = "none";
-    fita.style.transform = "translateY(0)";
-    fita.innerHTML = htmlSimbolos(lista);
-    vencedores.push(fita.children[posicao]);
-    void fita.offsetWidth;
-    const tempo = 1.5 + i * 0.55; // cada rolo para um pouco depois do anterior
-    fita.parentElement.classList.add("girando");
-    // O rolo mostra 3 símbolos; o sorteado para no do meio. O fim da curva passa
-    // um pouquinho do ponto e volta (o "tranco" da parada).
-    fita.style.transition = `transform ${tempo}s cubic-bezier(0.2, 0.75, 0.3, 1.04)`;
-    fita.style.transform = `translateY(${-(posicao - 1) * ALTURA}px)`;
-    setTimeout(() => fita.parentElement.classList.remove("girando"), tempo * 1000 * 0.75);
-    return espera(tempo * 1000 + 60).then(() => tocar(300 + i * 80, 0.06, "square"));
-  }));
-  if (ganhou) {
-    maquina.classList.add("ganhou");
-    vencedores.forEach(v => v.classList.add("vencedor"));
-  }
-}
-
-// =====================================================================
 // RANKING
 // =====================================================================
 async function abaRanking(el) {
@@ -1106,14 +727,18 @@ async function abaAdmin(el) {
     </form>
 
     <form class="caixa eco-form" id="form-espera" style="margin-top: 16px">
-      <h2>Cassino: espera entre apostas</h2>
-      <p class="eco-dica">Segundos que cada pessoa espera entre uma aposta e outra no mesmo jogo (0 = sem espera).</p>
+      <h2>Cassino: preço da concessão e espera entre apostas</h2>
+      <p class="eco-dica">Preço para comprar o Cassino por 30 dias (dono ganha 25% das perdas dos outros) e segundos de espera entre apostas.</p>
       <div class="linha-campos">
-        <label class="campo"><span>Cara ou Coroa</span><input id="espera-moeda" type="number" min="0" max="3600" step="1"></label>
-        <label class="campo"><span>Roleta</span><input id="espera-roleta" type="number" min="0" max="3600" step="1"></label>
-        <label class="campo"><span>Caça-níquel</span><input id="espera-slots" type="number" min="0" max="3600" step="1"></label>
+        <label class="campo"><span>Preço do Cassino (K$)</span><input id="cassino-preco" type="number" min="1000" step="500"></label>
+        <label class="campo"><span>Revoada (s)</span><input id="espera-aviator" type="number" min="0" max="3600" step="1"></label>
+        <label class="campo"><span>Campo Minado (s)</span><input id="espera-bomba" type="number" min="0" max="3600" step="1"></label>
+        <label class="campo"><span>Tigrinho (s)</span><input id="espera-tigrinho" type="number" min="0" max="3600" step="1"></label>
+        <label class="campo"><span>Cara ou Coroa (s)</span><input id="espera-moeda" type="number" min="0" max="3600" step="1"></label>
+        <label class="campo"><span>Roleta (s)</span><input id="espera-roleta" type="number" min="0" max="3600" step="1"></label>
+        <label class="campo"><span>Caça-níquel (s)</span><input id="espera-slots" type="number" min="0" max="3600" step="1"></label>
       </div>
-      <button class="botao" type="submit">Salvar esperas</button>
+      <button class="botao" type="submit">Salvar configurações do cassino</button>
     </form>
 
     <form class="caixa eco-form form-item" id="form-item" style="margin-top: 16px">
@@ -1239,16 +864,19 @@ async function abaAdmin(el) {
     e.target.reset();
   });
 
-  // ---------- Espera do cassino (fica na config, chave "cassinoEspera") ----------
+  // ---------- Preço e espera do cassino (fica na config) ----------
   await carregarEsperaCassino();
-  ["moeda", "roleta", "slots"].forEach(j => { $("espera-" + j).value = esperaCassino[j] ?? 0; });
+  const JOGOS_ESPERA = ["aviator", "bomba", "tigrinho", "moeda", "roleta", "slots"];
+  JOGOS_ESPERA.forEach(j => { $("espera-" + j).value = esperaCassino[j] ?? 0; });
+  $("cassino-preco").value = estadoDono?.preco || 25000;
   $("form-espera").addEventListener("submit", async (e) => {
     e.preventDefault();
-    const novas = Object.fromEntries(["moeda", "roleta", "slots"].map(j => [j, Math.max(0, Number($("espera-" + j).value) || 0)]));
+    const novas = Object.fromEntries(JOGOS_ESPERA.map(j => [j, Math.max(0, Number($("espera-" + j).value) || 0)]));
+    const cassinoPreco = Math.max(1000, Number($("cassino-preco").value) || 25000);
     const { data: atual } = await sb.from("config").select("dados").eq("id", 1).single();
-    const { error } = await sb.from("config").update({ dados: { ...(atual?.dados || {}), cassinoEspera: novas } }).eq("id", 1);
+    const { error } = await sb.from("config").update({ dados: { ...(atual?.dados || {}), cassinoEspera: novas, cassinoPreco } }).eq("id", 1);
     if (error) return avisoEco(esc(error.message), "erro");
-    avisoEco("Esperas do cassino salvas", "ganho");
+    avisoEco("Configurações do cassino salvas", "ganho");
   });
 
   // ---------- Formulário de item ----------

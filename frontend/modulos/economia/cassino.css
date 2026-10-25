@@ -1,0 +1,198 @@
+/* =====================================================================
+   modulos/economia/cassino.css — Dono do Cassino, Revoada (Aviator),
+   Campo Minado (Bomba 5x5), Tigrinho 3x3, Moeda, Roleta e Caça-níquel.
+   ===================================================================== */
+
+/* Cartão do Dono do Cassino (topo) */
+.dono-cassino {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px 20px;
+  margin-bottom: 16px;
+  border-left: 4px solid var(--destaque);
+}
+.dono-cassino h3 { font-size: 1.2rem; margin: 2px 0 4px; }
+.dono-cassino p { color: var(--texto-suave); font-size: 0.92rem; max-width: 620px; }
+.dono-info { display: flex; align-items: center; gap: 14px; }
+.dono-info strong { display: block; font-size: 1.15rem; }
+.dono-info small { display: block; margin-top: 2px; color: var(--texto-suave); }
+.dono-lucro { text-align: right; }
+.dono-lucro span { display: block; font-size: 0.78rem; color: var(--texto-suave); text-transform: uppercase; letter-spacing: 0.06em; }
+.dono-lucro b { font-size: 1.4rem; color: var(--sucesso); font-variant-numeric: tabular-nums; }
+@media (max-width: 600px) {
+  .dono-cassino .botao { width: 100%; }
+  .dono-lucro { width: 100%; text-align: left; padding-top: 10px; border-top: 1px solid var(--borda); }
+}
+
+/* Seletor de jogos e controles de aposta */
+.cassino-jogos { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+.cassino-jogos button { padding: 8px 16px; font: inherit; font-weight: 600; color: var(--texto-suave); background: var(--superficie); border: 1px solid var(--borda); border-radius: 999px; cursor: pointer; }
+.cassino-jogos button.ativa { color: var(--sobre-destaque); background: var(--destaque); border-color: var(--destaque); }
+.cassino-mesa { position: relative; text-align: center; }
+.cassino-mesa h2 { text-align: left; }
+.aposta { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: center; gap: 10px; margin: 18px auto 14px; max-width: 620px; text-align: left; }
+.aposta .campo { width: 140px; }
+.atalhos-aposta { display: flex; flex-wrap: wrap; gap: 4px; }
+.atalhos-aposta button { padding: 8px 10px; font: inherit; font-size: 0.82rem; color: var(--texto-suave); background: var(--superficie-2); border: 1px solid var(--borda); border-radius: 6px; cursor: pointer; }
+.atalhos-aposta button:hover { color: var(--texto); border-color: var(--texto-suave); }
+.botoes-jogo { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.botao.cor-vermelho { background: #c8313a; color: #fff; }
+.botao.cor-preto { background: #1d1d22; color: #fff; border: 1px solid var(--borda); }
+.botao.cor-verde { background: #2e8b50; color: #fff; }
+.resultado-jogo { min-height: 1.5em; margin-top: 14px; font-size: 1.05rem; }
+.resultado-jogo.ganhou { color: var(--sucesso); }
+.resultado-jogo.perdeu { color: var(--texto-suave); }
+.espera-aposta { min-height: 1.2em; margin: 8px 0 0; font-size: 0.85rem; color: var(--texto-suave); font-variant-numeric: tabular-nums; }
+
+/* 1) Revoada da Katequese (Aviator) */
+.av-hist { padding: 3px 8px; font-size: 0.78rem; font-weight: 800; border-radius: 999px; font-variant-numeric: tabular-nums; }
+.av-hist.baixo { background: var(--superficie-2); color: var(--texto-suave); border: 1px solid var(--borda); }
+.av-hist.medio { background: rgba(76, 175, 104, 0.18); color: var(--sucesso); border: 1px solid var(--sucesso); }
+.av-hist.alto { background: rgba(242, 201, 76, 0.2); color: #f2c94c; border: 1px solid #f2c94c; }
+
+.palco-aviator {
+  position: relative;
+  height: 220px;
+  margin: 12px auto 0;
+  max-width: 560px;
+  overflow: hidden;
+  background: var(--fundo);
+  border: 1px solid var(--borda);
+  border-radius: var(--raio);
+}
+.av-grafico { position: absolute; inset: 0; width: 100%; height: 100%; }
+.av-area { fill: color-mix(in srgb, var(--destaque) 18%, transparent); }
+.av-linha { fill: none; stroke: var(--destaque); stroke-width: 3; stroke-linecap: round; }
+.av-aviao { position: absolute; left: 0; top: 0; width: 48px; height: 28px; margin: -24px 0 0 -24px; pointer-events: none; opacity: 0; transition: opacity 0.2s; }
+.palco-aviator.voando .av-aviao { opacity: 1; }
+.palco-aviator.explodiu .av-linha { stroke: var(--perigo); }
+.palco-aviator.explodiu .av-area { fill: rgba(239, 83, 80, 0.15); }
+.av-centro { position: relative; z-index: 2; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.av-centro strong { font-size: clamp(2.4rem, 7vw, 3.6rem); font-weight: 900; line-height: 1; font-variant-numeric: tabular-nums; }
+.palco-aviator.voando .av-centro strong { color: var(--destaque); }
+.palco-aviator.explodiu .av-centro strong { color: var(--perigo); }
+.av-centro small { margin-top: 6px; color: var(--texto-suave); font-weight: 600; }
+
+/* 2) Campo Minado do Churrasco (Bomba 5x5) */
+.bomba-painel { max-width: 340px; margin: 10px auto 14px; }
+.bomba-status { display: flex; justify-content: space-between; gap: 10px; margin-bottom: 10px; padding: 8px 12px; background: var(--fundo); border: 1px solid var(--borda); border-radius: 6px; font-size: 0.88rem; color: var(--texto-suave); }
+.bomba-status b { color: var(--destaque); font-variant-numeric: tabular-nums; }
+.grade-bomba { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+.casa-bomba {
+  aspect-ratio: 1;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--superficie-2);
+  border: 1px solid var(--borda);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.12s, border-color 0.15s, background 0.15s;
+}
+.casa-bomba:hover:not(:disabled) { border-color: var(--destaque); transform: translateY(-2px); }
+.casa-bomba svg { width: 100%; height: 100%; animation: surge 0.25s ease-out; }
+.casa-bomba.segura { background: rgba(76, 175, 104, 0.16); border-color: var(--sucesso); }
+.casa-bomba.mina { background: rgba(239, 83, 80, 0.18); border-color: var(--perigo); }
+.casa-bomba.explodiu { background: var(--perigo); border-color: var(--perigo); }
+.casa-bomba.revelada { opacity: 0.4; }
+
+/* 3) Tigrinho da Katequese (Slot 3x3) */
+.tigre-palco { max-width: 320px; margin: 10px auto 0; padding: 12px; background: var(--fundo); border: 2px solid #c99a2e; border-radius: var(--raio); }
+.tigre-palco.tela-cheia { box-shadow: 0 0 28px rgba(242, 201, 76, 0.5); border-color: #f2c94c; }
+.tigre-grade { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.tigre-celula {
+  aspect-ratio: 1;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--superficie-2);
+  border: 1px solid var(--borda);
+  border-radius: 8px;
+  transition: transform 0.2s, border-color 0.2s;
+}
+.tigre-celula svg { width: 100%; height: 100%; }
+.tigre-celula.girando svg { filter: blur(2px); transform: scale(0.9); }
+.tigre-celula.vencedora { border-color: #f2c94c; background: rgba(242, 201, 76, 0.16); animation: vencedor-pula 0.5s ease-in-out 3; }
+
+/* 4) Moeda 3D */
+.palco-moeda { position: relative; perspective: 700px; display: flex; flex-direction: column; align-items: center; padding: 160px 0 10px; }
+.moeda-voo { transform-style: preserve-3d; position: relative; z-index: 1; }
+.moeda { position: relative; width: 120px; height: 120px; transform-style: preserve-3d; }
+.moeda .face {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  border-radius: 50%; backface-visibility: hidden;
+  font-weight: 800; font-size: 1.1rem; letter-spacing: 0.04em; text-transform: uppercase;
+  color: #5a3d06; background: #e6b84a; border: 6px solid #c99a2e;
+  box-shadow: inset 0 0 0 3px #f2d27c;
+}
+.moeda .cara { transform: translateZ(5px); }
+.moeda .coroa { transform: rotateX(180deg) translateZ(5px); background: #d9a93c; }
+.moeda-borda { position: absolute; inset: 0; border-radius: 50%; background: #a87d22; }
+.moeda-sombra { width: 100px; height: 14px; margin-top: 14px; border-radius: 50%; background: #000; opacity: 0.5; filter: blur(3px); }
+
+/* 5) Roleta Europeia */
+.palco-roda { width: min(320px, 100%); margin: 6px auto 0; }
+.roda { display: block; width: 100%; height: auto; }
+.roda-aro { fill: #3a2717; }
+.roda-pista { fill: #1b130d; stroke: #5a3d22; stroke-width: 2; }
+.casa-roda { stroke: #c9a646; stroke-width: 0.8; }
+.casa-roda.vermelho { fill: #c8313a; }
+.casa-roda.preto { fill: #1d1d22; }
+.casa-roda.verde { fill: #2e8b50; }
+.num-roda { fill: #fff; font: 700 10px Archivo, sans-serif; text-anchor: middle; dominant-baseline: central; }
+.roda-cone { fill: #4a3220; stroke: #c9a646; stroke-width: 1.5; }
+.roda-miolo { fill: #2e1f14; }
+.roda-raios line { stroke: #c9a646; stroke-width: 4; stroke-linecap: round; }
+.roda-centro { fill: #c9a646; }
+.bola { fill: #f3f3f0; stroke: #9a9a96; stroke-width: 0.8; }
+.historico-roleta { display: flex; justify-content: center; flex-wrap: wrap; gap: 4px; min-height: 26px; margin-top: 10px; }
+.historico-roleta span { min-width: 26px; padding: 3px 6px; font-size: 0.8rem; font-weight: 800; color: #fff; border-radius: 5px; }
+.historico-roleta span.vermelho { background: #c8313a; }
+.historico-roleta span.preto { background: #1d1d22; border: 1px solid var(--borda); }
+.historico-roleta span.verde { background: #2e8b50; }
+.historico-roleta span.novo { animation: surge 0.35s ease-out; outline: 2px solid var(--destaque); }
+
+/* 6) Caça-níquel Clássico */
+.maquina-caixa { display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 8px; }
+.maquina { display: flex; justify-content: center; gap: 10px; padding: 14px; max-width: 360px; background: var(--fundo); border: 1px solid var(--borda); border-radius: var(--raio); position: relative; }
+.maquina::after { content: ""; position: absolute; left: 8px; right: 8px; top: 50%; height: 88px; margin-top: -44px; border: 2px solid var(--destaque); border-radius: 8px; pointer-events: none; transition: border-color 0.2s; }
+.maquina.ganhou::after { border-color: var(--sucesso); animation: linha-pisca 0.5s ease-in-out 4; }
+@keyframes linha-pisca { 50% { opacity: 0.2; } }
+.rolo { width: 92px; height: 252px; overflow: hidden; background: var(--superficie-2); border-radius: 6px;
+  -webkit-mask-image: linear-gradient(transparent, #000 25%, #000 75%, transparent);
+  mask-image: linear-gradient(transparent, #000 25%, #000 75%, transparent); }
+.fita-rolo { will-change: transform; transition: filter 0.2s; }
+.rolo.girando .fita-rolo { filter: blur(2.5px); }
+.simbolo { height: 84px; display: flex; align-items: center; justify-content: center; }
+.simbolo svg { width: 56px; height: 56px; }
+.simbolo.vencedor svg { animation: vencedor-pula 0.5s ease-in-out 3; }
+@keyframes vencedor-pula { 50% { transform: scale(1.18); } }
+@media (max-width: 420px) { .rolo { width: 72px; } .simbolo svg { width: 46px; height: 46px; } }
+
+.alavanca { position: relative; width: 26px; height: 150px; padding: 0; background: none; border: none; cursor: pointer; }
+.alavanca:disabled { cursor: default; }
+.alavanca-haste { position: absolute; left: 10px; bottom: 0; width: 6px; height: 120px; background: #8a8d94; border-radius: 3px; transform-origin: bottom center; }
+.alavanca-bola { position: absolute; left: 1px; top: 0; width: 24px; height: 24px; border-radius: 50%; background: #c8313a; border: 2px solid #8f1f22; }
+.alavanca.puxada .alavanca-haste { animation: alavanca-haste 0.6s ease-in-out; }
+.alavanca.puxada .alavanca-bola { animation: alavanca-bola 0.6s ease-in-out; }
+@keyframes alavanca-haste { 40% { transform: scaleY(-0.15); } }
+@keyframes alavanca-bola { 40% { transform: translateY(132px); } }
+@media (max-width: 420px) { .alavanca { display: none; } }
+.tabela-premios { margin-top: 16px; text-align: left; font-size: 0.9rem; }
+.tabela-premios summary { cursor: pointer; color: var(--texto-suave); }
+.tabela-premios ul { list-style: none; padding: 0; margin: 10px 0 0; display: grid; gap: 4px; }
+.tabela-premios li { display: flex; align-items: center; gap: 4px; }
+.tabela-premios li svg { width: 24px; height: 24px; }
+.tabela-premios li b { margin-left: 10px; }
+.tabela-premios .qualquer { width: 24px; text-align: center; color: var(--texto-suave); }
+
+@media (max-width: 600px) {
+  .aposta .campo { width: 100%; }
+  .atalhos-aposta { width: 100%; justify-content: center; }
+  .atalhos-aposta button { flex: 1 1 auto; }
+  .botoes-jogo .botao { flex: 1 1 120px; }
+}

@@ -55,10 +55,15 @@ Todas as 5 profissões são liberadas desde o nível 1 e balanceadas para render
 
 ---
 
-## 5. Cassino
+## 5. Cassino Katequista e Dono do Cassino (`frontend/modulos/economia/cassino.js`)
 
-* **Apostas:** de K$ 10 a K$ 50.000. Espera entre apostas por jogo configurável em *Economia → Admin* (`config.dados.cassinoEspera`, guardada em `ultimas_apostas`).
-* **Jogos (`apostar`):**
-  1. **Cara ou Coroa (`moeda`):** 50/50, paga `2×`.
-  2. **Roleta (`roleta`):** números `0` a `36` (ordem europeia). Vermelho ou preto pagam `2×`; verde (`0`) paga `36×`.
-  3. **Caça-níquel (`slots`):** 3 rolos com pesos `40 / 30 / 15 / 10 / 5` (`cereja`, `limao`, `sino`, `estrela`, `sete`). 3 iguais pagam `5× / 8× / 15× / 30× / 100×`; 2 cerejas devolvem a aposta.
+* **Concessão Mensal ("Dono do Cassino"):**
+  * Qualquer Katequista pode comprar o Cassino quando estiver sem dono (ou quando os 30 dias do dono anterior terminarem) por **K$ 25.000** (valor configurável em *Economia → Admin*, chave `cassinoPreco`).
+  * Durante os **30 dias** de mandato, o dono recebe automaticamente **25% de todas as perdas líquidas dos outros jogadores** (`pagar_comissao_dono`). O próprio dono nunca recebe comissão da própria derrota.
+* **6 Jogos Disponíveis (apostas de K$ 10 a K$ 50.000):**
+  1. **Revoada da Katequese (`aviator`):** o avião sobe com multiplicador exponencial (`M(t) = e^(0.12*t)`) e RTP de 97%. O ponto de crash fica oculto em `partidas_cassino` até o voo acabar (`iniciar_aviator`, `checar_aviator`, `sacar_aviator`).
+  2. **Campo Minado do Churrasco (`bomba`):** tabuleiro `5×5` (25 casas) com 1 a 24 bombas ocultas no banco (`iniciar_bomba`, `abrir_casa_bomba`, `sacar_bomba`). Multiplicador cresce a cada estrela aberta; pode retirar após qualquer acerto.
+  3. **Tigrinho da Katequese (`tigrinho`):** grade `3×3` com **5 linhas de pagamento** (3 horizontais + 2 diagonais). 6 símbolos (Laranja `0.5×`, Chopp `1.2×`, Churrasco `2.5×`, Ouro `5×`, Troféu `12×` e Tigrinho `25×` que vale como **Coringa/WILD**). Fechar as 5 linhas ativa o bônus **Tela Cheia 10×**.
+  4. **Cara ou Coroa (`moeda`):** 50/50, paga `2×`.
+  5. **Roleta (`roleta`):** números `0` a `36` (ordem europeia). Vermelho ou preto pagam `2×`; verde (`0`) paga `36×`.
+  6. **Caça-níquel Clássico (`slots`):** 3 rolos de 1 linha. 3 iguais pagam de `5×` a `100×`; 2 cerejas devolvem a aposta.

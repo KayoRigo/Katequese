@@ -29,7 +29,7 @@ Os arquivos de criação e evolução do banco ficam em **`backend/sql/`** (`sup
 * **Conta e Grupo:** `perfis`, `config` (linha única `id = 1` com JSON), `tags`, `perfil_tags`, `atualizacoes`.
 * **Atividades e Mural:** `eventos`, `presencas`, `midias`, `recados`, `anuncios`, `enquetes`, `enquete_opcoes`, `enquete_votos`, `sorteios`, `sorteio_resultados`.
 * **Política e Leis:** `politica`, `politica_link` (só Katequistas leem), `politica_eleicao` (só Katequistas leem), `leis`, `propostas_lei`, `votos_camara` (secreto), `votos_populares` (secreto).
-* **Economia:** `carteiras`, `trabalhos`, `trabalho_niveis`, `transacoes`, `itens_loja`, `inventario`, `equipamentos`, `meus_equipamentos`, `efeitos_ativos`, `ultimas_apostas`.
+* **Economia:** `carteiras`, `trabalhos`, `trabalho_niveis`, `transacoes`, `itens_loja`, `inventario`, `equipamentos`, `meus_equipamentos`, `efeitos_ativos`, `ultimas_apostas`, `cassino_dono` (dono mensal por 30 dias), `partidas_cassino` (partidas em andamento de Revoada e Campo Minado).
 * **Storage:** bucket privado `arquivos` (apenas `image/*`, limite de 10 MB por arquivo, URLs assinadas de 1 hora).
 
 ---
@@ -49,8 +49,9 @@ Quando precisar consultar ou alterar uma função, veja em qual arquivo de `back
 | `nivel_de()`, `nivel_trabalho()`, `minha_carteira_travada()`, `mexer_saldo()`, `abrir_carteira()`, `admin_ajustar_saldo()` | `supabase-14.sql` | Base da Economia (`mexer_saldo` tem `REVOKE EXECUTE` para ninguém chamar direto). |
 | `efeitos_trabalho()` | `supabase-15.sql` | Soma o melhor equipamento de cada linha na profissão. |
 | `bonus_itens()`, `meus_bonus_itens()`, `comecar_trabalho()`, `trabalhar()`, `bonus_diario()`, `comprar()`, `comprar_equipamento()`, `usar_item()`, `transferir()` | `supabase-16.sql` | Ações da Economia somando equipamentos + atributos dos itens da loja. |
-| `apostar()`, `propor_lei()`, `votar_camara()`, `votar_popular()`, `levar_ao_voto_popular()`, `arquivar_proposta()`, `propostas_situacao()` | `supabase-17.sql` | Cassino com espera entre apostas e sistema completo de Leis e Câmara. |
+| `propor_lei()`, `votar_camara()`, `votar_popular()`, `levar_ao_voto_popular()`, `arquivar_proposta()`, `propostas_situacao()` | `supabase-17.sql` | Sistema completo de Leis e Câmara. |
 | `novo_usuario()`, `proteger_anuncio()`, `proteger_recado()`, `vender_item()`, `sortear()`, `pode_ver_arquivo()`, `pode_enviar_arquivo()`, `ordenar_tags()`, `apurar_proposta()` | `supabase-18.sql` | Correções de segurança, revenda com desconto, proteção de pastas do Storage, hierarquia de tags e apuração da Câmara. |
+| `estado_cassino()`, `comprar_cassino()`, `pagar_comissao_dono()`, `multiplicador_bomba()`, `iniciar_bomba()`, `abrir_casa_bomba()`, `sacar_bomba()`, `iniciar_aviator()`, `checar_aviator()`, `sacar_aviator()`, `apostar()` | `supabase-19.sql` | Concessão de Dono do Cassino (30 dias, 25% das perdas dos outros) + Revoada (Aviator), Campo Minado (5×5) e Tigrinho (3×3). |
 
 ---
 

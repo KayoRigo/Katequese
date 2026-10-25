@@ -1,5 +1,6 @@
 /* =====================================================================
-   modulos/economia/economia.css — carteira, trabalhos, minijogos, loja e cassino.
+   modulos/economia/economia.css — carteira, trabalhos, minijogos e loja.
+   Os estilos do Cassino ficam em modulos/economia/cassino.css.
    ===================================================================== */
 
 .pagina-economia { max-width: 1000px; }
@@ -9,7 +10,7 @@
 .eco-saldo strong { display: inline-block; transform-origin: left center; font-size: clamp(1.8rem, 5vw, 2.4rem); font-weight: 800; color: var(--destaque); font-variant-numeric: tabular-nums; }
 .eco-saldo.subiu strong { animation: saldo-subiu 0.9s ease-out; }
 .eco-saldo.desceu strong { animation: saldo-desceu 0.9s ease-out; }
-@keyframes saldo-subiu { 20% { color: #4caf68; transform: scale(1.04); } }
+@keyframes saldo-subiu { 20% { color: var(--sucesso); transform: scale(1.04); } }
 @keyframes saldo-desceu { 20% { color: var(--perigo); } }
 .eco-nivel-topo { display: flex; justify-content: space-between; gap: 10px; }
 .eco-nivel-topo small { color: var(--texto-suave); font-size: 0.82rem; text-align: right; }
@@ -50,99 +51,6 @@
 .inventario { display: flex; flex-wrap: wrap; gap: 8px; }
 .inventario span { padding: 6px 12px; background: var(--superficie-2); border: 1px solid var(--borda); border-radius: 999px; font-size: 0.9rem; }
 .inventario span.de-trabalho { border-color: var(--destaque); }
-
-/* Cassino */
-.cassino-jogos { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
-.cassino-jogos button { padding: 8px 16px; font: inherit; font-weight: 600; color: var(--texto-suave); background: var(--superficie); border: 1px solid var(--borda); border-radius: 999px; cursor: pointer; }
-.cassino-jogos button.ativa { color: var(--sobre-destaque); background: var(--destaque); border-color: var(--destaque); }
-.cassino-mesa { position: relative; text-align: center; }
-.cassino-mesa h2 { text-align: left; }
-.aposta { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: center; gap: 10px; margin: 18px auto 14px; max-width: 560px; text-align: left; }
-.aposta .campo { width: 140px; }
-.atalhos-aposta { display: flex; flex-wrap: wrap; gap: 4px; }
-.atalhos-aposta button { padding: 8px 10px; font: inherit; font-size: 0.82rem; color: var(--texto-suave); background: var(--superficie-2); border: 1px solid var(--borda); border-radius: 6px; cursor: pointer; }
-.atalhos-aposta button:hover { color: var(--texto); border-color: var(--texto-suave); }
-.botoes-jogo { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
-.botao.cor-vermelho { background: #c8313a; color: #fff; }
-.botao.cor-preto { background: #1d1d22; color: #fff; border: 1px solid var(--borda); }
-.botao.cor-verde { background: #2e8b50; color: #fff; }
-.resultado-jogo { min-height: 1.5em; margin-top: 14px; font-size: 1.05rem; }
-.resultado-jogo.ganhou { color: #4caf68; }
-.resultado-jogo.perdeu { color: var(--texto-suave); }
-.espera-aposta { min-height: 1.2em; margin: 8px 0 0; font-size: 0.85rem; color: var(--texto-suave); font-variant-numeric: tabular-nums; }
-
-/* Moeda 3D */
-.palco-moeda { position: relative; perspective: 700px; display: flex; flex-direction: column; align-items: center; padding: 160px 0 10px; }
-.moeda-voo { transform-style: preserve-3d; position: relative; z-index: 1; }
-.moeda { position: relative; width: 120px; height: 120px; transform-style: preserve-3d; }
-.moeda .face {
-  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
-  border-radius: 50%; backface-visibility: hidden;
-  font-weight: 800; font-size: 1.1rem; letter-spacing: 0.04em; text-transform: uppercase;
-  color: #5a3d06; background: #e6b84a; border: 6px solid #c99a2e;
-  box-shadow: inset 0 0 0 3px #f2d27c;
-}
-.moeda .cara { transform: translateZ(5px); }
-.moeda .coroa { transform: rotateX(180deg) translateZ(5px); background: #d9a93c; }
-.moeda-borda { position: absolute; inset: 0; border-radius: 50%; background: #a87d22; }
-.moeda-sombra { width: 100px; height: 14px; margin-top: 14px; border-radius: 50%; background: #000; opacity: 0.5; filter: blur(3px); }
-
-/* Roleta */
-.palco-roda { width: min(320px, 100%); margin: 6px auto 0; }
-.roda { display: block; width: 100%; height: auto; }
-.roda-aro { fill: #3a2717; }
-.roda-pista { fill: #1b130d; stroke: #5a3d22; stroke-width: 2; }
-.casa-roda { stroke: #c9a646; stroke-width: 0.8; }
-.casa-roda.vermelho { fill: #c8313a; }
-.casa-roda.preto { fill: #1d1d22; }
-.casa-roda.verde { fill: #2e8b50; }
-.num-roda { fill: #fff; font: 700 10px Archivo, sans-serif; text-anchor: middle; dominant-baseline: central; }
-.roda-cone { fill: #4a3220; stroke: #c9a646; stroke-width: 1.5; }
-.roda-miolo { fill: #2e1f14; }
-.roda-raios line { stroke: #c9a646; stroke-width: 4; stroke-linecap: round; }
-.roda-centro { fill: #c9a646; }
-.bola { fill: #f3f3f0; stroke: #9a9a96; stroke-width: 0.8; }
-.historico-roleta { display: flex; justify-content: center; flex-wrap: wrap; gap: 4px; min-height: 26px; margin-top: 10px; }
-.historico-roleta span { min-width: 26px; padding: 3px 6px; font-size: 0.8rem; font-weight: 800; color: #fff; border-radius: 5px; }
-.historico-roleta span.vermelho { background: #c8313a; }
-.historico-roleta span.preto { background: #1d1d22; border: 1px solid var(--borda); }
-.historico-roleta span.verde { background: #2e8b50; }
-.historico-roleta span.novo { animation: surge 0.35s ease-out; outline: 2px solid var(--destaque); }
-@keyframes surge { from { transform: scale(0.4); opacity: 0; } }
-
-/* Caça-níquel */
-.maquina-caixa { display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 8px; }
-.maquina { display: flex; justify-content: center; gap: 10px; padding: 14px; max-width: 360px; background: var(--fundo); border: 1px solid var(--borda); border-radius: var(--raio); position: relative; }
-.maquina::after { content: ""; position: absolute; left: 8px; right: 8px; top: 50%; height: 88px; margin-top: -44px; border: 2px solid var(--destaque); border-radius: 8px; pointer-events: none; transition: border-color 0.2s; }
-.maquina.ganhou::after { border-color: #4caf68; animation: linha-pisca 0.5s ease-in-out 4; }
-@keyframes linha-pisca { 50% { opacity: 0.2; } }
-.rolo { width: 92px; height: 252px; overflow: hidden; background: var(--superficie-2); border-radius: 6px;
-  -webkit-mask-image: linear-gradient(transparent, #000 25%, #000 75%, transparent);
-  mask-image: linear-gradient(transparent, #000 25%, #000 75%, transparent); }
-.fita-rolo { will-change: transform; transition: filter 0.2s; }
-.rolo.girando .fita-rolo { filter: blur(2.5px); }
-.simbolo { height: 84px; display: flex; align-items: center; justify-content: center; }
-.simbolo svg { width: 56px; height: 56px; }
-.simbolo.vencedor svg { animation: vencedor-pula 0.5s ease-in-out 3; }
-@keyframes vencedor-pula { 50% { transform: scale(1.18); } }
-@media (max-width: 420px) { .rolo { width: 72px; } .simbolo svg { width: 46px; height: 46px; } }
-
-.alavanca { position: relative; width: 26px; height: 150px; padding: 0; background: none; border: none; cursor: pointer; }
-.alavanca:disabled { cursor: default; }
-.alavanca-haste { position: absolute; left: 10px; bottom: 0; width: 6px; height: 120px; background: #8a8d94; border-radius: 3px; transform-origin: bottom center; }
-.alavanca-bola { position: absolute; left: 1px; top: 0; width: 24px; height: 24px; border-radius: 50%; background: #c8313a; border: 2px solid #8f1f22; }
-.alavanca.puxada .alavanca-haste { animation: alavanca-haste 0.6s ease-in-out; }
-.alavanca.puxada .alavanca-bola { animation: alavanca-bola 0.6s ease-in-out; }
-@keyframes alavanca-haste { 40% { transform: scaleY(-0.15); } }
-@keyframes alavanca-bola { 40% { transform: translateY(132px); } }
-@media (max-width: 420px) { .alavanca { display: none; } }
-.tabela-premios { margin-top: 16px; text-align: left; font-size: 0.9rem; }
-.tabela-premios summary { cursor: pointer; color: var(--texto-suave); }
-.tabela-premios ul { list-style: none; padding: 0; margin: 10px 0 0; display: grid; gap: 4px; }
-.tabela-premios li { display: flex; align-items: center; gap: 4px; }
-.tabela-premios li svg { width: 24px; height: 24px; }
-.tabela-premios li b { margin-left: 10px; }
-.tabela-premios .qualquer { width: 24px; text-align: center; color: var(--texto-suave); }
 
 /* Ranking */
 .rankings { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
@@ -194,7 +102,7 @@ dialog.janela-jogo { width: min(620px, 96vw); padding: 18px; overflow-y: auto; }
 .mj-ganhos li { display: flex; justify-content: space-between; gap: 10px; padding: 10px 0; border-top: 1px solid var(--borda); }
 .mj-ganhos b { font-variant-numeric: tabular-nums; }
 .mj-extra.apareceu { animation: extra-entra 0.5s ease-out; }
-.mj-extra.apareceu b { color: #4caf68; }
+.mj-extra.apareceu b { color: var(--sucesso); }
 .mj-extra.sem b { font-weight: 400; color: var(--texto-suave); }
 @keyframes extra-entra { from { transform: translateY(8px); opacity: 0; } 50% { background: var(--superficie-2); } }
 .mj-niveis p { margin: 10px 0 0; padding: 8px 12px; font-weight: 700; border-left: 4px solid var(--destaque); background: var(--superficie-2); border-radius: 6px; animation: extra-entra 0.4s ease-out; }
@@ -218,12 +126,12 @@ dialog.janela-jogo { width: min(620px, 96vw); padding: 18px; overflow-y: auto; }
 .mj-peca { width: 70%; height: 44px; border-radius: 22px; background: rgb(214, 120, 120); box-shadow: inset 0 -5px 0 rgba(0, 0, 0, 0.18); }
 .mj-carne small { font-size: 0.78rem; font-weight: 600; }
 .mj-assado { position: relative; width: 80%; height: 7px; background: #3a302a; border-radius: 4px; }
-.mj-assado i { position: absolute; top: 0; bottom: 0; background: #4caf68; border-radius: 4px; }
+.mj-assado i { position: absolute; top: 0; bottom: 0; background: var(--sucesso); border-radius: 4px; }
 .mj-assado b { position: absolute; top: -3px; width: 3px; height: 13px; margin-left: -1.5px; background: #fff; border-radius: 2px; }
 .mj-carne.fumaca .mj-peca { animation: fumega 0.4s ease-in-out infinite; }
 @keyframes fumega { 50% { transform: translateY(-2px); } }
 .mj-carne.saiu { pointer-events: none; animation: carne-sai 0.6s ease-in forwards; }
-.mj-carne.boa small { color: #4caf68; }
+.mj-carne.boa small { color: var(--sucesso); }
 .mj-carne.ruim small { color: var(--perigo); }
 @keyframes carne-sai { 40% { transform: scale(1.05); } to { transform: scale(0.6); opacity: 0; } }
 
@@ -241,7 +149,7 @@ dialog.janela-jogo { width: min(620px, 96vw); padding: 18px; overflow-y: auto; }
 .mj-linha.quebrou, .mj-linha.escapou { background: rgba(229, 72, 77, 0.18); }
 .mj-bug, .mj-ok { position: absolute; top: 50%; width: 42px; height: 42px; margin-top: -21px; padding: 2px; background: none; border: none; cursor: pointer; animation: bug-entra 0.18s ease-out; }
 .mj-bug svg { width: 100%; height: 100%; animation: bug-mexe 0.25s ease-in-out infinite; }
-.mj-ok { font-size: 1.2rem; font-weight: 900; color: #4caf68; background: var(--superficie-2); border: 1px solid var(--borda); border-radius: 6px; }
+.mj-ok { font-size: 1.2rem; font-weight: 900; color: var(--sucesso); background: var(--superficie-2); border: 1px solid var(--borda); border-radius: 6px; }
 .mj-bug.sumindo, .mj-ok.sumindo { animation: bug-sai 0.2s ease-in forwards; }
 @keyframes bug-entra { from { transform: scale(0); } }
 @keyframes bug-sai { to { transform: scale(0); opacity: 0; } }
@@ -249,18 +157,18 @@ dialog.janela-jogo { width: min(620px, 96vw); padding: 18px; overflow-y: auto; }
 
 .mj-negocio { padding-top: 10px; text-align: center; }
 .mj-barra-negocio { position: relative; height: 54px; margin: 18px 0 6px; background: var(--superficie-2); border: 1px solid var(--borda); border-radius: var(--raio); cursor: pointer; overflow: hidden; }
-.mj-faixa { position: absolute; top: 0; bottom: 0; background: rgba(76, 175, 104, 0.35); border-left: 2px solid #4caf68; border-right: 2px solid #4caf68; }
+.mj-faixa { position: absolute; top: 0; bottom: 0; background: rgba(76, 175, 104, 0.35); border-left: 2px solid var(--sucesso); border-right: 2px solid var(--sucesso); }
 .mj-marcador { position: absolute; top: 4px; bottom: 4px; width: 6px; margin-left: -3px; background: var(--texto); border-radius: 3px; }
-.mj-marcador.bom { background: #4caf68; }
+.mj-marcador.bom { background: var(--sucesso); }
 .mj-marcador.ruim { background: var(--perigo); }
 .mj-escala { display: flex; justify-content: space-between; font-size: 0.78rem; color: var(--texto-suave); }
 .mj-fechar { margin-top: 18px; min-width: 200px; }
 .mj-acordos { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; list-style: none; padding: 0; margin: 16px 0 0; }
 .mj-acordos li { padding: 3px 10px; font-size: 0.8rem; border-radius: 999px; border: 1px solid var(--borda); animation: surge 0.3s ease-out; }
-.mj-acordos li.bom { color: #4caf68; border-color: #4caf68; }
+.mj-acordos li.bom { color: var(--sucesso); border-color: var(--sucesso); }
 .mj-acordos li.ruim { color: var(--texto-suave); }
 
-.chuva-moedas { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 5; }
+.chuva-moedas { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: var(--z-decoracao); }
 .chuva-moedas i { position: absolute; top: 0; width: 16px; height: 16px; border-radius: 50%; background: #e6b84a; border: 2px solid #c99a2e; }
 
 /* Loja de equipamentos */
@@ -270,7 +178,7 @@ dialog.janela-jogo { width: min(620px, 96vw); padding: 18px; overflow-y: auto; }
 .loja-prof-topo { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 8px; }
 .loja-prof-topo h2 { margin-bottom: 4px; }
 .loja-bonus { display: flex; flex-wrap: wrap; gap: 4px; justify-content: flex-end; max-width: 420px; }
-.loja-bonus span { padding: 3px 10px; font-size: 0.8rem; font-weight: 600; color: #4caf68; border: 1px solid #4caf68; border-radius: 999px; }
+.loja-bonus span { padding: 3px 10px; font-size: 0.8rem; font-weight: 600; color: var(--sucesso); border: 1px solid var(--sucesso); border-radius: 999px; }
 .loja-bonus small { color: var(--texto-suave); font-size: 0.85rem; }
 .trilha { padding: 16px 0 4px; border-top: 1px solid var(--borda); margin-top: 12px; }
 .trilha-nome { display: block; margin-bottom: 10px; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--texto-suave); }
@@ -330,10 +238,6 @@ dialog.janela-jogo { width: min(620px, 96vw); padding: 18px; overflow-y: auto; }
 
 @media (max-width: 600px) {
   .edicao-rapida { flex-wrap: wrap; width: 100%; }
-  .aposta .campo { width: 100%; }
-  .atalhos-aposta { width: 100%; justify-content: center; }
-  .atalhos-aposta button { flex: 1 1 auto; }
-  .botoes-jogo .botao { flex: 1 1 120px; }
   .mj-fechar { width: 100%; }
   .eco-avisos { left: 12px; right: 12px; align-items: stretch; }
   .eco-aviso { max-width: none; }
