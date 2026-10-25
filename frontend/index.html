@@ -5,9 +5,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Katequese</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="css/style.css">
   <!-- tema.js vem aqui no <head> para aplicar a paleta antes da página aparecer -->
-  <script src="tema.js"></script>
+  <script src="js/base/tema.js"></script>
 </head>
 
 <body>
@@ -149,10 +149,10 @@
 
   <!-- Biblioteca do Supabase + nossos arquivos (a ordem importa) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-  <script src="config.js"></script>
-  <script src="dados.js"></script>
-  <script src="menu.js"></script>
-  <script src="banco.js"></script>
+  <script src="js/base/config.js"></script>
+  <script src="js/base/dados.js"></script>
+  <script src="js/base/menu.js"></script>
+  <script src="js/base/banco.js"></script>
   <!-- type="module" permite usar "await" direto, sem precisar de função -->
   <script type="module">
     // Confere o login e baixa os dados. Se não estiver aprovado, sai daqui.

@@ -69,7 +69,12 @@ function carregarSite(arquivos = []) {
   });
 
   for (const arq of arquivos) {
-    const caminho = path.join(__dirname, "..", arq);
+    const candidatos = [
+      path.join(__dirname, "..", arq),
+      path.join(__dirname, "..", "frontend", "js", "base", arq),
+      path.join(__dirname, "..", "frontend", "js", "paginas", arq),
+    ];
+    const caminho = candidatos.find(c => fs.existsSync(c));
     const codigo = fs.readFileSync(caminho, "utf8");
     vm.runInContext(codigo, contexto, { filename: arq });
   }
