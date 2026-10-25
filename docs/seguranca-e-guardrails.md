@@ -48,6 +48,11 @@ Para facilitar a localização, os **testes de lógica** e os **guardrails de pr
   * Garante `<meta name="viewport">` em todas as páginas `.html`;
   * Proíbe grids rígidos (`minmax(300px, 1fr)` sem `min(300px, 100%)`) e larguras fixas (`width > 320px`) que criam barra de rolagem horizontal em celulares pequenos;
   * Garante o uso de `--pad-tela`, `--pad-caixa`, `overflow-x: clip`, `100dvh`, fonte `>= 16px` nos inputs (anti-zoom iOS) e recálculo de decorações ao girar a tela (`resize`).
+* `guardrails/3-qualidade-css.test.js` — **Guardrail automático da arquitetura de CSS:**
+  * Garante a separação em `tokens.css`, `base.css`, `componentes.css`, `animacoes.css` e `temas/` (`halloween.css`, `natal.css`);
+  * Impede qualquer arquivo `.css` de passar de **450 linhas** (e `style.css` de passar de 40 linhas);
+  * Valida que **toda variável `var(--nome)`** usada em qualquer CSS do projeto existe declarada (pega erros de digitação na hora);
+  * Proíbe `!important` e `z-index` mágicos altos nos módulos (`frontend/modulos/*/*.css`).
 
 ### Sempre faça o teste RED ao criar um teste novo:
 Quando criar um teste novo, quebre de propósito a linha correspondente no código, rode `node --test testes/*.test.js` para confirmar que o teste **falha (RED)**, e depois desfaça a quebra para voltar a **passar (GREEN)**.

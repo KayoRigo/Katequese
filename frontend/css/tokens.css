@@ -1,0 +1,118 @@
+/* =====================================================================
+   css/tokens.css — variáveis globais do sistema de design.
+   Qualquer mudança de cor, paleta, espaçamento, curva de animação ou
+   camada (z-index) do site acontece aqui.
+   ===================================================================== */
+
+@import url("https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=Coustard:wght@900&display=swap");
+
+/* ---------------------------------------------------------------------
+   1) PALETAS INDIVIDUAIS (escolhidas no botão redondo do menu)
+   --------------------------------------------------------------------- */
+:root,
+:root[data-paleta="grafite"] {
+  --fundo: #111214;
+  --superficie: #191a1d;
+  --superficie-2: #222327;
+  --borda: #2b2d32;
+  --texto: #ececee;
+  --texto-suave: #9a9ca3;
+  --placeholder: #5f6168;
+  --destaque: #f26b3a;
+  --sobre-destaque: #121212;
+  --sombra: 0 12px 30px rgba(0, 0, 0, 0.35);
+}
+:root[data-paleta="oceano"] {
+  --fundo: #0e1217;
+  --superficie: #151b22;
+  --superficie-2: #1c242d;
+  --borda: #27313c;
+  --texto: #e8edf2;
+  --texto-suave: #93a0ad;
+  --placeholder: #56626e;
+  --destaque: #4ea1ff;
+  --sobre-destaque: #0b1220;
+  --sombra: 0 12px 30px rgba(0, 0, 0, 0.38);
+}
+:root[data-paleta="floresta"] {
+  --fundo: #0f1311;
+  --superficie: #161c18;
+  --superficie-2: #1d2520;
+  --borda: #28322b;
+  --texto: #e7ece8;
+  --texto-suave: #94a397;
+  --placeholder: #57635a;
+  --destaque: #5fbf77;
+  --sobre-destaque: #0c120e;
+  --sombra: 0 12px 30px rgba(0, 0, 0, 0.38);
+}
+:root[data-paleta="vinho"] {
+  --fundo: #140f11;
+  --superficie: #1c1518;
+  --superficie-2: #251c20;
+  --borda: #33272c;
+  --texto: #f0e8ea;
+  --texto-suave: #a8969c;
+  --placeholder: #6a5a60;
+  --destaque: #e0607e;
+  --sobre-destaque: #1a0e12;
+  --sombra: 0 12px 30px rgba(0, 0, 0, 0.38);
+}
+:root[data-paleta="ouro"] {
+  --fundo: #121110;
+  --superficie: #1b1a17;
+  --superficie-2: #24221e;
+  --borda: #312e28;
+  --texto: #eeebe4;
+  --texto-suave: #a29d92;
+  --placeholder: #635f56;
+  --destaque: #e5b84b;
+  --sobre-destaque: #17140c;
+  --sombra: 0 12px 30px rgba(0, 0, 0, 0.38);
+}
+:root[data-paleta="claro"] {
+  --fundo: #f4f4f2;
+  --superficie: #ffffff;
+  --superficie-2: #ececea;
+  --borda: #dcdcd8;
+  --texto: #1b1c1e;
+  --texto-suave: #66686e;
+  --placeholder: #a3a5aa;
+  --destaque: #e35d2a;
+  --sobre-destaque: #ffffff;
+  --sombra: 0 10px 26px rgba(0, 0, 0, 0.08);
+}
+
+/* ---------------------------------------------------------------------
+   2) TOKENS DE STATUS, ESPAÇAMENTO, CURVAS E CAMADAS (Z-INDEX)
+   --------------------------------------------------------------------- */
+:root {
+  /* Cores semânticas de status */
+  --sucesso: #4caf68;
+  --alerta: #d9a93a;
+  --info: #4a8fd4;
+  --perigo: #ef5350;
+  --roxo: #9a7fd1;
+
+  /* Tipografia e bordas */
+  --fonte-nome: "Coustard", Georgia, serif;
+  --raio: 8px;
+
+  /* Espaçamentos fluidos (celular 320px → desktop) */
+  --pad-tela: clamp(12px, 4vw, 24px);
+  --pad-caixa: clamp(14px, 3vw, 20px);
+
+  /* Curvas de animação padronizadas (insp. Open Props) */
+  --curva-suave: cubic-bezier(0.25, 0, 0.3, 1);
+  --curva-pulo: cubic-bezier(0.5, 1.25, 0.75, 1.25);
+  --curva-freio: cubic-bezier(0.12, 0.8, 0.18, 1);
+
+  /* Escala única de camadas (evita guerra de z-index) */
+  --z-decoracao: 5;
+  --z-topo: 10;
+  --z-barra: 15;
+  --z-dropdown: 30;
+  --z-menu: 40;
+  --z-efeito: 50;
+  --z-aviso: 60;
+}

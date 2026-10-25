@@ -22,7 +22,12 @@ Todo o front-end fica dentro de `frontend/`, dividido entre a base global (`css/
 | Caminho | Papel |
 | :--- | :--- |
 | `frontend/paginas/*.html` | Marcação HTML limpa de cada página (sem `<script>` inline). |
-| `frontend/css/style.css` | Base global (paletas, cabeçalho/menu, botões, campos, componentes compartilhados e temas Halloween/Natal). |
+| `frontend/css/style.css` | Ponto de entrada (~16 linhas) que importa `tokens.css`, `base.css`, `componentes.css` e `animacoes.css`. |
+| `frontend/css/tokens.css` | Paletas de cores, cores semânticas (`--sucesso`, `--alerta`, `--info`, `--perigo`, `--sombra`), curvas (`--curva-*`) e escala de camadas (`--z-*`). |
+| `frontend/css/base.css` | Reset global, `body`, cabeçalho/menu e rodapé. |
+| `frontend/css/componentes.css` | Peças visuais compartilhadas (`.caixa`, `.botao`, campos, `.tag`, `.cargo`, modais, presença e mural). |
+| `frontend/css/animacoes.css` | `@keyframes` compartilhados e suporte a `@media (prefers-reduced-motion: reduce)`. |
+| `frontend/css/temas/` | Temas globais isolados (`halloween.css` e `natal.css`), carregados sob demanda pelo `tema.js`. |
 | `frontend/js/base/config.js` | `SUPABASE_URL`, `SUPABASE_ANON_KEY` e `EMAIL_BASE`. |
 | `frontend/js/base/banco.js` | Conexão (`sb`), `iniciarPagina()`, Storage (`reduzirImagem`, `enviarArquivo`, `limparFotosAntigas`) e buscas compartilhadas. |
 | `frontend/js/base/dados.js` | `esc()` (anti-XSS), datas, cartões HTML e janelas `confirmar()` / `avisarJanela()`. |

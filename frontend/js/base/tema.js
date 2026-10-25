@@ -94,6 +94,23 @@ const TEMAS_GLOBAIS = [
 // Qual função decora cada tema (as funções ficam mais abaixo neste arquivo)
 const DECORAR_TEMA = { halloween: () => decorarHalloween(), natal: () => decorarNatal() };
 
+// Carrega (ou remove) o arquivo CSS específico do tema global em css/temas/<id>.css
+function carregarCssTema(id) {
+  let link = document.getElementById("css-tema-global");
+  if (!id) {
+    link?.remove();
+    return;
+  }
+  const href = `../css/temas/${id}.css`;
+  if (!link) {
+    link = document.createElement("link");
+    link.id = "css-tema-global";
+    link.rel = "stylesheet";
+    document.head.appendChild(link);
+  }
+  if (link.getAttribute("href") !== href) link.setAttribute("href", href);
+}
+
 // Chamado pelo banco.js depois de ler a configuração do site.
 // Guarda uma cópia no navegador para o tema já aparecer na próxima abertura,
 // antes mesmo de o banco responder (e na tela de login).
@@ -104,9 +121,11 @@ function aplicarTemaGlobal(id) {
   removerDecoracoes();
   if (!existe) {
     delete document.documentElement.dataset.temaGlobal;
+    carregarCssTema(null);
     return;
   }
   document.documentElement.dataset.temaGlobal = id; // vira <html data-tema-global="...">
+  carregarCssTema(id);
   DECORAR_TEMA[id]?.();
 }
 
@@ -116,6 +135,7 @@ function aplicarTemaGlobal(id) {
   try { id = localStorage.getItem("temaGlobal"); } catch (e) {}
   if (TEMAS_GLOBAIS.some(t => t.id === id)) {
     document.documentElement.dataset.temaGlobal = id;
+    carregarCssTema(id);
     document.addEventListener("DOMContentLoaded", () => {
       DECORAR_TEMA[document.documentElement.dataset.temaGlobal]?.();
     });

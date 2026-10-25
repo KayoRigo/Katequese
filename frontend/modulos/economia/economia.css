@@ -28,7 +28,7 @@
 .trabalho-topo h3 { font-size: 1.15rem; }
 .trabalho-nivel { font-size: 0.8rem; font-weight: 700; color: var(--destaque); white-space: nowrap; }
 .trabalho > p { margin-top: 4px; font-size: 0.9rem; color: var(--texto-suave); }
-.trabalho-jogo { margin-top: 6px !important; font-size: 0.82rem !important; font-weight: 600; color: var(--destaque) !important; }
+.trabalho > p.trabalho-jogo { margin-top: 6px; font-size: 0.82rem; font-weight: 600; color: var(--destaque); }
 .trabalho-info { list-style: none; padding: 0; margin: 12px 0 0; display: grid; gap: 4px; font-size: 0.88rem; }
 .trabalho-info li { display: flex; justify-content: space-between; }
 .trabalho-info span { color: var(--texto-suave); }
@@ -157,9 +157,9 @@
 .ranking b { white-space: nowrap; font-variant-numeric: tabular-nums; }
 
 /* Avisos rápidos */
-.eco-avisos { position: fixed; right: 16px; bottom: 16px; z-index: 60; display: flex; flex-direction: column; gap: 8px; align-items: flex-end; pointer-events: none; }
-.eco-aviso { max-width: 320px; padding: 10px 14px; font-size: 0.92rem; background: var(--superficie); border: 1px solid var(--borda); border-left: 4px solid var(--texto-suave); border-radius: 8px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35); animation: aviso-entra 0.25s ease-out; transition: opacity 0.4s, transform 0.4s; }
-.eco-aviso.ganho { border-left-color: #4caf68; }
+.eco-avisos { position: fixed; right: 16px; bottom: 16px; z-index: var(--z-aviso); display: flex; flex-direction: column; gap: 8px; align-items: flex-end; pointer-events: none; }
+.eco-aviso { max-width: 320px; padding: 10px 14px; font-size: 0.92rem; background: var(--superficie); border: 1px solid var(--borda); border-left: 4px solid var(--texto-suave); border-radius: 8px; box-shadow: var(--sombra); animation: aviso-entra 0.25s ease-out; transition: opacity 0.4s, transform 0.4s; }
+.eco-aviso.ganho { border-left-color: var(--sucesso); }
 .eco-aviso.nivel { border-left-color: var(--destaque); }
 .eco-aviso.erro { border-left-color: var(--perigo); }
 .eco-aviso.saindo { opacity: 0; transform: translateY(8px); }

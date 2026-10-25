@@ -1,0 +1,289 @@
+/* =====================================================================
+   css/temas/halloween.css — tema global de Halloween (carregado pelo
+   tema.js somente quando o Halloween está ligado pelo Admin).
+   ===================================================================== */
+
+:root[data-tema-global="halloween"] {
+  --fundo: #120c14;
+  --superficie: #1b1320;
+  --superficie-2: #251a2b;
+  --borda: #382840;
+  --texto: #f3ece4;
+  --texto-suave: #a99aa6;
+  --placeholder: #6a5a66;
+  --destaque: #ff7a1a;
+  --sobre-destaque: #1a0d03;
+}
+
+:root[data-tema-global="halloween"] .logo { color: #ff7a1a; text-shadow: 0 0 10px rgba(255, 122, 26, 0.4); }
+:root[data-tema-global="halloween"] footer::after { content: " · Feliz Dia das Bruxas"; color: #ff7a1a; }
+
+:where(:root[data-tema-global="halloween"]) .nome-grupo span {
+  position: relative;
+  isolation: isolate;
+  color: #efe3cc;
+  animation: vela 3.2s ease-in-out infinite;
+}
+:where(:root[data-tema-global="halloween"]) .nome-grupo span:nth-child(even) { animation-delay: -1.1s; }
+@keyframes vela {
+  0%, 100% { filter: drop-shadow(0 0.02em 0 #b9a27c) drop-shadow(0 0.04em 0.02em rgba(20, 8, 4, 0.6)) drop-shadow(0 0.03em 0.12em rgba(255, 140, 40, 0.35)); }
+  30%      { filter: drop-shadow(0 0.02em 0 #b9a27c) drop-shadow(0 0.04em 0.02em rgba(20, 8, 4, 0.6)) drop-shadow(0 0.03em 0.2em rgba(255, 150, 50, 0.6)); }
+  34%      { filter: drop-shadow(0 0.02em 0 #b9a27c) drop-shadow(0 0.04em 0.02em rgba(20, 8, 4, 0.6)) drop-shadow(0 0.03em 0.08em rgba(255, 130, 40, 0.25)); }
+  60%      { filter: drop-shadow(0 0.02em 0 #b9a27c) drop-shadow(0 0.04em 0.02em rgba(20, 8, 4, 0.6)) drop-shadow(0 0.03em 0.16em rgba(255, 140, 40, 0.45)); }
+}
+
+:where(:root[data-tema-global="halloween"]) .nome-grupo span:is(:nth-child(1), :nth-child(4), :nth-child(6), :nth-child(8))::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: 0.72em;
+  width: 0.11em;
+  height: 0.22em;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 11 60'%3E%3Cpath d='M0 0h11C8 0 7.5 4 7.5 8v41a4 4 0 1 1-4 0V8C3.5 4 3 0 0 0z' fill='%23efe3cc'/%3E%3C/svg%3E") no-repeat bottom / 100% auto;
+  animation: escorrer 7s ease-in-out infinite;
+}
+:where(:root[data-tema-global="halloween"]) .nome-grupo span:nth-child(1)::after { left: 21%; }
+:where(:root[data-tema-global="halloween"]) .nome-grupo span:nth-child(4)::after { left: 38%; animation-delay: -2.2s; }
+:where(:root[data-tema-global="halloween"]) .nome-grupo span:nth-child(6)::after { left: 68%; animation-delay: -3.8s; }
+:where(:root[data-tema-global="halloween"]) .nome-grupo span:nth-child(8)::after { left: 48%; animation-delay: -5.1s; }
+@keyframes escorrer {
+  0%, 100% { height: 0.2em; }
+  65%, 85% { height: 0.46em; }
+}
+
+:where(:root[data-tema-global="halloween"]) .nome-grupo span:nth-child(1)::before {
+  content: "";
+  position: absolute;
+  left: -0.1em;
+  top: -0.36em;
+  width: 0.62em;
+  height: 0.52em;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 50'%3E%3Cpath d='M4 42c8-4 44-4 52 0 2 2-4 5-26 5S2 44 4 42z' fill='%23241a2e'/%3E%3Cpath d='M14 41L27 6c2-5 7-4 7 1l9 34z' fill='%23241a2e'/%3E%3Cpath d='M15 35h29l1.5 5h-32z' fill='%23ff7a1a'/%3E%3Crect x='26' y='34' width='7' height='7' rx='1' fill='none' stroke='%23ffcf5c' stroke-width='1.6'/%3E%3C/svg%3E") no-repeat center / contain;
+  transform: rotate(-14deg);
+}
+
+:where(:root[data-tema-global="halloween"]) .nome-grupo span:nth-child(9)::before {
+  content: "";
+  position: absolute;
+  right: -0.2em;
+  top: -0.02em;
+  width: 0.44em;
+  height: 0.22em;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 50'%3E%3Cg fill='%232b2133' stroke='%23786a8a' stroke-width='1'%3E%3Cpath d='M47 21C40 14 28 10 16 9 10 9 5 11 2 15c5 0 8 3 9 7 4-3 9-2 11 2 3-3 8-3 11 1 3-3 8-2 11 3z'/%3E%3Cpath transform='translate(100 0) scale(-1 1)' d='M47 21C40 14 28 10 16 9 10 9 5 11 2 15c5 0 8 3 9 7 4-3 9-2 11 2 3-3 8-3 11 1 3-3 8-2 11 3z'/%3E%3Cpath d='M45.5 14 44.5 5.5 49 11zM54.5 14l1-8.5L51 11z'/%3E%3Ccircle cx='50' cy='16' r='5'/%3E%3Cellipse cx='50' cy='26' rx='5' ry='8.5'/%3E%3C/g%3E%3Ccircle cx='48.2' cy='15.6' r='1' fill='%23d9b860'/%3E%3Ccircle cx='51.8' cy='15.6' r='1' fill='%23d9b860'/%3E%3C/svg%3E") no-repeat center / contain;
+  transform: rotate(14deg);
+  transform-origin: 50% 80%;
+  animation: morcego-pousado 5s ease-in-out infinite;
+}
+@keyframes morcego-pousado {
+  0%, 80%, 100% { transform: rotate(14deg) scaleX(0.8); }
+  84%, 92% { transform: rotate(14deg) scaleX(1); }
+  88%, 96% { transform: rotate(14deg) scaleX(0.65); }
+}
+
+.hw-teia { position: fixed; top: 60px; z-index: var(--z-decoracao); width: 150px; height: 150px; color: rgba(225, 220, 235, 0.35); pointer-events: none; }
+.hw-teia:has(.hw-alvo:hover) { color: rgba(240, 235, 250, 0.6); }
+.hw-alvo { position: absolute; left: 0; top: 0; width: 80px; height: 80px; pointer-events: auto; cursor: pointer; }
+.hw-teia.esquerda { left: 0; }
+.hw-teia.direita { right: 0; transform: scaleX(-1); }
+.hw-teia svg { display: block; width: 100%; height: 100%; }
+.hw-pendurada { position: absolute; left: 56px; top: 40px; display: flex; flex-direction: column; align-items: center; pointer-events: none; }
+.hw-fio { width: 1px; height: 14px; background: rgba(225, 220, 235, 0.6); }
+.hw-aranha { width: 22px; height: 22px; margin-top: -2px; }
+.hw-aranha svg { display: block; width: 100%; height: 100%; }
+.hw-teia.descendo .hw-fio { animation: fio-desce 3.2s ease-in-out; }
+.hw-teia.descendo .hw-aranha { animation: aranha-balanca 3.2s ease-in-out; }
+@keyframes fio-desce { 0%, 100% { height: 14px; } 40%, 60% { height: 180px; } }
+@keyframes aranha-balanca {
+  40%, 60% { transform: rotate(0); }
+  46% { transform: rotate(14deg); }
+  53% { transform: rotate(-14deg); }
+}
+
+.hw-ceu { position: fixed; top: 60px; left: 0; right: 0; height: 55vh; z-index: var(--z-decoracao); overflow: hidden; pointer-events: none; }
+.hw-morcego {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 50px;
+  margin: -12px 0 0 -25px;
+  pointer-events: auto;
+  cursor: pointer;
+  will-change: transform;
+}
+.hw-morcego svg { display: block; width: 100%; overflow: visible; }
+.hw-morcego .corpo-morcego { fill: #2b2133; stroke: #786a8a; stroke-width: 1; stroke-linejoin: round; }
+.hw-morcego .asa {
+  transform-box: fill-box;
+  transform-origin: 100% 60%;
+  animation: bater-asas 0.16s ease-in-out infinite alternate;
+}
+.hw-morcego.planando .asa { animation: none; transform: rotate(-6deg); }
+@keyframes bater-asas {
+  from { transform: rotate(30deg) scaleY(0.85); }
+  to   { transform: rotate(-26deg); }
+}
+
+.hw-abobora { z-index: var(--z-decoracao); cursor: pointer; }
+.hw-abobora svg { display: block; width: 100%; height: auto; transition: transform 0.2s; }
+.hw-abobora:hover svg { transform: rotate(-6deg) scale(1.05); }
+.hw-abobora.acesa svg { animation: abobora-pula 0.5s ease-out, abobora-brilha 1.6s; }
+.hw-abobora.acesa .rosto { animation: abobora-acende 1.6s; }
+@keyframes abobora-pula { 30% { transform: translateY(-14px) scale(1.08); } 60% { transform: translateY(0) scale(0.97); } }
+@keyframes abobora-brilha {
+  10%, 30%, 60% { filter: drop-shadow(0 0 14px rgba(255, 200, 90, 0.85)); }
+  20%, 45% { filter: none; }
+}
+@keyframes abobora-acende {
+  0%, 100% { fill: #ffcf5c; }
+  10%, 30%, 60% { fill: #fff6c9; }
+  20%, 45% { fill: #4a2200; }
+}
+.hw-canto { position: fixed; left: 12px; bottom: 8px; z-index: var(--z-decoracao); display: flex; align-items: flex-end; gap: 4px; }
+.hw-canto .hw-abobora { width: 58px; }
+
+.hw-lua {
+  position: absolute;
+  top: 9%;
+  right: 12%;
+  width: clamp(56px, 8vw, 96px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #fff4d6, #f2d48a 60%, #d9b45f);
+  box-shadow: 0 0 40px 10px rgba(255, 214, 130, 0.18);
+  opacity: 0.85;
+  cursor: pointer;
+  transition: box-shadow 0.3s;
+}
+.hw-lua:hover { box-shadow: 0 0 60px 18px rgba(255, 214, 130, 0.3); }
+.hw-estrelas { position: absolute; inset: 0; pointer-events: none; }
+.hw-estrelas i {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: #f3e9d2;
+  animation: estrela 4s ease-in-out infinite;
+}
+@keyframes estrela { 0%, 100% { opacity: 0.15; } 50% { opacity: 0.9; } }
+.hw-neblina {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 220px;
+  pointer-events: none;
+  background: radial-gradient(ellipse 60% 100% at 50% 100%, rgba(140, 110, 170, 0.18), transparent 70%);
+}
+.capa .continua { z-index: 2; }
+
+.hw-chao { position: absolute; left: 0; right: 0; bottom: 0; height: 160px; pointer-events: none; }
+.hw-chao > div { position: absolute; bottom: 6px; pointer-events: auto; }
+.hw-chao > div.hw-lapide { bottom: -4px; }
+
+.hw-varal { position: fixed; top: 58px; left: 150px; right: 150px; z-index: 4; overflow: hidden; pointer-events: none; display: flex; justify-content: center; }
+.hw-varal svg { display: block; flex-shrink: 0; }
+
+.hw-vela { position: relative; cursor: pointer; filter: drop-shadow(0 -6px 10px rgba(255, 170, 60, 0.45)); }
+.hw-vela svg { display: block; width: 100%; height: auto; overflow: visible; }
+.hw-vela .chama { animation: chama 1.4s ease-in-out infinite alternate; }
+@keyframes chama {
+  0% { transform: scale(1, 1) rotate(-2deg); }
+  50% { transform: scale(0.92, 1.08) rotate(2deg); }
+  100% { transform: scale(1.04, 0.95) rotate(-1deg); }
+}
+.hw-vela.apagada { filter: none; }
+.hw-vela.apagada .chama { animation: chama-apaga 2.4s; }
+@keyframes chama-apaga { 0% { opacity: 1; } 8%, 80% { opacity: 0; transform: scale(0.2); } 100% { opacity: 1; } }
+.hw-vela.apagada::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: -10%;
+  width: 8px;
+  height: 8px;
+  margin-left: -4px;
+  border-radius: 50%;
+  background: rgba(200, 190, 210, 0.5);
+  animation: fumaca 1.6s ease-out forwards;
+}
+@keyframes fumaca { to { transform: translate(6px, -50px) scale(3); opacity: 0; } }
+
+.hw-doce { cursor: pointer; }
+.hw-doce svg { display: block; width: 100%; height: auto; }
+.hw-doce.pulando svg { animation: doce-pula 0.7s ease-out; }
+@keyframes doce-pula { 40% { transform: translateY(-34px) rotate(200deg); } 100% { transform: translateY(0) rotate(360deg); } }
+.hw-doce-caindo { position: fixed; top: -40px; z-index: var(--z-efeito); pointer-events: none; animation: doce-cai linear forwards; }
+.hw-doce-caindo svg { display: block; width: 100%; height: auto; }
+@keyframes doce-cai { to { transform: translateY(110vh) rotate(540deg); } }
+
+.hw-lapide { cursor: pointer; }
+.hw-lapide svg { display: block; width: 100%; height: auto; }
+.hw-lapide.tremendo svg { animation: lapide-treme 0.6s; }
+@keyframes lapide-treme { 20%, 60% { transform: rotate(-6deg); } 40%, 80% { transform: rotate(6deg); } }
+
+.hw-caldeirao { cursor: pointer; filter: drop-shadow(0 0 14px rgba(95, 208, 104, 0.35)); }
+.hw-caldeirao svg { display: block; width: 100%; height: auto; overflow: visible; }
+.hw-caldeirao .bolhas circle { animation: bolha 2.2s ease-in infinite; }
+.hw-caldeirao .bolhas circle:nth-child(2) { animation-delay: -0.6s; }
+.hw-caldeirao .bolhas circle:nth-child(3) { animation-delay: -1.2s; }
+.hw-caldeirao .bolhas circle:nth-child(4) { animation-delay: -1.7s; }
+@keyframes bolha { 0% { transform: translateY(10px); opacity: 0; } 30% { opacity: 1; } 100% { transform: translateY(-22px); opacity: 0; } }
+.hw-caldeirao.fervendo { filter: drop-shadow(0 0 26px rgba(120, 240, 130, 0.8)); }
+.hw-caldeirao.fervendo .bolhas circle { animation-duration: 0.6s; }
+.hw-caldeirao.fervendo::after {
+  content: "";
+  position: absolute;
+  left: 20%;
+  top: -10%;
+  width: 60%;
+  height: 40%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(138, 240, 143, 0.55), transparent 70%);
+  animation: fumaca-verde 2s ease-out forwards;
+}
+@keyframes fumaca-verde { to { transform: translateY(-70px) scale(2.4); opacity: 0; } }
+
+.hw-fantasma {
+  position: fixed;
+  right: 18px;
+  bottom: -14px;
+  z-index: var(--z-decoracao);
+  width: 56px;
+  opacity: 0.92;
+  cursor: pointer;
+  animation: flutuar-fantasma 4s ease-in-out infinite;
+}
+.hw-fantasma svg { display: block; width: 100%; }
+.hw-fantasma.assustando svg { animation: fantasma-some 2.6s ease-in-out; }
+.hw-buu {
+  position: absolute;
+  bottom: 100%;
+  right: 10px;
+  padding: 4px 10px;
+  border-radius: 10px;
+  background: #f4f0ea;
+  color: #1d1622;
+  font-weight: 800;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+}
+.hw-fantasma.assustando .hw-buu { animation: hw-buu 2.6s; }
+@keyframes flutuar-fantasma { 50% { transform: translateY(-10px); } }
+@keyframes fantasma-some {
+  15% { transform: translateY(-30px) scale(1.25); }
+  60% { transform: translateY(-120px) scale(0.6); opacity: 0; }
+  85% { transform: none; opacity: 0; }
+  100% { opacity: 1; }
+}
+@keyframes hw-buu { 5%, 40% { opacity: 1; } 55%, 100% { opacity: 0; } }
+
+@media (max-width: 600px) {
+  .hw-teia { width: 90px; height: 90px; }
+  .hw-pendurada { left: 32px; top: 22px; }
+  .hw-varal { left: 90px; right: 90px; }
+  .hw-fantasma { width: 44px; }
+  .hw-canto .hw-abobora { width: 46px; }
+  .hw-chao { height: 120px; }
+  .hw-chao .some-celular { display: none; }
+}

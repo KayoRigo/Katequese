@@ -14,19 +14,19 @@ const FRONTEND = path.join(RAIZ, "frontend");
 const PAGINAS = path.join(FRONTEND, "paginas");
 const lerTema = () => fs.readFileSync(path.join(FRONTEND, "js", "base", "tema.js"), "utf8");
 
-// Lê o CSS base + o CSS de todos os módulos em frontend/modulos/*/*.css
+// Lê todos os arquivos .css de frontend/css/ (incluindo temas/) + frontend/modulos/*/*.css
 function lerTodoCss() {
-  let total = fs.readFileSync(path.join(FRONTEND, "css", "style.css"), "utf8");
-  const pastaModulos = path.join(FRONTEND, "modulos");
-  if (fs.existsSync(pastaModulos)) {
-    for (const mod of fs.readdirSync(pastaModulos)) {
-      const dir = path.join(pastaModulos, mod);
-      if (!fs.statSync(dir).isDirectory()) continue;
-      for (const arq of fs.readdirSync(dir).filter(f => f.endsWith(".css"))) {
-        total += "\n" + fs.readFileSync(path.join(dir, arq), "utf8");
-      }
+  let total = "";
+  function varrer(dir) {
+    if (!fs.existsSync(dir)) return;
+    for (const item of fs.readdirSync(dir)) {
+      const completo = path.join(dir, item);
+      if (fs.statSync(completo).isDirectory()) varrer(completo);
+      else if (item.endsWith(".css")) total += "\n" + fs.readFileSync(completo, "utf8");
     }
   }
+  varrer(path.join(FRONTEND, "css"));
+  varrer(path.join(FRONTEND, "modulos"));
   return total;
 }
 const lerCss = lerTodoCss;

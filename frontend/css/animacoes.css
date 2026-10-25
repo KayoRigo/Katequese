@@ -1,0 +1,26 @@
+/* =====================================================================
+   css/animacoes.css — animações compartilhadas entre módulos e respeito
+   à preferência de movimento reduzido (economia de bateria/acessibilidade).
+   ===================================================================== */
+
+@keyframes surge {
+  from { transform: scale(0.4); opacity: 0; }
+}
+
+@keyframes ponto-pisca {
+  50% { opacity: 0.3; }
+}
+
+@keyframes cair {
+  to { transform: translateY(110vh) rotate(720deg); }
+}
+
+/* Respeita quem ligou "reduzir movimento" no celular ou computador */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

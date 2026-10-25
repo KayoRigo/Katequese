@@ -140,5 +140,4 @@
 .aparecer { opacity: 0; transform: translateY(14px); transition: opacity 0.5s, transform 0.5s; }
 .aparecer.visivel { opacity: 1; transform: none; }
 
-.confete { position: fixed; top: -20px; width: 8px; height: 14px; z-index: 50; pointer-events: none; animation: cair linear forwards; }
-@keyframes cair { to { transform: translateY(110vh) rotate(720deg); } }
+.confete { position: fixed; top: -20px; width: 8px; height: 14px; z-index: var(--z-efeito); pointer-events: none; animation: cair linear forwards; }
