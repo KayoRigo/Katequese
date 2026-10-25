@@ -34,15 +34,16 @@ de forma simples e mantenha comentários em português no código (o Kayo aprend
 | `config.js` | URL do Supabase, chave pública (publishable) e `EMAIL_BASE` |
 | `banco.js` | conexão com o Supabase, `iniciarPagina()` (protege as páginas), envio/links de arquivos, eventos, tags |
 | `dados.js` | funções de ajuda: `esc()`, datas, `htmlEvento`, `htmlAvatar`, `htmlTag`, `confirmar()`/`avisarJanela()` |
+| `leis.js` | Leis/Câmara (sub-abas da Política) |
 | `menu.js` | menu de cima: `ABAS_FIXAS` (sempre na barra) + `GRUPOS_MENU` (painel do botão "Mais"; no celular, "Menu" com tudo) |
 | `tema.js` | paletas de cada pessoa + **tema global** (Halloween) com todas as decorações em SVG |
 | `style.css` | todo o visual; paletas no topo; tema de Halloween no fim |
 | `index.html` | início: nome gigante, faixa, acesso rápido, próximo encontro, membro da semana, números, frase do dia |
-| `eventos.html`, `midias.html`, `membros.html`, `enquetes.html`, `sorteios.html`, `economia.html` (+ `economia.js` e `minijogos.js`), `mural.html`, `leis.html`, `atualizacoes.html`, `politica.html`, `perfil.html`, `admin.html`, `login.html` | as páginas |
+| `eventos.html`, `midias.html`, `membros.html`, `enquetes.html`, `sorteios.html`, `economia.html` (+ `economia.js` e `minijogos.js`), `mural.html`, `atualizacoes.html`, `politica.html`, `perfil.html`, `admin.html`, `login.html` | as páginas |
 | `supabase.sql` até `supabase-17.sql` | estrutura do banco (rodados em ordem no SQL Editor do Supabase) |
 
 Menu: barra com Início · Eventos · Mídias · Política · Economia + botão "Mais" com grupos:
-Grupo (Membros, Mural, Leis) · Atividades (Enquetes, Sorteios) · Conta (Perfil, Atualizações [só katequistas], Admin). Página nova = entra num grupo.
+Grupo (Membros, Mural) · Atividades (Enquetes, Sorteios) · Conta (Perfil, Atualizações [só katequistas], Admin). Página nova = entra num grupo.
 Pedidos dos amigos, a fazer por partes (Sorteios e Mural já feitos): voltar Regras, integrar a rede social
 (estilo Twitter) do amigo e um sistema de votação da Câmara dentro da Política.
 
@@ -96,6 +97,11 @@ Pedidos dos amigos, a fazer por partes (Sorteios e Mural já feitos): voltar Reg
 - Fonte do nome "Katequese": **Coustard Black**. Textos: **Archivo**.
 - Segredos da página inicial (não deixar óbvio na tela): clicar nas letras do nome; digitar "katequese" solta confete.
 - Tema global **Halloween** está LIGADO (desligar em Admin → Tema do site → Nenhum).
+- Tema global **Natal** (tema.js `decorarNatal`, CSS "TEMA GLOBAL: NATAL" no fim do style.css; prefixo `nt-`):
+  neve caindo, pisca-pisca (clique muda o modo), sinos nos cantos (tocam), trenó que passa (solta presentes),
+  árvore, presentes, bengala, boneco de neve ("Brrr!"), estrela-guia na capa (nevasca) e GUERRA DE BOLA DE NEVE:
+  clicar num montinho pega uma bola, o próximo clique arremessa (captura o clique, não aciona links; Esc solta).
+  Acertar boneco/trenó/sino/árvore faz cada um reagir. `DECORAR_TEMA` liga cada tema à sua função.
 - Não usar `confirm()`/`alert()` do navegador (o painel do app bloqueia): usar `confirmar()`/`avisarJanela()`.
 
 ## REGRA: registrar toda mudança em Atualizações
@@ -186,9 +192,11 @@ Futuro: quando o site estiver no GitHub, uma GitHub Action pode registrar cada c
   admin mostra "Admin" + a próxima (sem Katequista/Visitante). As outras ficam em Membros/Perfil.
 - Admin (admin.html) agora tem sub-abas (`abrirSecao`); a barra Salvar só aparece em Frases.
 
-## Leis e Câmara (leis.html, supabase-17)
+## Leis e Câmara (dentro de Política; código em leis.js, supabase-17)
 
-- Abas: Leis em vigor (todos), Câmara (katequistas), Gestão (Presidente ou admin).
+- politica.html tem sub-abas: Governo (presidente, deputados e a eleição no fim; candidatos só aparecem
+  enquanto a eleição não terminou), Leis em vigor (todos), Câmara (katequistas), Gestão (Presidente ou admin).
+  leis.js exporta `iniciarLeis(eu)`. leis.html só redireciona para politica.html#vigor.
 - Presidente/admin `propor_lei(tipo criar|alterar|revogar, id_lei, titulo, texto, justificativa, horas)`.
 - Só deputados votam (`votar_camara`, voto secreto; contagem só depois de encerrar). Encerra no prazo ou quando
   todos os deputados votarem. Sim > não aprova (já vale), não > sim rejeita, empate → Presidente/admin pode
@@ -202,7 +210,9 @@ Futuro: quando o site estiver no GitHub, uma GitHub Action pode registrar cada c
 - Eleições do grupo (estilo presidencial), a cada 6 meses, num site de votação feito por um amigo.
 - Aba Política: cartão da eleição (em breve / aberta / encerrada, com contagem), presidente com foto
   e 4 vagas de deputado. O botão para o site da votação só aparece para Katequistas.
-- Presidente atual: Pedro Henrique Galli (PC · Partido Cuiudo). Deputados: nenhum eleito ainda.
+- Eleição 2026 (24/10): presidente eleito Bruno Capoani (PNK · Partido Nacional da Katequese), mandato desde 24/10/2026.
+  Deputados: Kayo (PRA), Anderson (PC), João Pedro (PNK) e Tiago (PC). Fotos ainda não enviadas (Admin → Política).
+  As tags Presidente/Deputado o Kayo dá quando cada um se cadastrar (Admin → Tags).
 - Visitantes veem: políticos atuais, partidos e o tempo até a próxima eleição. Candidatos, propostas e link: só Katequistas.
 - O admin edita tudo em Admin → Política (nomes, fotos na pasta `politica/`, datas e link).
 - Site da votação (do amigo): https://votacoes-katequese.netlify.app/ — "JEK, Justiça Eleitoral Katequista".
@@ -221,3 +231,14 @@ Futuro: quando o site estiver no GitHub, uma GitHub Action pode registrar cada c
   (hoje o contador "visitantes" da página inicial conta os aprovados sem a tag Katequista).
 - **Publicar o site** (GitHub Pages/Netlify) e talvez virar **PWA** (app instalável no celular).
 - Testar a visão de visitante com uma conta real quando o primeiro amigo se cadastrar.
+
+## Para continuar num chat novo
+
+- Anexe este CLAUDE.md (ou conecte a pasta Documentos/Katequese) e diga o que quer mudar.
+- Fluxo de publicar: editar na pasta → testar com `python3 -m http.server 5173` (abrir `http://localhost:5173`,
+  com http, e Cmd+Shift+R para fugir do cache) → GitHub Desktop: Commit → Push → Netlify publica sozinho.
+  Netlify grátis: 300 créditos/mês, cada publicação gasta 15 → juntar mudanças antes do Push.
+- SQL novo: rodar no SQL Editor do Supabase ANTES ou junto do Push. Já rodados: até supabase-17.sql.
+- Repositório GitHub privado "Katequese" (GitHub Desktop). Amigos podem virar colaboradores (Settings → Collaborators).
+- Ideia em aberto: juntar o site de votação e a rede social do amigo neste site (base: este repositório,
+  mantendo Supabase e login).

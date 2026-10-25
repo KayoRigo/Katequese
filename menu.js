@@ -22,7 +22,6 @@ const GRUPOS_MENU = [
   { titulo: "Grupo", abas: [
     ["membros.html", "Membros"],
     ["mural.html", "Mural"],
-    ["leis.html", "Leis"],
   ]},
   { titulo: "Atividades", abas: [
     ["enquetes.html", "Enquetes"],

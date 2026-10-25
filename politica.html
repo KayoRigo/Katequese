@@ -16,12 +16,23 @@
     <div class="cabecalho-pagina">
       <div>
         <h1>Política</h1>
-        <p>Presidente, deputados e eleições da Katequese. As eleições acontecem a cada 6 meses.</p>
+        <p>Presidente, deputados, leis e eleições da Katequese. As eleições acontecem a cada 6 meses.</p>
       </div>
     </div>
 
-    <!-- Tudo é montado pelo JavaScript lá embaixo -->
-    <div id="politica"></div>
+    <!-- Sub-abas (Câmara e Gestão só aparecem para quem pode) -->
+    <nav class="eco-abas" id="pol-abas">
+      <button data-aba="governo" class="ativa">Governo</button>
+      <button data-aba="vigor">Leis em vigor</button>
+      <button data-aba="camara" hidden>Câmara</button>
+      <button data-aba="gestao" hidden>Gestão</button>
+    </nav>
+
+    <!-- Governo: montado pelo JavaScript lá embaixo. Leis: pelo leis.js -->
+    <section class="pol-secao" id="aba-governo"><div id="politica"></div></section>
+    <section class="pol-secao pagina-leis" id="aba-vigor" hidden></section>
+    <section class="pol-secao pagina-leis" id="aba-camara" hidden></section>
+    <section class="pol-secao pagina-leis" id="aba-gestao" hidden></section>
   </main>
 
   <footer>Katequese © 2026</footer>
@@ -31,8 +42,10 @@
   <script src="dados.js"></script>
   <script src="menu.js"></script>
   <script src="banco.js"></script>
+  <script src="leis.js"></script>
   <script type="module">
     const eu = await iniciarPagina();
+    iniciarLeis(eu);   // sub-abas de Leis (não espera: o Governo aparece logo)
     const area = document.getElementById("politica");
 
     // Presidente, deputados e datas (todo aprovado consegue ler)
@@ -217,12 +230,11 @@
     }
 
     function montar() {
-      // Enquanto a eleição não terminou, os candidatos vêm logo depois do cartão da eleição
+      // Ordem: presidente, deputados e, no fim, a eleição.
+      // Os candidatos só aparecem enquanto a eleição não terminou (depois disso já foram eleitos).
       const encerrada = pol.eleicao_fecha && new Date() >= new Date(pol.eleicao_fecha);
       area.innerHTML = `
-        ${htmlEleicao()}
-        ${encerrada ? "" : htmlCandidatos()}
-          <section class="caixa" style="margin-top: 16px">
+        <section class="caixa">
           <h2>Presidente atual</h2>
           ${htmlPresidente()}
         </section>
@@ -230,7 +242,8 @@
           <h2>Deputados atuais</h2>
           <div class="deputados">${htmlDeputados()}</div>
         </section>
-        ${encerrada ? htmlCandidatos() : ""}`;
+        ${encerrada ? "" : htmlCandidatos()}
+        <div style="margin-top: 16px">${htmlEleicao()}</div>`;
     }
     montar();
 
