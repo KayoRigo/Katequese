@@ -8,7 +8,8 @@
     //   - Todos: leem as leis em vigor.
     //   - Katequistas: veem as votações (aba Câmara) e votam no voto popular.
     //   - Deputados: votam na Câmara (voto secreto).
-    //   - Presidente ou admin: aba Gestão (propor, alterar, revogar) e decidem empates.
+    //   - Deputados e Presidente (ou admin): aba Gestão (propor, alterar, revogar).
+    //   - Só Presidente ou admin: decidem empates (voto popular) e arquivam propostas.
     // =================================================================
 async function iniciarLeis(eu) {
     const $ = (id) => document.getElementById(id);
@@ -16,7 +17,7 @@ async function iniciarLeis(eu) {
     const souDeputado = eu.katequista && temCargo(eu.id, "Deputado");
 
     if (eu.katequista) document.querySelector('#pol-abas [data-aba="camara"]').hidden = false;
-    if (souPresidente) document.querySelector('#pol-abas [data-aba="gestao"]').hidden = false;
+    if (souPresidente || souDeputado) document.querySelector('#pol-abas [data-aba="gestao"]').hidden = false;
 
     let leis = [];
     let propostas = [];
