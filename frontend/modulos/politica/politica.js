@@ -209,7 +209,7 @@ function htmlCandidatos() {
     </section>`;
 }
 
-function montar() {
+  function montar() {
   const encerrada = pol.eleicao_fecha && new Date() >= new Date(pol.eleicao_fecha);
   area.innerHTML = `
     <section class="caixa presidente-caixa pol-animar" style="--i: 0">
@@ -221,7 +221,19 @@ function montar() {
       <div class="deputados">${htmlDeputados()}</div>
     </section>
     ${encerrada ? "" : htmlCandidatos()}
-    <div style="margin-top: 16px">${htmlEleicao()}</div>`;
+    <div style="margin-top: 16px">${htmlEleicao()}</div>
+    <section class="caixa atalho-mural-politico pol-animar" style="margin-top: 16px; --i: 3">
+      <div>
+        <h2>Mural Político · Galeria de Mandatos</h2>
+        <p class="eco-dica" style="margin: 0">Veja a linha do tempo com todos os governos da Katequese (incluindo o 1º mandato de Pedro via enquete no WhatsApp).</p>
+      </div>
+      <button type="button" class="botao-pequeno" id="ir-mural-mandatos">Abrir Mural Político →</button>
+    </section>`;
+
+  area.querySelector("#ir-mural-mandatos")?.addEventListener("click", () => {
+    document.querySelector('#pol-abas [data-aba="mandatos"]')?.click();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
 }
 montar();
 

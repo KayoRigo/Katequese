@@ -222,3 +222,55 @@ describe("Política 5: Hierarquia de Leis (Constituição, STK, Leis Gerais e De
     assert.ok(placarFinal.includes("placar-barra"), "Após encerrar, deve mostrar barra visual de placar Sim vs Não");
   });
 });
+
+describe("Política 6: Mural Político (Galeria Histórica de Mandatos)", () => {
+  test("mandatosPadrao() inclui o 1º Mandato histórico de Pedro (Enquete no WhatsApp, sem deputados) e o 2º Mandato atual com Câmara", () => {
+    const lista = site.mandatosPadrao({
+      presidente_nome: "Pedro Henrique Galli",
+      presidente_partido: "PC · Partido Cuiudo",
+      mandato_desde: "2026-10-25",
+      deputados: [{ nome: "Gregory", partido: "PK" }, { nome: "Bruno", partido: "PC" }],
+    });
+    assert.ok(lista.length >= 2, "Deve retornar pelo menos o 1º e o 2º mandato");
+    const m1 = lista.find(m => m.numero === 1);
+    const m2 = lista.find(m => m.numero === 2);
+
+    assert.equal(m1.presidente_nome, "Pedro Henrique Galli");
+    assert.ok(m1.metodo_eleicao.includes("WhatsApp"), "1º mandato deve registrar que foi feito por enquete no WhatsApp");
+    assert.equal(m1.deputados.length, 0, "1º mandato não teve deputados");
+
+    assert.equal(m2.atual, true, "2º mandato deve estar marcado como atual");
+    assert.equal(m2.deputados.length, 2, "2º mandato deve trazer os deputados eleitos");
+  });
+
+  test("htmlCartaoMandato() diferencia visualmente mandato sem Câmara (1º mandato) de mandato com Deputados (2º mandato)", () => {
+    const htmlM1 = site.htmlCartaoMandato({
+      numero: 1,
+      titulo: "1º Mandato",
+      metodo_eleicao: "Enquete no WhatsApp",
+      presidente_nome: "Pedro Henrique Galli",
+      presidente_partido: "PC · Partido Cuiudo",
+      deputados: [],
+      historia: "Primeiro mandato do grupo, escolhido por enquete no WhatsApp antes da criação da Câmara.",
+      atual: false,
+    });
+    assert.ok(htmlM1.includes("Enquete no WhatsApp"), "Deve exibir o selo da enquete no WhatsApp");
+    assert.ok(htmlM1.includes("Sem Câmara de Deputados"), "Deve explicar que o 1º mandato não tinha deputados");
+
+    const htmlM2 = site.htmlCartaoMandato({
+      numero: 2,
+      titulo: "2º Mandato",
+      metodo_eleicao: "Eleição Oficial",
+      presidente_nome: "Pedro Henrique Galli",
+      deputados: [{ nome: "Gregory", partido: "PK" }],
+      atual: true,
+    });
+    assert.ok(htmlM2.includes("Em exercício"), "Mandato atual deve exibir selo 'Em exercício'");
+    assert.ok(htmlM2.includes("Gregory"), "Deve listar os deputados daquele mandato");
+
+    const htmlPol = ler("frontend/paginas/politica.html");
+    assert.ok(htmlPol.includes('data-aba="mandatos"'), "politica.html deve ter a sub-aba Mural Político (mandatos)");
+    const sql20 = ler("backend/sql/supabase-20.sql");
+    assert.ok(sql20.includes("politica_mandatos"), "supabase-20.sql deve criar a tabela politica_mandatos");
+  });
+});

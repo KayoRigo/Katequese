@@ -45,17 +45,19 @@
       </div>
     </div>
 
-    <!-- Sub-abas (Câmara, Gestão e Admin só aparecem para quem pode) -->
+    <!-- Sub-abas (Governo, Mural Político e Leis em vigor para todos; Câmara, Gestão e Admin para quem pode) -->
     <nav class="eco-abas" id="pol-abas">
       <button data-aba="governo" class="ativa">Governo</button>
+      <button data-aba="mandatos">Mural Político</button>
       <button data-aba="vigor">Leis em vigor</button>
       <button data-aba="camara" hidden>Câmara</button>
       <button data-aba="gestao" hidden>Gestão</button>
       <button data-aba="admin" hidden>Admin</button>
     </nav>
 
-    <!-- Governo: montado pelo JavaScript lá embaixo. Leis: pelo leis.js -->
+    <!-- Governo: montado pelo JavaScript lá embaixo. Mandatos e Leis: pelo leis.js -->
     <section class="pol-secao" id="aba-governo"><div id="politica"></div></section>
+    <section class="pol-secao pagina-leis" id="aba-mandatos" hidden></section>
     <section class="pol-secao pagina-leis" id="aba-vigor" hidden></section>
     <section class="pol-secao pagina-leis" id="aba-camara" hidden></section>
     <section class="pol-secao pagina-leis" id="aba-gestao" hidden></section>

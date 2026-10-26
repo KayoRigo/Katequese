@@ -366,6 +366,15 @@ if (erroPol || !polBanco) {
       await Promise.all([recarregar(), carregarCargos()]);
     }
 
+    // Sincroniza também o mandato atual (atual = true) no Mural Político
+    await sb.from("politica_mandatos").update({
+      presidente_nome: vagas.presidente.nome.trim() || "Pedro Henrique Galli",
+      presidente_partido: vagas.presidente.partido.trim(),
+      presidente_foto: vagas.presidente.foto,
+      deputados: deputados.filter(d => d && d.nome),
+      inicio: $("pol-desde").value || null,
+    }).eq("atual", true);
+
     const usadas = [vagas.presidente.foto, ...deputados.map(d => d.foto)].filter(Boolean);
     for (const antiga of fotosAntigas) if (!usadas.includes(antiga)) await apagarArquivo(antiga);
     fotosAntigas.splice(0, fotosAntigas.length, ...usadas);

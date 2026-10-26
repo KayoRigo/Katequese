@@ -30,6 +30,66 @@
 alter table public.politica
   add column if not exists presidente_id uuid references public.perfis(id) on delete set null;
 
+-- Mural Político: galeria histórica de todos os mandatos (visível para todos os aprovados)
+create table if not exists public.politica_mandatos (
+  id                 bigint generated always as identity primary key,
+  numero             int not null unique check (numero >= 1),
+  titulo             text not null check (char_length(titulo) between 1 and 80),
+  metodo_eleicao     text not null default 'Eleição Oficial' check (char_length(metodo_eleicao) <= 80),
+  presidente_nome    text not null check (char_length(presidente_nome) between 1 and 60),
+  presidente_partido text not null default '' check (char_length(presidente_partido) <= 60),
+  presidente_foto    text,
+  deputados          jsonb not null default '[]'::jsonb check (jsonb_typeof(deputados) = 'array'),
+  inicio             date,
+  fim                date,
+  historia           text not null default '' check (char_length(historia) <= 600),
+  atual              boolean not null default false,
+  criado_em          timestamptz not null default now()
+);
+
+alter table public.politica_mandatos enable row level security;
+
+drop policy if exists "aprovados veem mandatos" on public.politica_mandatos;
+create policy "aprovados veem mandatos" on public.politica_mandatos
+  for select to authenticated using (public.eh_aprovado());
+
+drop policy if exists "admin cuida dos mandatos" on public.politica_mandatos;
+create policy "admin cuida dos mandatos" on public.politica_mandatos
+  for all to authenticated using (public.eh_admin()) with check (public.eh_admin());
+
+-- Semente inicial do Mural Político:
+--   1º Mandato: Pedro Henrique Galli (eleito por enquete no WhatsApp, sem deputados)
+--   2º Mandato: mandato atual já organizado com Câmara de Deputados
+insert into public.politica_mandatos (numero, titulo, metodo_eleicao, presidente_nome, presidente_partido, deputados, inicio, fim, historia, atual)
+values (
+  1,
+  '1º Mandato · Fundação',
+  'Enquete no WhatsApp',
+  'Pedro Henrique Galli',
+  'PC · Partido Cuiudo',
+  '[]'::jsonb,
+  '2026-04-25',
+  '2026-10-25',
+  'Primeiro mandato presidencial da história da Katequese, escolhido por enquete no grupo do WhatsApp antes da criação da Câmara de Deputados e das eleições oficiais.',
+  false
+)
+on conflict (numero) do nothing;
+
+insert into public.politica_mandatos (numero, titulo, metodo_eleicao, presidente_nome, presidente_partido, presidente_foto, deputados, inicio, historia, atual)
+select
+  2,
+  '2º Mandato · 1ª Legislatura Oficial',
+  'Eleição Oficial · Urnas',
+  coalesce(nullif(p.presidente_nome, ''), 'Pedro Henrique Galli'),
+  coalesce(p.presidente_partido, ''),
+  p.presidente_foto,
+  coalesce(p.deputados, '[]'::jsonb),
+  coalesce(p.mandato_desde, '2026-10-25'::date),
+  'Mandato organizado com eleições oficiais, criação da Câmara de 4 Deputados e Código de Leis com o Superior Tribunal Katequista (STK).',
+  true
+from public.politica p where p.id = 1
+on conflict (numero) do nothing;
+
 alter table public.leis
   add column if not exists categoria text not null default 'geral',
   add column if not exists autor_id uuid references public.perfis(id) on delete set null,

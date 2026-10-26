@@ -243,6 +243,25 @@
 .titulo-secao:first-child { margin-top: 0; }
 .proposta .botao-link { margin-top: 10px; }
 
+/* Mural Político (Galeria de Mandatos) */
+.atalho-mural-politico { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; border-left: 4px solid var(--alerta); }
+.trilha-mandatos { position: relative; display: grid; gap: 16px; padding-left: 16px; border-left: 2px solid var(--borda); }
+.mandato-card { position: relative; border-left: 4px solid var(--borda); }
+.mandato-card.mandato-atual { border-left-color: var(--sucesso); }
+.selo-status.selo-ativo { color: var(--sucesso); border-color: var(--sucesso); }
+.mandato-presidente { display: flex; align-items: center; gap: 14px; margin-top: 12px; padding: 12px; background: var(--superficie-2); border: 1px solid var(--borda); border-radius: var(--raio); }
+.mandato-presidente .iniciais { margin: 0; width: 58px; height: 58px; font-size: 1.35rem; }
+.mandato-presidente .cargo { display: block; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--alerta); }
+.mandato-presidente strong { display: block; font-size: 1.15rem; }
+.mandato-presidente small { display: block; margin-top: 2px; color: var(--texto-suave); }
+.mandato-historia { margin: 10px 0 0; font-size: 0.92rem; line-height: 1.5; color: var(--texto-suave); }
+.mandato-camara { margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--borda); }
+.mandato-deputados { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(175px, 100%), 1fr)); gap: 8px; margin-top: 8px; }
+.mandato-dep-chip { display: flex; align-items: center; gap: 10px; padding: 8px 10px; background: var(--superficie-2); border: 1px solid var(--borda); border-radius: 6px; }
+.mandato-dep-chip strong { display: block; font-size: 0.9rem; line-height: 1.2; }
+.mandato-dep-chip small { display: block; font-size: 0.76rem; color: var(--texto-suave); }
+.mandato-sem-camara { margin-top: 8px; padding: 10px 12px; font-size: 0.86rem; color: var(--texto-suave); background: var(--superficie-2); border: 1px dashed var(--borda); border-radius: 6px; }
+
 @media (max-width: 520px) {
   .trilha-etapas { grid-template-columns: 1fr; }
   .campo-busca-lei { max-width: 100%; width: 100%; }

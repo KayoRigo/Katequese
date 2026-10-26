@@ -208,6 +208,100 @@ function htmlLeiRevogada(l, formatarData = (d) => d) {
     </div>`;
 }
 
+// Linha do tempo padrão do Mural Político (1º Mandato de Pedro via WhatsApp + 2º Mandato atual)
+function mandatosPadrao(polAtual = {}) {
+  const depsAtuais = Array.isArray(polAtual?.deputados)
+    ? polAtual.deputados.filter(d => d && d.nome)
+    : [];
+  return [
+    {
+      numero: 2,
+      titulo: "2º Mandato · 1ª Legislatura Oficial",
+      metodo_eleicao: "Eleição Oficial · Urnas",
+      presidente_nome: polAtual?.presidente_nome || "Pedro Henrique Galli",
+      presidente_partido: polAtual?.presidente_partido || "PC · Partido Cuiudo",
+      presidente_foto: polAtual?.presidente_foto || null,
+      deputados: depsAtuais,
+      inicio: polAtual?.mandato_desde || "2026-10-25",
+      fim: null,
+      historia: "Mandato organizado com eleições oficiais, criação da Câmara de 4 Deputados e Código de Leis com o Superior Tribunal Katequista (STK).",
+      atual: true,
+    },
+    {
+      numero: 1,
+      titulo: "1º Mandato · Fundação",
+      metodo_eleicao: "Enquete no WhatsApp",
+      presidente_nome: "Pedro Henrique Galli",
+      presidente_partido: "PC · Partido Cuiudo",
+      presidente_foto: null,
+      deputados: [],
+      inicio: "2026-04-25",
+      fim: "2026-10-25",
+      historia: "Primeiro mandato presidencial da história da Katequese, escolhido por enquete no grupo do WhatsApp antes da criação da Câmara de Deputados e das eleições oficiais.",
+      atual: false,
+    },
+  ];
+}
+
+function formatarPeriodoMandato(m) {
+  const fmt = (iso) => {
+    if (!iso) return "";
+    const d = lerData(String(iso).slice(0, 10));
+    return isNaN(d) ? String(iso) : d.toLocaleDateString("pt-BR", { month: "short", year: "numeric" });
+  };
+  if (m?.inicio && m?.fim) return `${fmt(m.inicio)} — ${fmt(m.fim)}`;
+  if (m?.inicio && m?.atual) return `Desde ${fmt(m.inicio)}`;
+  if (m?.inicio) return fmt(m.inicio);
+  return m?.atual ? "Mandato atual" : "Histórico";
+}
+
+function htmlCartaoMandato(m, fotosMap = {}, indice = 0) {
+  const deps = (Array.isArray(m?.deputados) ? m.deputados : []).filter(d => d && d.nome);
+  const periodo = formatarPeriodoMandato(m);
+  const fotoPres = m?.presidente_foto ? fotosMap[m.presidente_foto] : null;
+  const titulo = m?.titulo || `${m?.numero || 1}º Mandato`;
+
+  return `
+    <article class="caixa mandato-card ${m?.atual ? "mandato-atual" : ""} pol-animar" style="--i: ${Math.min(indice, 8)}">
+      <div class="proposta-topo">
+        <div class="proposta-tags">
+          <span class="lei-numero">${esc(titulo)}</span>
+          ${m?.metodo_eleicao ? `<span class="selo-categoria ${m.numero === 1 ? "cat-constitucional" : "cat-decreto"}">${esc(m.metodo_eleicao)}</span>` : ""}
+        </div>
+        <span class="selo-status ${m?.atual ? "selo-ativo" : ""}">${m?.atual ? "Em exercício · " : ""}${esc(periodo)}</span>
+      </div>
+
+      <div class="mandato-presidente">
+        ${htmlAvatar({ nome: m?.presidente_nome || "?" }, fotoPres)}
+        <div>
+          <span class="cargo">Presidente</span>
+          <strong>${esc(m?.presidente_nome || "—")}</strong>
+          ${m?.presidente_partido ? `<small>${esc(m.presidente_partido)}</small>` : ""}
+        </div>
+      </div>
+
+      ${m?.historia ? `<p class="mandato-historia">${esc(m.historia)}</p>` : ""}
+
+      <div class="mandato-camara">
+        <span class="rotulo-votos">Câmara de Deputados neste mandato:</span>
+        ${deps.length ? `
+          <div class="mandato-deputados">
+            ${deps.map(d => `
+              <div class="mandato-dep-chip">
+                ${htmlAvatar({ nome: d.nome }, d.foto ? fotosMap[d.foto] : null, "pequena")}
+                <div>
+                  <strong>${esc(d.nome)}</strong>
+                  ${d.partido ? `<small>${esc(d.partido)}</small>` : `<small>Deputado</small>`}
+                </div>
+              </div>`).join("")}
+          </div>` : `
+          <div class="mandato-sem-camara">
+            Mandato Presidencialista · Sem Câmara de Deputados (anterior à criação da Câmara)
+          </div>`}
+      </div>
+    </article>`;
+}
+
 async function iniciarLeis(eu) {
   const $ = (id) => document.getElementById(id);
   const { souPresidente, souDeputado, souAdmin, podeGerir } = permissoesPolitica(eu);
@@ -226,6 +320,8 @@ async function iniciarLeis(eu) {
 
   let leis = [];
   let propostas = [];
+  let mandatos = [];
+  let fotosMandatos = {};
   let filtroCategoria = "todas";
   let buscaLei = "";
   let paginaHistorico = 1;
@@ -281,14 +377,34 @@ async function iniciarLeis(eu) {
   }
 
   async function carregar() {
-    const [{ data: l, error }, p] = await Promise.all([
+    const [{ data: l, error }, p, { data: polRow }, { data: mRows }] = await Promise.all([
       sb.from("leis").select("*").order("numero"),
       eu.katequista ? sb.rpc("propostas_situacao") : Promise.resolve({ data: [] }),
+      sb.from("politica").select("*").eq("id", 1).maybeSingle(),
+      sb.from("politica_mandatos").select("*").order("numero", { ascending: false }),
     ]);
+    const listaMandatos = (mRows && mRows.length) ? mRows : mandatosPadrao(polRow || {});
+    if (polRow) {
+      listaMandatos.forEach(m => {
+        if (m.atual) {
+          m.presidente_nome = polRow.presidente_nome || m.presidente_nome;
+          m.presidente_partido = polRow.presidente_partido || m.presidente_partido;
+          m.presidente_foto = polRow.presidente_foto || m.presidente_foto;
+          const depsVivos = (polRow.deputados || []).filter(d => d && d.nome);
+          if (depsVivos.length) m.deputados = depsVivos;
+          if (polRow.mandato_desde) m.inicio = polRow.mandato_desde;
+        }
+      });
+    }
+    mandatos = [...listaMandatos].sort((a, b) => (b.numero || 0) - (a.numero || 0));
+    const caminhosFotos = mandatos.flatMap(m => [m.presidente_foto, ...(m.deputados || []).map(d => d?.foto)]).filter(Boolean);
+    fotosMandatos = await linksDosArquivos(caminhosFotos);
+
     if (error) {
       ["aba-vigor", "aba-camara", "aba-gestao", "aba-admin"].forEach(id => {
         if ($(id)) $(id).innerHTML = '<p class="vazio">Falta atualizar o banco: o admin precisa rodar o <b>supabase-17.sql</b> e o <b>supabase-20.sql</b>.</p>';
       });
+      if ($("aba-mandatos")) desenharMandatos();
       return false;
     }
     leis = l || [];
@@ -320,10 +436,26 @@ async function iniciarLeis(eu) {
 
   function desenhar() {
     clearInterval(relogio);
-    if (abaAtual === "vigor") desenharVigor();
+    if (abaAtual === "mandatos") desenharMandatos();
+    else if (abaAtual === "vigor") desenharVigor();
     else if (abaAtual === "camara") desenharCamara();
     else if (abaAtual === "gestao") desenharGestao();
     else if (abaAtual === "admin") desenharAdmin();
+  }
+
+  // ---------------- Mural Político (Galeria de Mandatos) ----------------
+  function desenharMandatos() {
+    const el = $("aba-mandatos");
+    if (!el) return;
+    const lista = mandatos.length ? mandatos : mandatosPadrao({});
+    el.innerHTML = `
+      <div class="caixa papel-aviso presidente pol-animar" style="--i: 0">
+        <span class="rotulo-papel">Memória Histórica da Katequese</span>
+        <p>Todos os mandatos presidenciais e legislaturas da Katequese ficam eternizados neste mural — desde o <b>1º Mandato de Pedro</b> (escolhido por enquete no WhatsApp) até os governos eleitos com Câmara de Deputados.</p>
+      </div>
+      <div class="trilha-mandatos">
+        ${lista.map((m, i) => htmlCartaoMandato(m, fotosMandatos, i + 1)).join("")}
+      </div>`;
   }
 
   // ---------------- Leis em vigor (organizadas por Hierarquia + Busca) ----------------
@@ -880,7 +1012,26 @@ async function iniciarLeis(eu) {
         }).join("")}</div>` : '<p class="aviso" style="margin: 0">Nenhuma proposta ou ideia aberta no momento.</p>'}
       </div>
 
-      <details class="caixa pol-animar" style="--i: 2">
+      <details class="caixa pol-animar" style="--i: 2; margin-bottom: 16px">
+        <summary style="cursor: pointer; font-weight: 700">Gerenciar Mural Político (Registrar / Atualizar Mandato)</summary>
+        <form class="eco-form" id="form-mandato-admin" style="margin-top: 14px">
+          <p class="eco-dica">Adicione ou edite um mandato histórico no Mural Político (se usar o mesmo número de mandato, ele atualiza o existente).</p>
+          <div class="linha-campos">
+            <label class="campo"><span>Nº do Mandato</span><input id="adm-man-num" type="number" min="1" step="1" value="${(mandatos[0]?.numero || 2)}" required></label>
+            <label class="campo"><span>Título</span><input id="adm-man-titulo" maxlength="80" value="2º Mandato · 1ª Legislatura Oficial" required></label>
+            <label class="campo"><span>Como foi eleito</span><input id="adm-man-metodo" maxlength="80" value="Eleição Oficial · Urnas" required></label>
+          </div>
+          <div class="linha-campos">
+            <label class="campo"><span>Início</span><input id="adm-man-inicio" type="date"></label>
+            <label class="campo"><span>Fim (vazio = atual)</span><input id="adm-man-fim" type="date"></label>
+          </div>
+          <label class="campo"><span>História / Resumo do mandato</span><textarea id="adm-man-historia" rows="2" maxlength="600" placeholder="Ex: Primeiro mandato com Câmara de Deputados..."></textarea></label>
+          <label class="campo-check"><input id="adm-man-atual" type="checkbox" checked> Este é o mandato atual em exercício (puxa Presidente e Deputados atuais)</label>
+          <button class="botao" type="submit">Salvar no Mural Político</button>
+        </form>
+      </details>
+
+      <details class="caixa pol-animar" style="--i: 3">
         <summary style="cursor: pointer; font-weight: 700">Enviar proposta direto à Câmara como Admin (emergência)</summary>
         <form class="eco-form" id="form-lei-admin" style="margin-top: 14px">
           <p class="eco-dica">Envia uma nova lei direto para votação na Câmara usando poder de Admin (pula a etapa de sugestão).</p>
@@ -935,6 +1086,32 @@ async function iniciarLeis(eu) {
       if (error) return avisarJanela(error.message);
       await carregar();
       abrirAba("camara");
+    });
+
+    $("form-mandato-admin")?.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const { data: polRow } = await sb.from("politica").select("*").eq("id", 1).maybeSingle();
+      const numero = Number($("adm-man-num").value || 2);
+      const ehAtual = $("adm-man-atual").checked;
+      if (ehAtual) {
+        await sb.from("politica_mandatos").update({ atual: false }).neq("numero", numero);
+      }
+      const { error } = await sb.from("politica_mandatos").upsert({
+        numero,
+        titulo: $("adm-man-titulo").value.trim(),
+        metodo_eleicao: $("adm-man-metodo").value.trim(),
+        presidente_nome: polRow?.presidente_nome || "Pedro Henrique Galli",
+        presidente_partido: polRow?.presidente_partido || "",
+        presidente_foto: polRow?.presidente_foto || null,
+        deputados: ehAtual ? (polRow?.deputados || []).filter(d => d && d.nome) : [],
+        inicio: $("adm-man-inicio").value || null,
+        fim: $("adm-man-fim").value || null,
+        historia: $("adm-man-historia").value.trim(),
+        atual: ehAtual,
+      }, { onConflict: "numero" });
+      if (error) return avisarJanela(error.message);
+      await carregar();
+      abrirAba("mandatos");
     });
   }
 
