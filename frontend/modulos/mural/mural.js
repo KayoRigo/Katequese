@@ -27,6 +27,7 @@ function mostrarAba(nome) {
   history.replaceState(null, "", nome === "recados" ? "#recados" : location.pathname);
 }
 document.querySelectorAll(".abas-mural .aba").forEach(a => a.addEventListener("click", () => mostrarAba(a.dataset.aba)));
+window.addEventListener("hashchange", () => mostrarAba(location.hash === "#recados" ? "recados" : "anuncios"));
 mostrarAba(location.hash === "#recados" ? "recados" : "anuncios");
 
 // ---------- Recados (15 por página) ----------

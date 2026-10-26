@@ -40,6 +40,17 @@ function aplicarPaleta(id) {
 
 aplicarPaleta(paletaSalva());
 
+// Ícone da aba (favicon SVG leve) para não gerar erro 404 de /favicon.ico no console
+if (typeof document !== "undefined" && document.head && !document.querySelector('link[rel="icon"]')) {
+  const icone = document.createElement("link");
+  icone.rel = "icon";
+  icone.type = "image/svg+xml";
+  icone.href = "data:image/svg+xml," + encodeURIComponent(
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#191a1d"/><text x="32" y="46" text-anchor="middle" font-family="Georgia,serif" font-weight="900" font-size="42" fill="#f26b3a">K</text></svg>'
+  );
+  document.head.appendChild(icone);
+}
+
 // HTML do botão redondo + menu de paletas (o menu.js coloca no cabeçalho)
 function htmlSeletorPaleta() {
   return `

@@ -28,6 +28,16 @@ describe("Fórmulas de Nível e XP (iguais às do banco)", () => {
   test("XP negativo nunca quebra a fórmula (fica no nível 1)", () => {
     assert.equal(site.nivelGeral(-50).nivel, 1);
   });
+
+  test("multiplicadorNivelTrabalho() aumenta +25% por nível até o nível 10 (dobrando no nível 5) e +10% acima do 10 com teto de 5x", () => {
+    assert.equal(site.multiplicadorNivelTrabalho(1), 1);
+    assert.equal(site.multiplicadorNivelTrabalho(2), 1.25);
+    assert.equal(site.multiplicadorNivelTrabalho(3), 1.5);
+    assert.equal(site.multiplicadorNivelTrabalho(5), 2);
+    assert.equal(site.multiplicadorNivelTrabalho(10), 3.25);
+    assert.equal(site.multiplicadorNivelTrabalho(12), 3.45);
+    assert.equal(site.multiplicadorNivelTrabalho(50), 5);
+  });
 });
 
 describe("Equipamentos de trabalho: efeitosDe()", () => {

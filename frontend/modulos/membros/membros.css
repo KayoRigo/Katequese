@@ -2,6 +2,15 @@
    modulos/membros/membros.css — grade de membros (Katequistas e Visitantes).
    ===================================================================== */
 
+.barra-membros { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 20px; }
+.barra-membros .abas-membros { margin-bottom: 0; flex: 1 1 260px; max-width: 360px; background: var(--superficie); border: 1px solid var(--borda); }
+.filtros-membros { display: flex; flex-wrap: wrap; gap: 8px; flex: 1 1 300px; justify-content: flex-end; }
+.filtros-membros input { flex: 1 1 180px; max-width: 260px; }
+.filtros-membros select { flex: 0 1 200px; }
+@media (max-width: 600px) {
+  .barra-membros .abas-membros, .filtros-membros input, .filtros-membros select { max-width: 100%; flex: 1 1 100%; }
+}
+
 .membros { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(210px, 100%), 1fr)); gap: 12px; }
 .membro {
   padding: 22px 16px;
@@ -9,8 +18,9 @@
   background: var(--superficie);
   border: 1px solid var(--borda);
   border-radius: var(--raio);
+  transition: transform 0.18s var(--curva-suave), border-color 0.18s var(--curva-suave);
 }
+.membro:hover { transform: translateY(-2px); border-color: var(--texto-suave); }
 .membro strong { display: block; }
-.abas-membros { max-width: 360px; background: var(--superficie); border: 1px solid var(--borda); }
 .membros.sem-ninguem { display: block; }
 .membro small { display: block; margin-bottom: 10px; color: var(--texto-suave); }

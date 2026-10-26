@@ -24,6 +24,16 @@ function infoNivel(xp, fator) {
 const nivelGeral = (xp) => infoNivel(xp, 50);
 const nivelNoTrabalho = (xp) => infoNivel(xp, 3);
 
+// Multiplicador salarial do nível na profissão:
+//   - Nível 1 ao 10: +25% por nível (dobra no Nível 5: 2.00x; Nível 10: 3.25x)
+//   - Acima do Nível 10: +10% por nível até o teto de 5.00x (evita inflação infinita)
+function multiplicadorNivelTrabalho(nivel) {
+  const n = Math.max(1, Math.floor(Number(nivel) || 1));
+  const ate10 = Math.min(n - 1, 9) * 0.25;
+  const acima10 = Math.max(n - 10, 0) * 0.10;
+  return Math.min(5, Math.round((1 + ate10 + acima10) * 100) / 100);
+}
+
 // "12:05" ou "1:02:05" até uma data
 function contagem(ate) {
   const s = Math.max(0, Math.round((new Date(ate) - Date.now()) / 1000));
@@ -176,6 +186,9 @@ async function iniciarEconomia(eu) {
     const botao = e.target.closest("button[data-aba]");
     if (botao) abrirAba(botao.dataset.aba);
   });
+  window.addEventListener("hashchange", () => {
+    abrirAba(location.hash.slice(1) || "carteira");
+  });
   await abrirAba(location.hash.slice(1) || "carteira");
 }
 
@@ -253,14 +266,19 @@ async function abaTrabalhos(el) {
   const meu = (id) => (meus || []).find(m => m.trabalho_id === id) || { xp: 0, vezes: 0, ultimo_em: null };
 
   el.innerHTML = `
-    <p class="eco-dica">Cada turno é um minijogo rápido: quanto melhor você joga, mais recebe. Subir de nível numa profissão paga 10% a mais por nível e libera equipamentos melhores na Loja.</p>
+    <p class="eco-dica">Cada turno é um minijogo rápido: quanto melhor você joga, mais recebe. Subir de nível na profissão aumenta o pagamento em <b>+25% por nível</b> (dobrando no nível 5) e libera equipamentos melhores na Loja.</p>
     <div class="lista-trabalhos">
       ${(trabalhos || []).map(t => {
         const m = meu(t.id);
         const nt = nivelNoTrabalho(m.xp);
         const ef = efeitosDe(t.id, eq);
         const bi = bonusDoTrabalho(t.id);        // bônus dos itens da loja
-        const mult = (1 + 0.1 * (nt.nivel - 1)) * (1 + ef.pagamento + Number(bi.pagamento));
+        const multNivel = multiplicadorNivelTrabalho(nt.nivel);
+        const multNivelProx = multiplicadorNivelTrabalho(nt.nivel + 1);
+        const multEquip = 1 + ef.pagamento + Number(bi.pagamento);
+        const mult = multNivel * multEquip;
+        const multProx = multNivelProx * multEquip;
+        const bonusPctNivel = Math.round((multNivel - 1) * 100);
         const reducao = Math.min(0.6, ef.espera + Number(bi.espera));
         const esperaMin = t.espera_min * (1 - reducao);
         const proximo = m.ultimo_em ? new Date(new Date(m.ultimo_em).getTime() + esperaMin * 60000) : null;
@@ -271,12 +289,13 @@ async function abaTrabalhos(el) {
           <article class="caixa trabalho" data-trabalho="${t.id}">
             <div class="trabalho-topo">
               <h3>${esc(t.nome)}</h3>
-              <span class="trabalho-nivel">Nível ${nt.nivel}</span>
+              <span class="trabalho-nivel">Nível ${nt.nivel}${bonusPctNivel > 0 ? ` (+${bonusPctNivel}%)` : ""}</span>
             </div>
             <p>${esc(t.descricao)}</p>
             ${jogo ? `<p class="trabalho-jogo">Minijogo: ${esc(jogo.nome)}</p>` : ""}
             <ul class="trabalho-info">
-              <li><span>Pagamento</span><b>${moeda(Math.floor(t.pagamento_min * mult * 0.4))} a ${moeda(Math.floor(t.pagamento_max * mult))}</b></li>
+              <li><span>Pagamento atual</span><b>${moeda(Math.floor(t.pagamento_min * mult * 0.4))} a ${moeda(Math.floor(t.pagamento_max * mult))}</b></li>
+              <li><span>No Nível ${nt.nivel + 1}</span><b>até ${moeda(Math.floor(t.pagamento_max * multProx))} (+${Math.round((multNivelProx - 1) * 100)}%)</b></li>
               <li><span>Espera</span><b>${reducao ? `<s>${emMinutos(t.espera_min)}</s> ` : ""}${emMinutos(esperaMin)}</b></li>
               <li><span>Chance de ${esc(t.nome_extra.toLowerCase())}</span><b>${pct(chance)} a ${pct(chance + 0.15)}</b></li>
               <li><span>Turnos</span><b>${m.vezes}</b></li>

@@ -30,6 +30,8 @@
 .opcao-enquete.clicavel { cursor: pointer; }
 .opcao-enquete.clicavel:hover { border-color: var(--texto-suave); }
 .opcao-enquete.escolhida { border-color: var(--destaque); }
+.opcao-enquete.vencedora { border-color: var(--sucesso); }
+.selo-vencedora { margin-left: 6px; padding: 1px 7px; font-size: 0.7rem; font-weight: 700; color: var(--sucesso); border: 1px solid var(--sucesso); border-radius: 999px; }
 .opcao-barra {
   position: absolute;
   inset: 0 auto 0 0;

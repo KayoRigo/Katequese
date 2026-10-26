@@ -74,7 +74,11 @@ function htmlEvento(ev, linkFoto, passou, podeApagar, mostrarVisibilidade, extra
         ${extra}
         <div class="evento-rodape">
           <span>Criado por ${htmlNome(ev.perfis, ev.autor_id)}${mostrarVisibilidade ? " · " + htmlVisibilidade(ev) : ""}</span>
-          ${podeApagar ? `<button class="botao-pequeno perigo" data-apagar="${ev.id}">Apagar</button>` : ""}
+          ${podeApagar ? `
+            <div class="acoes">
+              <button class="botao-pequeno" data-editar="${ev.id}">Editar</button>
+              <button class="botao-pequeno perigo" data-apagar="${ev.id}">Apagar</button>
+            </div>` : ""}
         </div>
       </div>
     </article>`;
@@ -311,4 +315,40 @@ function htmlPaginacao({ pagina = 1, total = 0, porPagina = 12, rotulo = "itens"
       <span class="paginacao-info">Página <b>${p.pagina}</b> de <b>${p.totalPaginas}</b> <small>· ${p.total} ${esc(rotulo)}</small></span>
       <button type="button" class="botao-pequeno" data-pagina="${p.pagina + 1}" ${p.temProxima ? "" : "disabled"}>Próxima →</button>
     </nav>`;
+}
+
+// ---------------- Filtros de Membros e Vencedoras de Enquete ----------------
+
+// Filtra membros por texto (nome, apelido ou @usuario) e por id de tag
+function filtrarMembros(lista = [], tagsPorPerfil = {}, termo = "", tagId = "") {
+  const busca = String(termo || "").trim().toLowerCase().replace(/^@/, "");
+  const idTag = String(tagId || "").trim();
+  return (lista || []).filter(p => {
+    if (busca) {
+      const bateNome = (p.nome || "").toLowerCase().includes(busca);
+      const bateApelido = (p.apelido || "").toLowerCase().includes(busca);
+      const bateUsuario = (p.usuario || "").toLowerCase().includes(busca);
+      if (!bateNome && !bateApelido && !bateUsuario) return false;
+    }
+    if (idTag) {
+      const tagsPessoa = tagsPorPerfil[p.id] || [];
+      if (!tagsPessoa.some(t => String(t.id) === idTag || t.nome === idTag)) return false;
+    }
+    return true;
+  });
+}
+
+// Devolve um Set com os IDs das opções empatadas/vencedoras no 1º lugar (somente se total > 0)
+function opcoesVencedorasEnquete(opcoes = [], resultados = {}) {
+  let maior = 0;
+  for (const op of opcoes) {
+    const v = Number(resultados[op.id]?.total || 0);
+    if (v > maior) maior = v;
+  }
+  if (maior <= 0) return new Set();
+  return new Set(
+    opcoes
+      .filter(op => Number(resultados[op.id]?.total || 0) === maior)
+      .map(op => op.id)
+  );
 }

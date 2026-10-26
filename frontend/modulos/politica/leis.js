@@ -313,6 +313,10 @@ async function iniciarLeis(eu) {
     const b = e.target.closest("[data-aba]");
     if (b) abrirAba(b.dataset.aba);
   });
+  window.addEventListener("hashchange", () => {
+    const alvo = location.hash.slice(1) || "governo";
+    if (alvo !== abaAtual) abrirAba(alvo);
+  });
 
   function desenhar() {
     clearInterval(relogio);
@@ -536,6 +540,7 @@ async function iniciarLeis(eu) {
 
     // Contagens regressivas; quando uma acaba, recarrega (o banco apura)
     relogio = setInterval(async () => {
+      if (document.hidden) return;
       let acabou = false;
       document.querySelectorAll("#aba-camara [data-ate]").forEach(el => {
         if (new Date(el.dataset.ate) <= new Date()) acabou = true;

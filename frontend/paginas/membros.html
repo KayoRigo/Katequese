@@ -21,10 +21,18 @@
       </div>
     </div>
 
-    <!-- Abas: Katequistas / Visitantes -->
-    <div class="abas abas-membros">
-      <button class="aba ativa" data-aba="katequistas">Katequistas</button>
-      <button class="aba" data-aba="visitantes">Visitantes</button>
+    <!-- Abas: Katequistas / Visitantes + Busca e Filtro por Cargo -->
+    <div class="barra-membros">
+      <div class="abas abas-membros">
+        <button class="aba ativa" data-aba="katequistas">Katequistas</button>
+        <button class="aba" data-aba="visitantes">Visitantes</button>
+      </div>
+      <div class="filtros-membros">
+        <input type="search" id="busca-membro" placeholder="Buscar por nome ou @usuário...">
+        <select id="filtro-tag-membro">
+          <option value="">Todas as tags/cargos</option>
+        </select>
+      </div>
     </div>
 
     <!-- Os cartões são criados pelo JavaScript lá embaixo -->

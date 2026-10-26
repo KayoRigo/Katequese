@@ -225,8 +225,9 @@ function montar() {
 }
 montar();
 
-// Atualiza só o cartão da eleição a cada 30 segundos
+// Atualiza só o cartão da eleição a cada 30 segundos (pausa quando a aba está oculta)
 setInterval(() => {
+  if (document.hidden) return;
   const atual = area.querySelector(".eleicao");
   if (atual) atual.outerHTML = htmlEleicao();
 }, 30000);

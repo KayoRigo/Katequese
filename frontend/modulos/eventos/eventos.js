@@ -1,5 +1,5 @@
 // =====================================================================
-// modulos/eventos/eventos.js — criação, listagem e presença (eventos.html).
+// modulos/eventos/eventos.js — criação, edição, listagem e presença (eventos.html).
 // =====================================================================
 
 const eu = await iniciarPagina();
@@ -8,6 +8,8 @@ const form = $("form-evento");
 const POR_PAGINA_ANTERIORES = 6;
 
 let paginaAnteriores = 1;
+let cacheEventos = [];
+let eventoEditando = null;
 
 if (!eu.katequista) {
   $("abrir-form").hidden = true;
@@ -17,6 +19,7 @@ if (!eu.katequista) {
 // ---------- Mostrar a lista ----------
 async function mostrarEventos(pagina = paginaAnteriores) {
   const eventos = await buscarEventos();
+  cacheEventos = eventos || [];
   if (!eventos.length) {
     $("eventos").innerHTML = '<p class="vazio">Por enquanto não há eventos ativos.</p>';
     return;
@@ -54,34 +57,54 @@ async function mostrarEventos(pagina = paginaAnteriores) {
 await mostrarEventos(1);
 
 // ---------- Abrir e fechar o formulário ----------
-$("abrir-form").addEventListener("click", () => {
+function abrirFormEditar(ev = null) {
+  eventoEditando = ev;
+  form.reset();
+  form.querySelector("h2").textContent = ev ? "Editar evento" : "Novo evento";
+  $("salvar").textContent = ev ? "Salvar alterações" : "Publicar evento";
+  if (ev) {
+    $("titulo").value = ev.titulo || "";
+    $("data").value = ev.data || "";
+    $("hora").value = ev.hora ? ev.hora.slice(0, 5) : "";
+    $("local").value = ev.local || "";
+    $("descricao").value = ev.descricao || "";
+    $("visivel").checked = !!ev.visivel_visitantes;
+  }
   form.hidden = false;
   $("abrir-form").hidden = true;
   $("titulo").focus();
-});
+  form.scrollIntoView({ behavior: "smooth" });
+}
+
+$("abrir-form").addEventListener("click", () => abrirFormEditar(null));
+
 function fecharForm() {
+  eventoEditando = null;
   form.reset();
+  form.querySelector("h2").textContent = "Novo evento";
+  $("salvar").textContent = "Publicar evento";
   form.hidden = true;
   $("abrir-form").hidden = false;
   $("progresso").textContent = "";
 }
 $("cancelar").addEventListener("click", fecharForm);
 
-// ---------- Publicar ----------
+// ---------- Publicar ou Salvar Edição ----------
 form.addEventListener("submit", async (evento) => {
   evento.preventDefault();
   $("salvar").disabled = true;
-  $("progresso").textContent = "Publicando...";
+  $("progresso").textContent = eventoEditando ? "Salvando alterações..." : "Publicando...";
 
   try {
-    let foto_path = null;
+    let foto_path = eventoEditando ? eventoEditando.foto_path : null;
+    const fotoAntiga = eventoEditando?.foto_path || null;
     const arquivo = $("foto").files[0];
     if (arquivo) {
       $("progresso").textContent = "Enviando foto...";
       foto_path = await enviarArquivo("eventos", await reduzirImagem(arquivo));
     }
 
-    const { error } = await sb.from("eventos").insert({
+    const dadosEvento = {
       titulo: $("titulo").value.trim(),
       data: $("data").value,
       hora: $("hora").value || null,
@@ -89,19 +112,27 @@ form.addEventListener("submit", async (evento) => {
       descricao: $("descricao").value.trim(),
       foto_path,
       visivel_visitantes: $("visivel").checked,
-    });
+    };
+
+    const { error } = eventoEditando
+      ? await sb.from("eventos").update(dadosEvento).eq("id", eventoEditando.id)
+      : await sb.from("eventos").insert(dadosEvento);
     if (error) throw error;
+
+    if (eventoEditando && arquivo && fotoAntiga && fotoAntiga !== foto_path) {
+      await apagarArquivo(fotoAntiga);
+    }
 
     fecharForm();
     await mostrarEventos(paginaAnteriores);
   } catch (erro) {
-    $("progresso").textContent = "Não foi possível publicar: " + erro.message;
+    $("progresso").textContent = "Não foi possível salvar: " + erro.message;
   } finally {
     $("salvar").disabled = false;
   }
 });
 
-// ---------- Paginação, presença e apagar ----------
+// ---------- Paginação, presença, editar e apagar ----------
 $("eventos").addEventListener("click", async (e) => {
   const pag = e.target.closest("[data-pagina]");
   if (pag && !pag.disabled) {
@@ -116,6 +147,13 @@ $("eventos").addEventListener("click", async (e) => {
     const { error } = await responderPresenca(Number(cartao.dataset.evento), botaoPresenca.dataset.presenca, botaoPresenca.dataset.atual || null);
     if (error) await avisarJanela("Não foi possível responder: " + error.message);
     await mostrarEventos(paginaAnteriores);
+    return;
+  }
+
+  const botaoEditar = e.target.closest("[data-editar]");
+  if (botaoEditar) {
+    const alvo = cacheEventos.find(x => x.id === Number(botaoEditar.dataset.editar));
+    if (alvo) abrirFormEditar(alvo);
     return;
   }
 

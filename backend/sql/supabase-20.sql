@@ -645,7 +645,110 @@ $$;
 
 
 -- ---------------------------------------------------------------------
--- 5) REGISTRO EM ATUALIZAÇÕES (entra só uma vez)
+-- 5) PROGRESSÃO SALARIAL REAL NOS EMPREGOS (+25% por nível até o 10)
+-- ---------------------------------------------------------------------
+-- Atualiza o pagamento base das 5 profissões para valores recompensadores
+-- e condizentes com os preços dos equipamentos da Loja.
+update public.trabalhos t set
+  pagamento_min = v.pmin,
+  pagamento_max = v.pmax
+from (values
+  ('entregador',     25,  45),
+  ('churrasqueiro',  40,  70),
+  ('dj',             60, 105),
+  ('programador',    80, 140),
+  ('empresario',    110, 190)
+) as v(id, pmin, pmax)
+where t.id = v.id;
+
+-- Multiplicador do nível na profissão:
+--   - Nível 1 ao 10: +25% por nível (Nível 5 paga o dobro: 2.00x; Nível 10 paga 3.25x)
+--   - Acima do Nível 10: +10% por nível até o teto de 5.00x (trava anti-inflação)
+create or replace function public.multiplicador_nivel_trabalho(nivel int) returns numeric
+language sql immutable as $$
+  select least(
+    5.0,
+    1.0 + 0.25 * least(greatest(coalesce(nivel, 1) - 1, 0), 9)
+        + 0.10 * greatest(coalesce(nivel, 1) - 10, 0)
+  );
+$$;
+
+create or replace function public.trabalhar(id_trabalho text, desempenho int default 0) returns json
+language plpgsql security definer set search_path = public as $$
+declare
+  c             carteiras%rowtype;
+  t             trabalhos%rowtype;
+  tn            trabalho_niveis%rowtype;
+  ef            record;
+  bi            record;
+  d             numeric;
+  nivel_t_antes int;
+  nivel_t       int;
+  nivel_antes   int;
+  ganho         bigint;
+  extra         bigint := 0;
+  chance        numeric;
+  xp_t          int;
+  xp_g          int;
+  saldo_novo    bigint;
+begin
+  c := minha_carteira_travada();
+  select * into t from trabalhos where id = id_trabalho;
+  if not found then raise exception 'Trabalho não encontrado.'; end if;
+
+  select * into tn from trabalho_niveis where perfil_id = auth.uid() and trabalho_id = t.id for update;
+  if not found or tn.jogando_desde is null then
+    raise exception 'Esse turno não foi começado.';
+  end if;
+  if now() - tn.jogando_desde < interval '4 seconds' then
+    raise exception 'Rápido demais.';
+  end if;
+  if now() - tn.jogando_desde > interval '5 minutes' then
+    update trabalho_niveis set jogando_desde = null where perfil_id = auth.uid() and trabalho_id = t.id;
+    raise exception 'O turno expirou.';
+  end if;
+
+  select * into ef from efeitos_trabalho(auth.uid(), t.id);
+  select * into bi from bonus_itens(auth.uid(), t.id);
+  d := least(100, greatest(0, coalesce(desempenho, 0)));
+  nivel_t_antes := nivel_trabalho(tn.xp);
+  nivel_antes   := nivel_de(c.xp);
+
+  ganho := greatest(1, floor(
+      (t.pagamento_min + random() * (t.pagamento_max - t.pagamento_min))
+    * multiplicador_nivel_trabalho(nivel_t_antes)
+    * (1 + ef.p_pagamento + bi.p_pagamento)
+    * (0.4 + 0.6 * d / 100)));
+
+  chance := t.chance_extra + ef.p_extra + bi.p_extra + 0.15 * d / 100;
+  if random() < chance then
+    extra := greatest(1, floor(ganho * (0.25 + random() * 0.35)));
+  end if;
+
+  xp_t := case when d >= 70 then 2 else 1 end;
+  xp_g := round(t.xp_geral * (1 + bi.p_xp));
+  update trabalho_niveis set xp = xp + xp_t, vezes = vezes + 1, jogando_desde = null
+   where perfil_id = auth.uid() and trabalho_id = t.id;
+  update carteiras set xp = xp + xp_g where perfil_id = auth.uid();
+  nivel_t := nivel_trabalho(tn.xp + xp_t);
+
+  saldo_novo := mexer_saldo(auth.uid(), ganho, 'trabalho', 'Trabalhou como ' || t.nome || ' (Nv. ' || nivel_t_antes || ')');
+  if extra > 0 then
+    saldo_novo := mexer_saldo(auth.uid(), extra, 'trabalho', t.nome_extra || ' (' || t.nome || ')');
+  end if;
+
+  return json_build_object(
+    'ganho', ganho, 'extra', extra, 'nome_extra', t.nome_extra, 'desempenho', d,
+    'saldo', saldo_novo, 'xp_ganho', xp_g,
+    'nivel_trabalho', nivel_t, 'subiu_trabalho', nivel_t > nivel_t_antes,
+    'nivel', nivel_de(c.xp + xp_g), 'subiu_nivel', nivel_de(c.xp + xp_g) > nivel_antes
+  );
+end;
+$$;
+
+
+-- ---------------------------------------------------------------------
+-- 6) REGISTRO EM ATUALIZAÇÕES (entra só uma vez)
 -- ---------------------------------------------------------------------
 insert into public.atualizacoes (criado_em, tipo, titulo, descricao, autor_nome, autor_id)
 select v.criado_em::timestamptz, v.tipo, v.titulo, v.descricao, 'Kayo',

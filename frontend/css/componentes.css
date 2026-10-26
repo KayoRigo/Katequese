@@ -66,6 +66,15 @@
 }
 .botao-pequeno:hover { border-color: var(--texto-suave); }
 .botao-pequeno.perigo:hover { border-color: var(--perigo); color: var(--perigo); }
+@media (max-width: 600px) {
+  .botao-pequeno, .recado-acoes .botao-link {
+    min-height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 12px;
+  }
+}
 
 .botao-link, .link-apagar { padding: 0; background: none; border: none; font: inherit; font-size: 0.82rem; color: var(--texto-suave); cursor: pointer; }
 .botao-link:hover { color: var(--texto); text-decoration: underline; }

@@ -161,6 +161,7 @@ if (proximo) {
     [quando, proximo.hora?.slice(0, 5), proximo.local].filter(Boolean).join(" · ");
 
   function atualizarContagem() {
+    if (document.hidden) return;
     const resta = Math.max(0, inicioEvento(proximo) - Date.now());
     const s = Math.floor(resta / 1000);
     document.getElementById("cd-dias").textContent = doisDigitos(Math.floor(s / 86400));

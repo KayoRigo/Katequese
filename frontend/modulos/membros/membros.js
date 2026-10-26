@@ -1,5 +1,6 @@
 // =====================================================================
-// modulos/membros/membros.js — listagem de Katequistas e Visitantes.
+// modulos/membros/membros.js — listagem de Katequistas e Visitantes
+// com busca por nome/@usuário e filtro por cargo/tag.
 // =====================================================================
 
 await iniciarPagina();
@@ -11,16 +12,30 @@ const { data: pessoas } = await sb
   .eq("status", "aprovado")
   .order("nome");
 
-// Busca fotos e tags de todos de uma vez (mais rápido que um por um)
-const [links, tags] = await Promise.all([
+// Busca fotos, tags e carteiras de todos de uma vez
+const [links, tags, { data: carteiras }] = await Promise.all([
   linksDosArquivos((pessoas || []).map(p => p.foto_path)),
   buscarTagsDosPerfis(),
+  sb.from("carteiras").select("perfil_id, saldo, xp"),
 ]);
 
-// Nível na economia de cada um
-const { data: carteiras } = await sb.from("carteiras").select("perfil_id, xp");
+// Nível e saldo na economia de cada um
 const nivelDe = {};
-(carteiras || []).forEach(c => nivelDe[c.perfil_id] = Math.floor(Math.sqrt(c.xp / 50)) + 1);
+const saldoDe = {};
+(carteiras || []).forEach(c => {
+  nivelDe[c.perfil_id] = Math.floor(Math.sqrt(c.xp / 50)) + 1;
+  saldoDe[c.perfil_id] = Number(c.saldo || 0);
+});
+
+// Preenche o seletor de tags disponíveis
+const selectTag = document.getElementById("filtro-tag-membro");
+const inputBusca = document.getElementById("busca-membro");
+if (selectTag) {
+  const mapaTags = new Map();
+  Object.values(tags).flat().forEach(t => { if (t) mapaTags.set(String(t.id), t.nome); });
+  selectTag.innerHTML = `<option value="">Todas as tags/cargos</option>` +
+    [...mapaTags.entries()].map(([id, nome]) => `<option value="${esc(id)}">${esc(nome)}</option>`).join("");
+}
 
 // Separa em dois grupos
 const katequistas = (pessoas || []).filter(p => ehKatequistaPerfil(p, tags[p.id]));
@@ -32,7 +47,7 @@ const cartao = (p) => `
     ${htmlAvatar(p, links[p.foto_path])}
     <strong>${esc(p.nome)}${htmlCargos(p.id)}</strong>
     <small>@${esc(p.usuario)}${p.apelido ? " · " + esc(p.apelido) : ""}</small>
-    ${nivelDe[p.id] ? `<small class="nivel-membro">Nível ${nivelDe[p.id]}</small>` : ""}
+    ${nivelDe[p.id] ? `<small class="nivel-membro">Nível ${nivelDe[p.id]}${saldoDe[p.id] !== undefined ? ` · K$ ${saldoDe[p.id].toLocaleString("pt-BR")}` : ""}</small>` : ""}
     ${p.aniversario ? `<small class="aniversario-membro">Aniversário: ${esc(diaDoAniversario(p.aniversario))}${diasAteAniversario(p.aniversario) === 0 ? " · hoje" : ""}</small>` : ""}
     <div class="tags centro">${(tags[p.id] || []).map(t => htmlTag(t)).join("")}</div>
   </div>`;
@@ -42,14 +57,22 @@ const grupos = {
   visitantes:  { lista: visitantes,  texto: "Pessoas aprovadas que ainda não são Katequistas. Só veem o que for liberado para visitantes.", vazio: "Nenhum visitante por enquanto." },
 };
 
-function mostrarAba(nome) {
+let abaAtual = location.hash === "#visitantes" ? "visitantes" : "katequistas";
+
+function mostrarAba(nome = abaAtual) {
+  if (!grupos[nome]) nome = "katequistas";
+  abaAtual = nome;
   const g = grupos[nome];
+  const filtrados = filtrarMembros(g.lista, tags, inputBusca?.value || "", selectTag?.value || "");
+
   document.querySelectorAll(".abas-membros .aba").forEach(a => a.classList.toggle("ativa", a.dataset.aba === nome));
   document.getElementById("subtitulo-membros").textContent = g.texto;
   const caixa = document.getElementById("membros");
-  caixa.classList.toggle("sem-ninguem", !g.lista.length);
-  caixa.innerHTML = g.lista.length ? g.lista.map(cartao).join("") : `<p class="vazio">${g.vazio}</p>`;
-  history.replaceState(null, "", nome === "visitantes" ? "#visitantes" : location.pathname); // lembra a aba no endereço
+  caixa.classList.toggle("sem-ninguem", !filtrados.length);
+  caixa.innerHTML = filtrados.length
+    ? filtrados.map(cartao).join("")
+    : `<p class="vazio">${g.lista.length ? "Nenhum membro encontrado para esse filtro." : g.vazio}</p>`;
+  history.replaceState(null, "", nome === "visitantes" ? "#visitantes" : location.pathname);
 }
 
 // Número de cada grupo no nome da aba
@@ -57,4 +80,7 @@ document.querySelectorAll(".abas-membros .aba").forEach(aba => {
   aba.textContent += ` (${grupos[aba.dataset.aba].lista.length})`;
   aba.addEventListener("click", () => mostrarAba(aba.dataset.aba));
 });
-mostrarAba(location.hash === "#visitantes" ? "visitantes" : "katequistas");
+inputBusca?.addEventListener("input", () => mostrarAba(abaAtual));
+selectTag?.addEventListener("change", () => mostrarAba(abaAtual));
+window.addEventListener("hashchange", () => mostrarAba(location.hash === "#visitantes" ? "visitantes" : "katequistas"));
+mostrarAba(abaAtual);

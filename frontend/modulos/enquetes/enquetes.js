@@ -32,6 +32,7 @@ function htmlEnquete(e, opcoes, resultados, meusVotos, linkFoto) {
   const podeVotar = aberta && (eu.katequista || e.visitantes_votam);
   const jaVotei = opcoes.some(o => meusVotos.has(o.id));
   const pessoas = Number(resultados[opcoes[0]?.id]?.pessoas_votaram || 0);
+  const vencedoras = !aberta ? opcoesVencedorasEnquete(opcoes, resultados) : new Set();
 
   const selos = [
     e.multipla ? "Várias opções" : "",
@@ -44,11 +45,12 @@ function htmlEnquete(e, opcoes, resultados, meusVotos, linkFoto) {
     const total = Number(res.total);
     const pct = pessoas ? Math.round((total / pessoas) * 100) : 0;
     const escolhida = meusVotos.has(o.id);
+    const ehVencedora = vencedoras.has(o.id);
     return `
-      <label class="opcao-enquete ${escolhida ? "escolhida" : ""} ${podeVotar ? "clicavel" : ""}">
+      <label class="opcao-enquete ${escolhida ? "escolhida" : ""} ${ehVencedora ? "vencedora" : ""} ${podeVotar ? "clicavel" : ""}">
         <span class="opcao-barra" style="width: ${pct}%"></span>
         ${podeVotar ? `<input type="${e.multipla ? "checkbox" : "radio"}" name="enquete-${e.id}" value="${o.id}" ${escolhida ? "checked" : ""}>` : ""}
-        <span class="opcao-texto">${esc(o.texto)}</span>
+        <span class="opcao-texto">${esc(o.texto)}${ehVencedora ? ' <span class="selo-vencedora">Vencedora</span>' : ""}</span>
         <span class="opcao-numeros">${pct}% · ${total}</span>
         ${res.votantes?.length ? `<small class="votantes">${res.votantes.map(esc).join(", ")}</small>` : ""}
       </label>`;

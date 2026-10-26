@@ -287,7 +287,7 @@ function montarAviator(mesa, el) {
 
   vigiaCassino = setInterval(() => {
     if (!mesa.isConnected) return clearInterval(vigiaCassino);
-    if (voando) return;
+    if (document.hidden || voando) return;
     const resta = Math.ceil(((proximaAposta.aviator || 0) - Date.now()) / 1000);
     botao.disabled = resta > 0;
     mesa.querySelector("#espera-aposta").textContent = resta > 0 ? `Próximo voo em ${resta} s` : "";

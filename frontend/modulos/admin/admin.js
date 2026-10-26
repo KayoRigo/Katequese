@@ -21,6 +21,7 @@ $("admin-nav").addEventListener("click", (e) => {
   e.preventDefault();
   abrirSecao(a.getAttribute("href").slice(1));
 });
+window.addEventListener("hashchange", () => abrirSecao(location.hash.slice(1)));
 abrirSecao(location.hash.slice(1));
 
 // Lista de todas as pessoas cadastradas (usada em Pessoas e em Tags)

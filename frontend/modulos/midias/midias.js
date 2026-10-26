@@ -89,6 +89,20 @@ document.addEventListener("keydown", (e) => {
   else if (e.key === "ArrowRight") abrirFotoIndice(indiceAberto + 1);
 });
 
+// Gesto de deslizar o dedo (swipe) no celular para trocar de foto
+let toqueX = null;
+$("janela").addEventListener("touchstart", (e) => {
+  toqueX = e.changedTouches?.[0]?.clientX ?? null;
+}, { passive: true });
+$("janela").addEventListener("touchend", (e) => {
+  if (toqueX === null || !$("janela").open) return;
+  const dx = (e.changedTouches?.[0]?.clientX ?? toqueX) - toqueX;
+  toqueX = null;
+  if (Math.abs(dx) < 45) return;
+  if (dx < 0) abrirFotoIndice(indiceAberto + 1);
+  else abrirFotoIndice(indiceAberto - 1);
+}, { passive: true });
+
 function fecharJanela() {
   $("janela").close();
 }
