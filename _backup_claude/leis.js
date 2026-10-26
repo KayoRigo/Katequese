@@ -1,0 +1,273 @@
+// =====================================================================
+// leis.js — Leis e Câmara, dentro da página Política (sub-abas
+// "Leis em vigor", "Câmara" e "Gestão"). A página chama iniciarLeis(eu).
+// As regras de verdade ficam no banco (supabase-17.sql).
+// =====================================================================
+// =================================================================
+    // Leis: quem pode o quê (o banco confere tudo de novo, ver supabase-17.sql)
+    //   - Todos: leem as leis em vigor.
+    //   - Katequistas: veem as votações (aba Câmara) e votam no voto popular.
+    //   - Deputados: votam na Câmara (voto secreto).
+    //   - Deputados e Presidente (ou admin): aba Gestão (propor, alterar, revogar).
+    //   - Só Presidente ou admin: decidem empates (voto popular) e arquivam propostas.
+    // =================================================================
+async function iniciarLeis(eu) {
+    const $ = (id) => document.getElementById(id);
+    const souPresidente = eu.katequista && (eu.admin || temCargo(eu.id, "Presidente"));
+    const souDeputado = eu.katequista && temCargo(eu.id, "Deputado");
+
+    if (eu.katequista) document.querySelector('#pol-abas [data-aba="camara"]').hidden = false;
+    if (souPresidente || souDeputado) document.querySelector('#pol-abas [data-aba="gestao"]').hidden = false;
+
+    let leis = [];
+    let propostas = [];
+    let relogio = null;
+
+    const quando = (t) => new Date(t).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
+
+    // "2 h 05 min", "12 min 30 s" até uma data
+    function falta(ate) {
+      const s = Math.max(0, Math.round((new Date(ate) - Date.now()) / 1000));
+      const d = Math.floor(s / 86400), h = Math.floor((s % 86400) / 3600), m = Math.floor((s % 3600) / 60);
+      if (d) return `${d} d ${h} h`;
+      if (h) return `${h} h ${String(m).padStart(2, "0")} min`;
+      return `${m} min ${String(s % 60).padStart(2, "0")} s`;
+    }
+
+    // Opções de prazo para as votações
+    const PRAZOS = [[1, "1 hora"], [6, "6 horas"], [12, "12 horas"], [24, "1 dia"], [48, "2 dias"], [72, "3 dias"], [168, "7 dias"]];
+    const htmlPrazo = (id, padrao = 24) =>
+      `<select id="${id}">${PRAZOS.map(([h, t]) => `<option value="${h}" ${h === padrao ? "selected" : ""}>${t}</option>`).join("")}</select>`;
+
+    async function carregar() {
+      const [{ data: l, error }, p] = await Promise.all([
+        sb.from("leis").select("*").order("numero"),
+        eu.katequista ? sb.rpc("propostas_situacao") : Promise.resolve({ data: [] }),
+      ]);
+      if (error) {
+        ["aba-vigor", "aba-camara", "aba-gestao"].forEach(id => { $(id).innerHTML =
+          '<p class="vazio">Falta atualizar o banco: o admin precisa rodar o <b>supabase-17.sql</b>.</p>'; });
+        return false;
+      }
+      leis = l || [];
+      propostas = p.data || [];
+      return true;
+    }
+
+    // ---------------- Sub-abas ----------------
+    // As sub-abas da página Política: "governo" (presidente, deputados, eleição) é montada pela própria página
+    let abaAtual = "governo";
+    let leisProntas = false;
+    function abrirAba(nome) {
+      const botao = document.querySelector(`#pol-abas [data-aba="${nome}"]`);
+      if (!botao || botao.hidden) nome = "governo";
+      abaAtual = nome;
+      document.querySelectorAll("#pol-abas button").forEach(b => b.classList.toggle("ativa", b.dataset.aba === nome));
+      document.querySelectorAll(".pol-secao").forEach(s => s.hidden = s.id !== "aba-" + nome);
+      history.replaceState(null, "", nome === "governo" ? location.pathname : "#" + nome);
+      if (nome !== "governo" && leisProntas) desenhar();
+    }
+    $("pol-abas").addEventListener("click", (e) => {
+      const b = e.target.closest("[data-aba]");
+      if (b) abrirAba(b.dataset.aba);
+    });
+
+    function desenhar() {
+      clearInterval(relogio);
+      if (abaAtual === "vigor") desenharVigor();
+      else if (abaAtual === "camara") desenharCamara();
+      else desenharGestao();
+    }
+
+    // ---------------- Leis em vigor ----------------
+    function desenharVigor() {
+      const ativas = leis.filter(l => l.ativa);
+      const revogadas = leis.filter(l => !l.ativa);
+      $("aba-vigor").innerHTML = `
+        ${ativas.length ? ativas.map(l => `
+          <article class="caixa lei">
+            <span class="lei-numero">Lei nº ${l.numero}</span>
+            <h2>${esc(l.titulo)}</h2>
+            <p class="lei-texto">${esc(l.texto)}</p>
+            <small>Em vigor desde ${quando(l.criada_em)}${l.alterada_em ? ` · alterada em ${quando(l.alterada_em)}` : ""}</small>
+          </article>`).join("") : '<p class="vazio">Nenhuma lei aprovada ainda.</p>'}
+        ${revogadas.length ? `
+          <details class="caixa revogadas">
+            <summary>Leis revogadas (${revogadas.length})</summary>
+            ${revogadas.map(l => `<p><b>Lei nº ${l.numero}: ${esc(l.titulo)}</b><br><small>Revogada em ${quando(l.revogada_em)}</small></p>`).join("")}
+          </details>` : ""}`;
+    }
+
+    // ---------------- Câmara: votações ----------------
+    const NOMES_STATUS = {
+      camara: "Na Câmara", empate: "Empate", popular: "Voto popular",
+      aprovada: "Aprovada", rejeitada: "Rejeitada", cancelada: "Arquivada",
+    };
+    function tituloTipo(p) {
+      if (p.tipo === "criar") return "Nova lei";
+      return `${p.tipo === "alterar" ? "Alterar" : "Revogar"} a Lei nº ${p.lei_numero ?? "?"}`;
+    }
+    function botoesVoto(tipo, p, meu) {
+      return `
+        <div class="voto-botoes">
+          <button class="botao-pequeno ${meu === true ? "votado" : ""}" data-votar="${tipo}" data-id="${p.id}" data-voto="true">Sim</button>
+          <button class="botao-pequeno ${meu === false ? "votado" : ""}" data-votar="${tipo}" data-id="${p.id}" data-voto="false">Não</button>
+          ${meu !== null && meu !== undefined ? `<small>Seu voto: ${meu ? "sim" : "não"} (dá para mudar até encerrar)</small>` : ""}
+        </div>`;
+    }
+
+    function htmlProposta(p) {
+      let etapa = "";
+      if (p.status === "camara") {
+        etapa = `
+          <p class="etapa">Câmara: <b>${p.votaram_camara} de ${p.total_deputados}</b> deputados votaram · encerra em <b data-ate="${p.fim_camara}">${falta(p.fim_camara)}</b></p>
+          ${souDeputado ? botoesVoto("camara", p, p.meu_voto_camara) : '<p class="eco-dica">Votação secreta: só deputados votam. O resultado aparece quando encerrar.</p>'}`;
+      } else if (p.status === "empate") {
+        etapa = `
+          <p class="etapa">${esc(p.resultado)}</p>
+          ${souPresidente ? `
+            <div class="voto-botoes">
+              <label class="campo-inline">Prazo ${htmlPrazo("prazo-pop-" + p.id, 24)}</label>
+              <button class="botao-pequeno" data-popular="${p.id}">Levar ao voto popular</button>
+            </div>` : '<p class="eco-dica">O Presidente decide se leva ao voto popular.</p>'}`;
+      } else if (p.status === "popular") {
+        etapa = `
+          <p class="etapa">${esc(p.resultado)}</p>
+          <p class="etapa">Voto popular: <b>${p.votaram_popular}</b> ${p.votaram_popular === 1 ? "voto" : "votos"} · encerra em <b data-ate="${p.fim_popular}">${falta(p.fim_popular)}</b></p>
+          ${botoesVoto("popular", p, p.meu_voto_popular)}`;
+      } else {
+        etapa = `<p class="etapa">${esc(p.resultado)}</p>`;
+      }
+      return `
+        <article class="caixa proposta ${p.status}">
+          <div class="proposta-topo">
+            <span class="lei-numero">${tituloTipo(p)}</span>
+            <span class="selo-status">${NOMES_STATUS[p.status]}</span>
+          </div>
+          <h3>${esc(p.titulo)}</h3>
+          ${p.tipo !== "revogar" ? `<p class="lei-texto">${esc(p.texto)}</p>` : ""}
+          ${p.justificativa ? `<p class="justificativa"><b>Justificativa:</b> ${esc(p.justificativa)}</p>` : ""}
+          <small>Proposta por ${esc(p.autor || "alguém")} em ${quando(p.criada_em)}</small>
+          ${etapa}
+          ${souPresidente && p.aberta ? `<button class="botao-link perigo" data-arquivar="${p.id}">Arquivar proposta</button>` : ""}
+        </article>`;
+    }
+
+    function desenharCamara() {
+      const abertas = propostas.filter(p => p.aberta);
+      const fechadas = propostas.filter(p => !p.aberta);
+      $("aba-camara").innerHTML = `
+        <h2 class="titulo-secao">Em votação</h2>
+        ${abertas.length ? abertas.map(htmlProposta).join("") : '<p class="aviso">Nenhuma votação aberta.</p>'}
+        <h2 class="titulo-secao">Histórico</h2>
+        ${fechadas.length ? fechadas.map(htmlProposta).join("") : '<p class="aviso">Nada por aqui ainda.</p>'}`;
+
+      // Contagens regressivas; quando uma acaba, recarrega (o banco apura)
+      relogio = setInterval(async () => {
+        let acabou = false;
+        document.querySelectorAll("#aba-camara [data-ate]").forEach(el => {
+          if (new Date(el.dataset.ate) <= new Date()) acabou = true;
+          el.textContent = falta(el.dataset.ate);
+        });
+        if (acabou) { clearInterval(relogio); await carregar(); desenhar(); }
+      }, 1000);
+    }
+
+    $("aba-camara").addEventListener("click", async (e) => {
+      const votar = e.target.closest("[data-votar]");
+      const popular = e.target.closest("[data-popular]");
+      const arquivar = e.target.closest("[data-arquivar]");
+      let erro = null;
+      if (votar) {
+        const funcao = votar.dataset.votar === "camara" ? "votar_camara" : "votar_popular";
+        ({ error: erro } = await sb.rpc(funcao, { pid: Number(votar.dataset.id), voto: votar.dataset.voto === "true" }));
+      } else if (popular) {
+        const horas = Number($("prazo-pop-" + popular.dataset.popular).value);
+        if (!(await confirmar("Levar esta proposta ao voto popular? Todos os Katequistas poderão votar.", "Levar"))) return;
+        ({ error: erro } = await sb.rpc("levar_ao_voto_popular", { pid: Number(popular.dataset.popular), horas }));
+      } else if (arquivar) {
+        if (!(await confirmar("Arquivar esta proposta? A votação acaba e nada muda nas leis.", "Arquivar"))) return;
+        ({ error: erro } = await sb.rpc("arquivar_proposta", { pid: Number(arquivar.dataset.arquivar) }));
+      } else return;
+      if (erro) avisarJanela(erro.message);
+      await carregar();
+      desenhar();
+    });
+
+    // ---------------- Gestão (Presidente/admin) ----------------
+    function desenharGestao() {
+      const ativas = leis.filter(l => l.ativa);
+      $("aba-gestao").innerHTML = `
+        <form class="caixa eco-form" id="form-lei">
+          <h2 id="lei-form-titulo">Propor nova lei</h2>
+          <input type="hidden" id="lei-tipo" value="criar">
+          <input type="hidden" id="lei-id" value="">
+          <label class="campo"><span>Título</span><input id="lei-titulo" maxlength="120" required></label>
+          <label class="campo"><span>Texto da lei</span><textarea id="lei-texto" rows="6" maxlength="5000" required></textarea></label>
+          <label class="campo"><span>Justificativa (opcional)</span><textarea id="lei-justificativa" rows="2" maxlength="1000"></textarea></label>
+          <label class="campo" style="max-width: 260px"><span>Prazo da votação na Câmara</span>${htmlPrazo("lei-prazo", 24)}</label>
+          <p class="eco-dica">A votação acaba no prazo ou quando todos os deputados votarem. Mais "sim" aprova; mais "não" rejeita; empate você decide se vai para o voto popular.</p>
+          <div class="mj-botoes" style="justify-content: flex-start">
+            <button class="botao" type="submit" id="lei-enviar">Enviar para a Câmara</button>
+            <button class="botao-pequeno" type="button" id="lei-cancelar" hidden>Cancelar</button>
+          </div>
+        </form>
+
+        <div class="caixa" style="margin-top: 16px">
+          <h2>Leis em vigor</h2>
+          ${ativas.length ? `<ul class="extrato">${ativas.map(l => `
+            <li>
+              <span class="extrato-desc">Lei nº ${l.numero}: ${esc(l.titulo)}</span>
+              <span class="recado-acoes" style="margin: 0">
+                <button class="botao-link" data-alterar="${l.id}">Propor alteração</button>
+                <button class="botao-link perigo" data-revogar="${l.id}">Propor revogação</button>
+              </span>
+            </li>`).join("")}</ul>` : '<p class="aviso" style="margin: 0">Nenhuma lei em vigor.</p>'}
+        </div>`;
+
+      const form = $("form-lei");
+      const modo = (tipo, lei) => {
+        $("lei-tipo").value = tipo;
+        $("lei-id").value = lei ? lei.id : "";
+        $("lei-titulo").value = lei ? lei.titulo : "";
+        $("lei-texto").value = lei ? lei.texto : "";
+        $("lei-justificativa").value = "";
+        const revogar = tipo === "revogar";
+        $("lei-titulo").disabled = revogar;
+        $("lei-texto").disabled = revogar;
+        $("lei-form-titulo").textContent = tipo === "criar" ? "Propor nova lei"
+          : `${revogar ? "Propor revogação da" : "Propor alteração da"} Lei nº ${lei.numero}`;
+        $("lei-enviar").textContent = revogar ? "Enviar revogação para a Câmara" : "Enviar para a Câmara";
+        $("lei-cancelar").hidden = tipo === "criar";
+        if (tipo !== "criar") form.scrollIntoView({ behavior: "smooth" });
+      };
+      $("lei-cancelar").addEventListener("click", () => modo("criar"));
+
+      $("aba-gestao").querySelector(".caixa:last-child").addEventListener("click", (e) => {
+        const alterar = e.target.closest("[data-alterar]");
+        const revogar = e.target.closest("[data-revogar]");
+        if (alterar) modo("alterar", leis.find(l => l.id === Number(alterar.dataset.alterar)));
+        if (revogar) modo("revogar", leis.find(l => l.id === Number(revogar.dataset.revogar)));
+      });
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const tipo = $("lei-tipo").value;
+        const { error } = await sb.rpc("propor_lei", {
+          tipo,
+          id_lei: $("lei-id").value ? Number($("lei-id").value) : null,
+          titulo: $("lei-titulo").value.trim() || "-",
+          texto: $("lei-texto").value.trim() || "-",
+          justificativa: $("lei-justificativa").value.trim(),
+          horas: Number($("lei-prazo").value),
+        });
+        if (error) return avisarJanela(error.message);
+        await carregar();
+        abrirAba("camara");
+      });
+    }
+
+    abrirAba(location.hash.slice(1) || "governo");
+    leisProntas = await carregar();
+    if (leisProntas && abaAtual !== "governo") desenhar();
+}
