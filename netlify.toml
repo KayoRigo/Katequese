@@ -6,3 +6,19 @@
   from = "/"
   to = "/paginas/index.html"
   status = 302
+
+# Garante que celulares e navegadores sempre baixem a versão nova do HTML, JS e CSS após cada deploy
+[[headers]]
+  for = "/*.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/*.js"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/*.css"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
