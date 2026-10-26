@@ -2,45 +2,123 @@
    modulos/politica/politica.css — Governo, eleições, leis e Câmara.
    ===================================================================== */
 
+/* Animação escalonada de entrada (respeita prefers-reduced-motion global) */
+@keyframes pol-entrar {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.pol-animar {
+  animation: pol-entrar 0.42s var(--curva-freio) backwards;
+  animation-delay: calc(var(--i, 0) * 50ms);
+}
+
+/* Painel de Resumo Vivo no Topo */
+.pol-resumo {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(180px, 100%), 1fr));
+  gap: 10px;
+  margin-bottom: 18px;
+}
+.pol-resumo[hidden] { display: none; }
+.pol-resumo-item {
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: transform 0.2s var(--curva-suave), border-color 0.2s var(--curva-suave);
+}
+.pol-resumo-item:hover {
+  transform: translateY(-2px);
+  border-color: var(--destaque);
+}
+.pol-resumo-item .rotulo { display: block; margin-bottom: 4px; }
+.pol-resumo-item strong {
+  display: block;
+  font-size: clamp(1.1rem, 2.4vw, 1.35rem);
+  font-weight: 800;
+  line-height: 1.2;
+  color: var(--texto);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.pol-resumo-item small {
+  display: block;
+  margin-top: 3px;
+  font-size: 0.78rem;
+  color: var(--texto-suave);
+}
+
+/* Cartão da Eleição */
 .eleicao { border-left: 4px solid var(--borda); }
-.eleicao.aberta { border-left-color: #4caf68; }
+.eleicao.aberta { border-left-color: var(--sucesso); }
 .eleicao.em-breve { border-left-color: var(--destaque); }
 .eleicao-titulo { display: flex; align-items: center; gap: 10px; font-size: 1.35rem; font-weight: 700; }
 .eleicao-texto { margin: 6px 0 16px; color: var(--texto-suave); }
 .eleicao-aviso { font-size: 0.9rem; color: var(--texto-suave); }
 .eleicao .botao { display: inline-block; text-decoration: none; }
 .eleicao .botao-pequeno { display: inline-block; text-decoration: none; }
-.ponto-aberta { width: 10px; height: 10px; border-radius: 50%; background: #4caf68; animation: ponto-pisca 1.6s ease-in-out infinite; }
+.ponto-aberta { width: 10px; height: 10px; border-radius: 50%; background: var(--sucesso); animation: ponto-pisca 1.6s ease-in-out infinite; }
 @keyframes ponto-pisca { 50% { opacity: 0.3; } }
 
+/* Presidente e Bancada de Deputados */
+.presidente-caixa { border-left: 4px solid var(--alerta); }
 .presidente { display: flex; align-items: center; gap: 22px; }
+.presidente-moldura { flex-shrink: 0; padding: 4px; border: 1px solid var(--borda); border-radius: var(--raio); background: var(--superficie-2); }
 .presidente img, .presidente .iniciais {
-  width: 150px;
-  height: 150px;
+  width: 146px;
+  height: 146px;
   margin: 0;
-  border-radius: var(--raio);
+  border-radius: 6px;
   object-fit: cover;
   object-position: center 25%;
   font-size: 3rem;
 }
-.presidente .cargo { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--destaque); }
-.presidente strong { display: block; margin-top: 4px; font-size: clamp(1.4rem, 3.5vw, 1.9rem); line-height: 1.2; }
-.partido-atual { margin-top: 4px; font-weight: 600; color: var(--texto-suave); }
-.cargo-desde { margin-top: 6px; font-size: 0.9rem; color: var(--texto-suave); }
-@media (max-width: 480px) { .presidente { flex-direction: column; text-align: center; } }
+.presidente-info { flex: 1; min-width: 0; }
+.presidente .cargo { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--alerta); }
+.selo-partido { padding: 2px 9px; font-size: 0.75rem; font-weight: 700; color: var(--texto); background: var(--superficie-2); border: 1px solid var(--borda); border-radius: 999px; }
+.presidente strong { display: block; margin-top: 6px; font-size: clamp(1.45rem, 3.5vw, 1.95rem); line-height: 1.15; }
+.cargo-desde { margin-top: 6px; font-size: 0.88rem; color: var(--texto-suave); }
+.poderes-resumo { margin-top: 8px; font-size: 0.85rem; color: var(--texto-suave); line-height: 1.45; }
+@media (max-width: 520px) {
+  .presidente { flex-direction: column; text-align: center; }
+  .presidente .proposta-tags { justify-content: center; }
+}
 
-.deputados { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(150px, 100%), 1fr)); gap: 12px; }
-.deputado { padding: 18px 12px; text-align: center; background: var(--superficie-2); border: 1px solid var(--borda); border-radius: var(--raio); }
-.deputado strong { display: block; }
-.deputado small { color: var(--texto-suave); }
-.deputado.vaga { background: none; border-style: dashed; }
+.deputados { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(170px, 100%), 1fr)); gap: 12px; }
+.deputado {
+  position: relative;
+  padding: 16px 12px;
+  text-align: center;
+  background: var(--superficie-2);
+  border: 1px solid var(--borda);
+  border-top: 3px solid var(--info);
+  border-radius: var(--raio);
+  transition: transform 0.2s var(--curva-suave), border-color 0.2s var(--curva-suave);
+}
+.deputado:hover { transform: translateY(-3px); border-color: var(--info); }
+.cadeira-num {
+  display: inline-block;
+  margin-bottom: 10px;
+  padding: 2px 8px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--texto-suave);
+  background: var(--superficie);
+  border: 1px solid var(--borda);
+  border-radius: 999px;
+}
+.deputado strong { display: block; margin-top: 4px; }
+.deputado small { display: block; margin-top: 2px; color: var(--texto-suave); }
+.deputado.vaga { background: none; border-style: dashed; border-top-width: 1px; }
 .deputado.vaga .iniciais { background: none; border-style: dashed; color: var(--texto-suave); font-size: 1.1rem; }
 .deputado.vaga strong { color: var(--texto-suave); font-weight: 600; }
 
 /* Candidatos */
 .candidatos-resumo { margin: -4px 0 16px; color: var(--texto-suave); font-size: 0.95rem; }
 .chapas { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(270px, 100%), 1fr)); gap: 12px; align-items: start; }
-.chapa { padding: 18px; background: var(--superficie-2); border: 1px solid var(--borda); border-radius: var(--raio); }
+.chapa { padding: 18px; background: var(--superficie-2); border: 1px solid var(--borda); border-radius: var(--raio); transition: border-color 0.2s var(--curva-suave); }
+.chapa:hover { border-color: var(--texto-suave); }
 .chapa-topo { display: flex; gap: 14px; align-items: center; margin-bottom: 12px; }
 .chapa-foto, .deputado-foto { flex-shrink: 0; background-color: var(--superficie); background-repeat: no-repeat; border: 1px solid var(--borda); }
 .chapa-foto { width: 84px; height: 84px; border-radius: var(--raio); }
@@ -48,7 +126,7 @@
 .chapa-partido { display: block; margin-top: 4px; font-size: 0.8rem; color: var(--texto-suave); }
 .chapa-nome { display: block; font-size: 1.2rem; }
 .chapa-cargo { font-size: 0.85rem; color: var(--destaque); }
-.chapa-slogan { margin-top: 8px; color: var(--texto-suave); font-style: italic; }
+.chapa-slogan { margin: 8px 0 0; color: var(--texto-suave); font-style: italic; }
 .candidato-deputado { display: flex; gap: 12px; padding: 10px 0; border-top: 1px solid var(--borda); }
 .deputado-foto { width: 48px; height: 48px; border-radius: 50%; }
 .candidato-deputado p { margin-top: 2px; font-size: 0.88rem; color: var(--texto-suave); }
@@ -62,28 +140,113 @@
 /* Leis e Câmara */
 .pagina-leis { max-width: 860px; }
 .pol-secao[hidden] { display: none; }
-.lei, .proposta { margin-bottom: 12px; }
-.lei h2, .proposta h3 { margin: 4px 0 8px; }
+.papel-aviso { margin-bottom: 14px; border-left: 4px solid var(--borda); }
+.papel-aviso.deputado { border-left-color: var(--info); }
+.papel-aviso.presidente { border-left-color: var(--alerta); }
+.papel-aviso.admin { border-left-color: var(--perigo); }
+.rotulo-papel { display: block; margin-bottom: 4px; font-size: 0.76rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--destaque); }
+.papel-aviso.deputado .rotulo-papel { color: var(--info); }
+.papel-aviso.admin .rotulo-papel { color: var(--perigo); }
+.papel-aviso p { margin: 0; font-size: 0.9rem; color: var(--texto-suave); line-height: 1.45; }
+
+/* Filtros, Busca e Escalões de Hierarquia de Leis */
+.barra-vigor { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 20px; }
+.filtros-leis { display: flex; flex-wrap: wrap; gap: 6px; }
+.campo-busca-lei { flex: 1 1 220px; max-width: 300px; padding: 8px 12px; font-size: max(16px, 0.88rem); border-radius: 999px; background: var(--superficie); }
+.pilula-filtro { padding: 7px 13px; font: inherit; font-size: 0.82rem; font-weight: 600; color: var(--texto-suave); background: var(--superficie); border: 1px solid var(--borda); border-radius: 999px; cursor: pointer; transition: transform 0.15s var(--curva-suave), border-color 0.15s, background 0.15s; }
+.pilula-filtro:hover { color: var(--texto); border-color: var(--texto-suave); transform: translateY(-1px); }
+.pilula-filtro.ativa { color: var(--sobre-destaque); background: var(--destaque); border-color: var(--destaque); }
+
+.bloco-hierarquia { margin-bottom: 28px; }
+.cabecalho-hierarquia { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 8px 14px; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--borda); }
+.titulo-hierarquia { margin: 6px 0 2px; font-size: 1.18rem; font-weight: 800; color: var(--texto); text-transform: none; letter-spacing: normal; }
+.resumo-hierarquia { margin: 0; font-size: 0.86rem; color: var(--texto-suave); }
+.contagem-hierarquia { padding: 3px 10px; font-size: 0.76rem; font-weight: 700; color: var(--texto-suave); background: var(--superficie-2); border: 1px solid var(--borda); border-radius: 999px; white-space: nowrap; }
+
+.selo-categoria { display: inline-block; padding: 2px 9px; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.03em; border: 1px solid var(--borda); border-radius: 999px; background: var(--superficie-2); color: var(--texto); }
+.selo-categoria.cat-constitucional { border-color: var(--alerta); color: var(--alerta); }
+.selo-categoria.cat-stk { border-color: var(--perigo); color: var(--perigo); }
+.selo-categoria.cat-geral { border-color: var(--destaque); color: var(--destaque); }
+.selo-categoria.cat-decreto { border-color: var(--info); color: var(--info); }
+
+.lei, .proposta {
+  margin-bottom: 12px;
+  border-left: 4px solid var(--borda);
+  transition: transform 0.18s var(--curva-suave), border-color 0.18s var(--curva-suave);
+}
+.lei:hover, .proposta:hover { transform: translateY(-2px); }
+.lei.cat-constitucional { border-left-color: var(--alerta); }
+.lei.cat-stk { border-left-color: var(--perigo); }
+.lei.cat-geral { border-left-color: var(--destaque); }
+.lei.cat-decreto { border-left-color: var(--info); }
+.lei h2, .proposta h3 { margin: 8px 0; }
+.lei h2 { font-size: 1.18rem; font-weight: 700; color: var(--texto); text-transform: none; letter-spacing: normal; }
+.lei-corpo { margin-top: 8px; padding: 12px 14px; background: var(--superficie-2); border: 1px solid var(--borda); border-radius: 6px; }
+.lei-rodape { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 6px 12px; margin-top: 10px; }
+.lei-rodape small { margin: 0; font-size: 0.8rem; color: var(--texto-suave); }
+.proposta-tags { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
 .lei-numero { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--destaque); }
-.lei-texto { white-space: pre-wrap; line-height: 1.55; }
-.lei small, .proposta small { display: block; margin-top: 8px; font-size: 0.8rem; color: var(--texto-suave); }
-.revogadas summary { cursor: pointer; color: var(--texto-suave); }
-.revogadas p { margin: 12px 0 0; color: var(--texto-suave); }
-.proposta { border-left: 4px solid var(--borda); }
+.lei-texto { white-space: pre-wrap; line-height: 1.55; overflow-wrap: anywhere; }
+.proposta small { display: block; margin-top: 8px; font-size: 0.8rem; color: var(--texto-suave); }
+.revogadas summary { cursor: pointer; font-weight: 600; color: var(--texto-suave); }
+.lista-revogadas { display: grid; gap: 12px; margin-top: 14px; }
+.lei-revogada-item { padding-top: 12px; border-top: 1px solid var(--borda); }
+.lei-revogada-item strong { display: block; margin-bottom: 6px; color: var(--texto); }
+.lei-revogada-item .lei-texto { color: var(--texto-suave); font-size: 0.92rem; }
+
+/* Trilha de Etapas Legislativas e Barras de Quórum / Placar */
+.trilha-etapas { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin: 10px 0 6px; }
+.passo-trilha { padding: 5px 8px; font-size: 0.74rem; font-weight: 600; text-align: center; color: var(--texto-suave); background: var(--superficie-2); border: 1px solid var(--borda); border-radius: 6px; }
+.passo-trilha.feito { color: var(--sucesso); border-color: var(--sucesso); }
+.passo-trilha.atual { color: var(--sobre-destaque); background: var(--destaque); border-color: var(--destaque); font-weight: 700; }
+.passo-trilha.rejeitado { color: var(--perigo); border-color: var(--perigo); }
+
+.quorum-box, .placar-box { margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--borda); }
+.quorum-topo, .placar-rotulos { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 6px; font-size: 0.85rem; }
+.quorum-pontos { display: inline-flex; gap: 5px; }
+.quorum-ponto { width: 10px; height: 10px; border-radius: 50%; background: var(--superficie-2); border: 1px solid var(--borda); transition: background 0.25s, transform 0.25s var(--curva-pulo); }
+.quorum-ponto.votou { background: var(--destaque); border-color: var(--destaque); transform: scale(1.1); }
+.quorum-barra, .placar-barra { height: 7px; display: flex; overflow: hidden; background: var(--superficie-2); border-radius: 999px; }
+.quorum-barra div { height: 100%; background: var(--destaque); border-radius: 999px; transition: width 0.5s var(--curva-suave); }
+.placar-rotulos .sim b { color: var(--sucesso); }
+.placar-rotulos .nao b { color: var(--perigo); }
+.placar-sim { height: 100%; background: var(--sucesso); transition: width 0.5s var(--curva-suave); }
+.placar-nao { height: 100%; background: var(--perigo); transition: width 0.5s var(--curva-suave); }
+
+.proposta.sugestao { border-left-color: var(--info); }
 .proposta.camara, .proposta.popular { border-left-color: var(--destaque); }
-.proposta.empate { border-left-color: #f2c94c; }
-.proposta.aprovada { border-left-color: #4caf68; }
-.proposta.rejeitada, .proposta.cancelada { opacity: 0.75; }
-.proposta-topo { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.proposta.empate { border-left-color: var(--alerta); }
+.proposta.aprovada { border-left-color: var(--sucesso); }
+.proposta.rejeitada, .proposta.cancelada { opacity: 0.78; }
+.proposta-topo { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px 10px; }
 .selo-status { padding: 2px 10px; font-size: 0.75rem; font-weight: 700; border: 1px solid var(--borda); border-radius: 999px; white-space: nowrap; }
-.justificativa { margin-top: 8px; font-size: 0.9rem; color: var(--texto-suave); }
-.etapa { margin: 12px 0 0; padding-top: 10px; border-top: 1px solid var(--borda); font-size: 0.92rem; }
-.etapa + .etapa { border-top: none; padding-top: 0; margin-top: 4px; }
+.justificativa { margin-top: 8px; font-size: 0.9rem; color: var(--texto-suave); overflow-wrap: anywhere; }
+.etapa { margin: 10px 0 0; font-size: 0.9rem; color: var(--texto-suave); }
+
+.votos-nominais { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 10px; font-size: 0.82rem; }
+.rotulo-votos { color: var(--texto-suave); font-weight: 600; }
+.chip-voto { padding: 3px 9px; background: var(--superficie-2); border: 1px solid var(--borda); border-radius: 999px; }
+.chip-voto.sim b { color: var(--sucesso); }
+.chip-voto.nao b { color: var(--perigo); }
+
+.lista-sugestoes { display: grid; gap: 12px; }
+.sugestao-item { padding: 14px; background: var(--superficie-2); border: 1px solid var(--borda); border-left: 4px solid var(--info); border-radius: var(--raio); }
+.sugestao-item strong { display: block; margin: 4px 0 6px; font-size: 1.05rem; }
+
 .voto-botoes { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 10px; }
 .proposta .voto-botoes small { margin: 0; }
 .voto-botoes .votado { color: var(--sobre-destaque); background: var(--destaque); border-color: var(--destaque); }
-.campo-inline { display: inline-flex; align-items: center; gap: 6px; font-size: 0.88rem; color: var(--texto-suave); }
-.campo-inline select, #aba-gestao select { padding: 6px 8px; font: inherit; color: var(--texto); background: var(--superficie-2); border: 1px solid var(--borda); border-radius: 6px; }
+.campo-inline { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 0.88rem; color: var(--texto-suave); }
+.campo-inline select, #aba-gestao select, #aba-admin select { width: 100%; padding: 8px 10px; font: inherit; font-size: max(16px, 0.92rem); color: var(--texto); background: var(--superficie-2); border: 1px solid var(--borda); border-radius: 6px; }
+.campo-inline select { width: auto; }
 .titulo-secao { margin: 18px 0 10px; font-size: 1.05rem; }
 .titulo-secao:first-child { margin-top: 0; }
 .proposta .botao-link { margin-top: 10px; }
+
+@media (max-width: 520px) {
+  .trilha-etapas { grid-template-columns: 1fr; }
+  .campo-busca-lei { max-width: 100%; width: 100%; }
+  .voto-botoes { align-items: stretch; }
+  .voto-botoes .botao-pequeno, .voto-botoes .campo-inline { flex: 1 1 100%; justify-content: space-between; text-align: center; }
+  .pilula-filtro { flex: 1 1 auto; text-align: center; }
+}

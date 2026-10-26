@@ -181,7 +181,7 @@ begin
   for k in 0..(acertos - 1) loop
     mult := mult * (25.0 - k) / (25.0 - qtd_bombas - k);
   end loop;
-  return greatest(1.01, trunc(mult * 0.97, 2));
+  return greatest(1.01, trunc(mult * 0.88, 2));
 end;
 $$;
 
@@ -242,6 +242,12 @@ begin
   if casa = any(p.abertas) then raise exception 'Essa casa já foi aberta.'; end if;
 
   select * into bi from bonus_itens(auth.uid(), null);
+
+  -- Dificuldade extra da casa (12%): mesmo se a casa escolhida não estava na lista inicial,
+  -- uma das bombas ocultas pode se deslocar para a casa clicada.
+  if not (casa = any(p.bombas)) and random() < 0.12 then
+    p.bombas[1] := casa;
+  end if;
 
   -- Clicou numa bomba: fim de jogo!
   if casa = any(p.bombas) then
@@ -362,11 +368,11 @@ begin
   saldo_n := mexer_saldo(auth.uid(), -valor, 'aposta', 'Aposta: Revoada da Katequese');
   update carteiras set xp = xp + 2 where perfil_id = auth.uid();
 
-  -- RTP 97%: 3% de chance de crashar na largada (1.00x); senão 0.97 / (1 - r)
-  if random() < 0.03 then
+  -- Dificuldade real de cassino: 14% de chance de crashar na largada (1.00x); senão curva 0.76 / (1 - r)
+  if random() < 0.14 then
     crash := 1.00;
   else
-    crash := least(500.00, greatest(1.02, trunc((0.97 / greatest(0.002, 1.0 - random()))::numeric, 2)));
+    crash := least(500.00, greatest(1.02, trunc((0.76 / greatest(0.003, 1.0 - random()))::numeric, 2)));
   end if;
 
   if crash <= 1.00 then
@@ -484,13 +490,13 @@ declare
   cor         text;
   lado        text;
   simbolos    text[] := array['cereja', 'limao', 'sino', 'estrela', 'sete'];
-  pesos       int[]  := array[40, 30, 15, 10, 5];
-  pagamento   int[]  := array[5, 8, 15, 30, 100];
+  pesos       int[]  := array[28, 28, 22, 15, 7];
+  pagamento   int[]  := array[4, 7, 12, 25, 80];
   rolos       text[] := '{}';
-  -- Tigrinho 3x3 (6 símbolos: o 'tigrinho' é Coringa/Wild!)
+  -- Tigrinho 3x3 (6 símbolos: o 'tigrinho' é Coringa/Wild com apenas 2% de chance!)
   t_simbolos  text[] := array['laranja', 'chopp', 'churrasco', 'ouro', 'trofeu', 'tigrinho'];
-  t_pesos     int[]  := array[34, 25, 17, 11, 7, 6];
-  t_mult      numeric[] := array[0.5, 1.2, 2.5, 5.0, 12.0, 25.0];
+  t_pesos     int[]  := array[28, 25, 20, 15, 10, 2];
+  t_mult      numeric[] := array[0.4, 1.0, 2.0, 4.0, 10.0, 20.0];
   grade       text[] := '{}';
   linhas_v    int[]  := '{}';
   linhas      int[][] := array[array[1,2,3], array[4,5,6], array[7,8,9], array[1,5,9], array[3,5,7]];
@@ -502,6 +508,7 @@ declare
   k           int;
   r           int;
   vermelhos   int[]  := array[1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36];
+  pretos      int[]  := array[2,4,6,8,10,11,13,15,17,20,22,24,26,28,29,31,33,35];
   nome_jogo   text;
   espera_s    numeric;
   ultima      timestamptz;
@@ -531,13 +538,39 @@ begin
 
   if jogo = 'moeda' then
     if escolha not in ('cara', 'coroa') then raise exception 'Escolha cara ou coroa.'; end if;
-    lado := case when random() < 0.5 then 'cara' else 'coroa' end;
-    if lado = escolha then premio := valor * 2; end if;
+    -- 38% de chance de acertar (62% da casa)
+    if random() < 0.38 then
+      lado := escolha;
+      premio := valor * 2;
+    else
+      lado := case when escolha = 'cara' then 'coroa' else 'cara' end;
+    end if;
     resultado := json_build_object('lado', lado);
 
   elsif jogo = 'roleta' then
     if escolha not in ('vermelho', 'preto', 'verde') then raise exception 'Escolha vermelho, preto ou verde.'; end if;
-    numero := floor(random() * 37)::int;
+    if escolha = 'verde' then
+      if random() < 0.015 then
+        numero := 0;
+      elsif random() < 0.5 then
+        numero := vermelhos[1 + floor(random() * 18)::int];
+      else
+        numero := pretos[1 + floor(random() * 18)::int];
+      end if;
+    else
+      -- Vermelho ou Preto: 38% de chance de cair na cor escolhida
+      if random() < 0.38 then
+        numero := case when escolha = 'vermelho'
+          then vermelhos[1 + floor(random() * 18)::int]
+          else pretos[1 + floor(random() * 18)::int] end;
+      elsif random() < 0.06 then
+        numero := 0;
+      else
+        numero := case when escolha = 'vermelho'
+          then pretos[1 + floor(random() * 18)::int]
+          else vermelhos[1 + floor(random() * 18)::int] end;
+      end if;
+    end if;
     cor := case when numero = 0 then 'verde' when numero = any(vermelhos) then 'vermelho' else 'preto' end;
     if cor = escolha then premio := valor * (case when cor = 'verde' then 36 else 2 end); end if;
     resultado := json_build_object('numero', numero, 'cor', cor);
@@ -554,7 +587,7 @@ begin
     if rolos[1] = rolos[2] and rolos[2] = rolos[3] then
       premio := valor * pagamento[array_position(simbolos, rolos[1])];
     elsif (select count(*) from unnest(rolos) s where s = 'cereja') = 2 then
-      premio := valor;
+      premio := floor(valor * 0.5);
     end if;
     resultado := json_build_object('rolos', rolos);
 

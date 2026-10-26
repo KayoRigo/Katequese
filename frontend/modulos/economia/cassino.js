@@ -9,7 +9,7 @@
 
 // ---------------- Fórmulas matemáticas (iguais às do banco) ----------------
 
-// Multiplicador do Campo Minado 5x5 (25 casas) com RTP de 97%
+// Multiplicador do Campo Minado 5x5 (25 casas) com margem da casa de 12% (0.88)
 function multiplicadorBomba(qtdBombas, acertos) {
   const b = Number(qtdBombas) || 3;
   const a = Number(acertos) || 0;
@@ -18,7 +18,7 @@ function multiplicadorBomba(qtdBombas, acertos) {
   for (let k = 0; k < a; k++) {
     mult *= (25 - k) / (25 - b - k);
   }
-  return Math.max(1.01, Math.floor(mult * 0.97 * 100) / 100);
+  return Math.max(1.01, Math.floor(mult * 0.88 * 100) / 100);
 }
 
 // Multiplicador da Revoada (Aviator) pelo tempo de voo em segundos
@@ -623,12 +623,12 @@ function montarTigrinho(mesa, el) {
     <details class="tabela-premios">
       <summary>Prêmios por linha (3 iguais ou com WILD)</summary>
       <ul>
-        <li>${SIMBOLOS_TIGRINHO.tigrinho}<b>25× por linha (WILD)</b></li>
-        <li>${SIMBOLOS_TIGRINHO.trofeu}<b>12× por linha</b></li>
-        <li>${SIMBOLOS_TIGRINHO.ouro}<b>5× por linha</b></li>
-        <li>${SIMBOLOS_TIGRINHO.churrasco}<b>2,5× por linha</b></li>
-        <li>${SIMBOLOS_TIGRINHO.chopp}<b>1,2× por linha</b></li>
-        <li>${SIMBOLOS_TIGRINHO.laranja}<b>0,5× por linha</b></li>
+        <li>${SIMBOLOS_TIGRINHO.tigrinho}<b>20× por linha (WILD)</b></li>
+        <li>${SIMBOLOS_TIGRINHO.trofeu}<b>10× por linha</b></li>
+        <li>${SIMBOLOS_TIGRINHO.ouro}<b>4× por linha</b></li>
+        <li>${SIMBOLOS_TIGRINHO.churrasco}<b>2× por linha</b></li>
+        <li>${SIMBOLOS_TIGRINHO.chopp}<b>1× por linha</b></li>
+        <li>${SIMBOLOS_TIGRINHO.laranja}<b>0,4× por linha</b></li>
       </ul>
     </details>`;
 
@@ -723,12 +723,12 @@ function montarJogosClassicos(mesa, el) {
       <details class="tabela-premios">
         <summary>Tabela de prêmios</summary>
         <ul>
-          <li>${SIMBOLOS.sete}${SIMBOLOS.sete}${SIMBOLOS.sete}<b>100×</b></li>
-          <li>${SIMBOLOS.estrela}${SIMBOLOS.estrela}${SIMBOLOS.estrela}<b>30×</b></li>
-          <li>${SIMBOLOS.sino}${SIMBOLOS.sino}${SIMBOLOS.sino}<b>15×</b></li>
-          <li>${SIMBOLOS.limao}${SIMBOLOS.limao}${SIMBOLOS.limao}<b>8×</b></li>
-          <li>${SIMBOLOS.cereja}${SIMBOLOS.cereja}${SIMBOLOS.cereja}<b>5×</b></li>
-          <li>${SIMBOLOS.cereja}${SIMBOLOS.cereja}<span class="qualquer">?</span><b>devolve</b></li>
+          <li>${SIMBOLOS.sete}${SIMBOLOS.sete}${SIMBOLOS.sete}<b>80×</b></li>
+          <li>${SIMBOLOS.estrela}${SIMBOLOS.estrela}${SIMBOLOS.estrela}<b>25×</b></li>
+          <li>${SIMBOLOS.sino}${SIMBOLOS.sino}${SIMBOLOS.sino}<b>12×</b></li>
+          <li>${SIMBOLOS.limao}${SIMBOLOS.limao}${SIMBOLOS.limao}<b>7×</b></li>
+          <li>${SIMBOLOS.cereja}${SIMBOLOS.cereja}${SIMBOLOS.cereja}<b>4×</b></li>
+          <li>${SIMBOLOS.cereja}${SIMBOLOS.cereja}<span class="qualquer">?</span><b>devolve metade</b></li>
         </ul>
       </details>`;
   }
@@ -784,6 +784,9 @@ function ligarApostaPadrao(mesa, el) {
       chuvaMoedas(mesa, data.premio >= valor * 10 ? 40 : 14);
     } else if (data.lucro === 0 && data.premio > 0) {
       resultadoEl.innerHTML = `Recebeu ${moeda(data.premio)}: a aposta voltou.`;
+    } else if (data.premio > 0 && data.premio < valor) {
+      resultadoEl.innerHTML = `Recuperou apenas ${moeda(data.premio)} (perdeu ${moeda(valor - data.premio)}).`;
+      resultadoEl.classList.add("perdeu");
     } else if (data.cashback > 0) {
       resultadoEl.innerHTML = `Perdeu ${moeda(valor)}, mas voltaram ${moeda(data.cashback)} de cashback.`;
       resultadoEl.classList.add("perdeu");

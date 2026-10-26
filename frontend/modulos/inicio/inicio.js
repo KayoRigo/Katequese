@@ -120,6 +120,7 @@ const [
   { count: totalFotos },
   { data: carteiraCapa },
   { count: enquetesAbertas },
+  { count: propostasAbertas },
 ] = await Promise.all([
   buscarEventos(),
   buscarAnuncios(1),
@@ -130,6 +131,9 @@ const [
   sb.from("midias").select("id", { count: "exact", head: true }),
   eu.katequista ? sb.from("carteiras").select("saldo").eq("perfil_id", eu.id).maybeSingle() : Promise.resolve({ data: null }),
   sb.from("enquetes").select("id", { count: "exact", head: true }).gt("termina_em", new Date().toISOString()),
+  eu.katequista
+    ? sb.from("propostas_lei").select("id", { count: "exact", head: true }).in("status", ["sugestao", "camara", "empate", "popular"])
+    : Promise.resolve({ count: 0 }),
 ]);
 
 // Gera numa única viagem os links das fotos de recados, aniversários e membro da semana
@@ -257,6 +261,9 @@ if (carteiraCapa?.saldo !== undefined) {
 }
 if (enquetesAbertas > 0) {
   infoAtalho("enquetes.html", `${enquetesAbertas} ${enquetesAbertas === 1 ? "aberta" : "abertas"}`);
+}
+if (propostasAbertas > 0) {
+  infoAtalho("politica.html", `${propostasAbertas} na Câmara`);
 }
 
 const totalKatequistas = (aprovados || []).filter(p => ehKatequistaPerfil(p, tagsDosPerfis[p.id])).length;

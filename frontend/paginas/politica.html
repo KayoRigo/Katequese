@@ -21,12 +21,37 @@
       </div>
     </div>
 
-    <!-- Sub-abas (Câmara e Gestão só aparecem para quem pode) -->
+    <!-- Painel de resumo vivo da Política -->
+    <div class="pol-resumo" id="pol-resumo" hidden>
+      <div class="caixa pol-resumo-item" data-ir-aba="governo">
+        <span class="rotulo">Presidência</span>
+        <strong id="resumo-pol-presidente">—</strong>
+        <small id="resumo-pol-partido">Mandato atual</small>
+      </div>
+      <div class="caixa pol-resumo-item" data-ir-aba="governo">
+        <span class="rotulo">Câmara</span>
+        <strong id="resumo-pol-deputados">0 de 4</strong>
+        <small id="resumo-pol-cadeiras">Cadeiras ocupadas</small>
+      </div>
+      <div class="caixa pol-resumo-item" data-ir-aba="vigor">
+        <span class="rotulo">Código de Leis</span>
+        <strong id="resumo-pol-leis">0</strong>
+        <small id="resumo-pol-revogadas">Em vigor no grupo</small>
+      </div>
+      <div class="caixa pol-resumo-item" data-ir-aba="camara">
+        <span class="rotulo">Atividade</span>
+        <strong id="resumo-pol-atividade">Em dia</strong>
+        <small id="resumo-pol-detalhe">Votações e eleições</small>
+      </div>
+    </div>
+
+    <!-- Sub-abas (Câmara, Gestão e Admin só aparecem para quem pode) -->
     <nav class="eco-abas" id="pol-abas">
       <button data-aba="governo" class="ativa">Governo</button>
       <button data-aba="vigor">Leis em vigor</button>
       <button data-aba="camara" hidden>Câmara</button>
       <button data-aba="gestao" hidden>Gestão</button>
+      <button data-aba="admin" hidden>Admin</button>
     </nav>
 
     <!-- Governo: montado pelo JavaScript lá embaixo. Leis: pelo leis.js -->
@@ -34,6 +59,7 @@
     <section class="pol-secao pagina-leis" id="aba-vigor" hidden></section>
     <section class="pol-secao pagina-leis" id="aba-camara" hidden></section>
     <section class="pol-secao pagina-leis" id="aba-gestao" hidden></section>
+    <section class="pol-secao pagina-leis" id="aba-admin" hidden></section>
   </main>
 
   <footer>Katequese © 2026</footer>

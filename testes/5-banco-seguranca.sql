@@ -43,9 +43,19 @@ begin
   end if;
 
   -- 4) Funções internas de leis (aplicar_proposta / apurar_proposta) também devem estar bloqueadas
-  if has_function_privilege('authenticated', 'public.aplicar_proposta(bigint)', 'EXECUTE') then
-    raise exception 'FALHOU: aplicar_proposta está liberada para chamada direta.';
+  if has_function_privilege('authenticated', 'public.aplicar_proposta(bigint)', 'EXECUTE')
+     or has_function_privilege('authenticated', 'public.apurar_proposta(bigint)', 'EXECUTE') then
+    raise exception 'FALHOU: aplicar_proposta ou apurar_proposta está liberada para chamada direta.';
   end if;
+
+  -- 5) Propostas de lei aceitam o status 'sugestao' sem prazo de Câmara (ideia de Deputado enviada ao Presidente)
+  begin
+    insert into public.propostas_lei (tipo, titulo, texto, status)
+    values ('criar', 'Teste de Ideia', 'Texto de teste', 'sugestao');
+  exception
+    when check_violation or not_null_violation then
+      raise exception 'FALHOU: propostas_lei recusou o status sugestao sem fim_camara (rode o supabase-20.sql).';
+  end;
 end;
 $$;
 

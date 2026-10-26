@@ -106,6 +106,7 @@ async function recarregar() {
   await Promise.all([carregarPessoas(), carregarTags()]);
   mostrarTags();
   await mostrarPessoas();
+  if (typeof mostrarVagasPolitica === "function") await mostrarVagasPolitica();
 
   const pendentes = pessoas.filter(p => p.status === "pendente").length;
   const bolinha = document.querySelector('#menu a[href="admin.html"] .bolinha');
@@ -215,6 +216,7 @@ $("semana-limpar").addEventListener("click", async () => {
 });
 
 // ================= POLÍTICA =================
+let mostrarVagasPolitica = null;
 const { data: polBanco, error: erroPol } = await sb.from("politica").select("*").eq("id", 1).maybeSingle();
 const { data: linkBanco } = await sb.from("politica_link").select("link").eq("id", 1).maybeSingle();
 
@@ -222,11 +224,16 @@ if (erroPol || !polBanco) {
   $("politica-form").innerHTML = `<p class="aviso">Rode o <b>supabase-6.sql</b> no Supabase para liberar esta parte.</p>`;
 } else {
   const vagas = {
-    presidente: { nome: polBanco.presidente_nome || "", partido: polBanco.presidente_partido || "", foto: polBanco.presidente_foto || null },
+    presidente: {
+      perfil_id: polBanco.presidente_id || "",
+      nome: polBanco.presidente_nome || "",
+      partido: polBanco.presidente_partido || "",
+      foto: polBanco.presidente_foto || null,
+    },
   };
   [0, 1, 2, 3].forEach(i => {
     const d = polBanco.deputados[i] || {};
-    vagas[i] = { nome: d.nome || "", partido: d.partido || "", foto: d.foto || null };
+    vagas[i] = { perfil_id: d.perfil_id || "", nome: d.nome || "", partido: d.partido || "", foto: d.foto || null };
   });
   const fotosAntigas = Object.values(vagas).map(v => v.foto).filter(Boolean);
   let vagaDaFoto = null;
@@ -242,25 +249,44 @@ if (erroPol || !polBanco) {
   $("pol-link").value = linkBanco?.link || "";
 
   const lerNomes = () => document.querySelectorAll("[data-vaga]").forEach(linha => {
-    vagas[linha.dataset.vaga].nome = linha.querySelector("[data-campo=nome]").value;
-    vagas[linha.dataset.vaga].partido = linha.querySelector("[data-campo=partido]").value;
+    const cPerfil = linha.querySelector("[data-campo=perfil_id]");
+    const cNome = linha.querySelector("[data-campo=nome]");
+    const cPartido = linha.querySelector("[data-campo=partido]");
+    if (cPerfil && cPerfil.options.length > 1) vagas[linha.dataset.vaga].perfil_id = cPerfil.value;
+    if (cNome) vagas[linha.dataset.vaga].nome = cNome.value;
+    if (cPartido) vagas[linha.dataset.vaga].partido = cPartido.value;
   });
 
   async function mostrarVagas() {
+    if (document.querySelector("[data-vaga] [data-campo=nome]")) lerNomes();
     const links = await linksDosArquivos(Object.values(vagas).map(v => v.foto));
+    const membrosAprovados = aprovados();
     document.querySelectorAll("[data-vaga]").forEach(linha => {
       const chave = linha.dataset.vaga;
       const v = vagas[chave];
       const rotulo = chave === "presidente" ? "Nome do presidente" : `Deputado ${Number(chave) + 1}`;
+      const opcoesMembros = `<option value="">— Escolher membro (sincroniza a tag) —</option>` +
+        membrosAprovados.map(p => `<option value="${p.id}" ${v.perfil_id === p.id ? "selected" : ""}>${esc(p.nome)} (@${esc(p.usuario)})</option>`).join("");
       linha.innerHTML = `
         ${htmlAvatar({ nome: v.nome || "?" }, links[v.foto])}
+        <label class="campo"><span>Membro no site</span><select data-campo="perfil_id">${opcoesMembros}</select></label>
         <label class="campo"><span>${rotulo}</span><input data-campo="nome" maxlength="60" value="${esc(v.nome)}"></label>
         <label class="campo"><span>Partido</span><input data-campo="partido" maxlength="60" placeholder="Ex: PC · Partido Cuiudo" value="${esc(v.partido)}"></label>
-        <button class="botao-pequeno" data-foto="${chave}">Foto</button>
-        ${v.foto ? `<button class="botao-pequeno perigo" data-tirar-foto="${chave}">Tirar foto</button>` : ""}`;
+        <button class="botao-pequeno" type="button" data-foto="${chave}">Foto</button>
+        ${v.foto ? `<button class="botao-pequeno perigo" type="button" data-tirar-foto="${chave}">Tirar foto</button>` : ""}`;
     });
   }
+  mostrarVagasPolitica = mostrarVagas;
   await mostrarVagas();
+
+  $("politica-form").addEventListener("change", (e) => {
+    const sel = e.target.closest("select[data-campo=perfil_id]");
+    if (!sel) return;
+    const linha = sel.closest("[data-vaga]");
+    const pessoa = aprovados().find(p => p.id === sel.value);
+    const inputNome = linha?.querySelector("[data-campo=nome]");
+    if (pessoa && inputNome) inputNome.value = pessoa.nome;
+  });
 
   $("politica-form").addEventListener("click", async (e) => {
     const botaoFoto = e.target.closest("[data-foto]");
@@ -305,9 +331,10 @@ if (erroPol || !polBanco) {
 
     const deputados = [0, 1, 2, 3].map(i => {
       const nome = vagas[i].nome.trim();
-      return nome ? { nome, partido: vagas[i].partido.trim(), foto: vagas[i].foto } : {};
+      const pid = vagas[i].perfil_id || null;
+      return nome ? { perfil_id: pid, nome, partido: vagas[i].partido.trim(), foto: vagas[i].foto } : {};
     });
-    const { error: e1 } = await sb.from("politica").update({
+    const payloadPol = {
       presidente_nome: vagas.presidente.nome.trim(),
       presidente_partido: vagas.presidente.partido.trim(),
       presidente_foto: vagas.presidente.foto,
@@ -315,17 +342,33 @@ if (erroPol || !polBanco) {
       deputados,
       eleicao_abre: abre ? new Date(abre).toISOString() : null,
       eleicao_fecha: fecha ? new Date(fecha).toISOString() : null,
-    }).eq("id", 1);
+    };
+    if (vagas.presidente.perfil_id !== undefined) {
+      payloadPol.presidente_id = vagas.presidente.perfil_id || null;
+    }
+    let { error: e1 } = await sb.from("politica").update(payloadPol).eq("id", 1);
+    if (e1 && /presidente_id/i.test(e1.message)) {
+      delete payloadPol.presidente_id;
+      ({ error: e1 } = await sb.from("politica").update(payloadPol).eq("id", 1));
+    }
     const { error: e2 } = await sb.from("politica_link").update({ link }).eq("id", 1);
 
     if (e1 || e2) {
       $("pol-msg").textContent = "Não foi possível salvar: " + (e1 || e2).message;
       return;
     }
+
+    const presId = vagas.presidente.perfil_id || null;
+    const depIds = deputados.map(d => d.perfil_id).filter(Boolean);
+    if (presId || depIds.length) {
+      await sb.rpc("sincronizar_cargos_politica", { pres_id: presId, dep_ids: depIds });
+      await Promise.all([recarregar(), carregarCargos()]);
+    }
+
     const usadas = [vagas.presidente.foto, ...deputados.map(d => d.foto)].filter(Boolean);
     for (const antiga of fotosAntigas) if (!usadas.includes(antiga)) await apagarArquivo(antiga);
     fotosAntigas.splice(0, fotosAntigas.length, ...usadas);
-    $("pol-msg").textContent = "Salvo. Já aparece na aba Política.";
+    $("pol-msg").textContent = "Salvo. Cargos e tags atualizados na aba Política.";
   });
 }
 

@@ -1,7 +1,7 @@
 # Back-end e Banco de Dados (`backend/sql/`)
 
 Todo o back-end roda no **Supabase** (PostgreSQL + Auth + Storage + Row Level Security).
-Os arquivos de criação e evolução do banco ficam em **`backend/sql/`** (`supabase.sql` até `supabase-18.sql`).
+Os arquivos de criação e evolução do banco ficam em **`backend/sql/`** (`supabase.sql` até `supabase-20.sql`).
 
 ---
 
@@ -49,9 +49,10 @@ Quando precisar consultar ou alterar uma função, veja em qual arquivo de `back
 | `nivel_de()`, `nivel_trabalho()`, `minha_carteira_travada()`, `mexer_saldo()`, `abrir_carteira()`, `admin_ajustar_saldo()` | `supabase-14.sql` | Base da Economia (`mexer_saldo` tem `REVOKE EXECUTE` para ninguém chamar direto). |
 | `efeitos_trabalho()` | `supabase-15.sql` | Soma o melhor equipamento de cada linha na profissão. |
 | `bonus_itens()`, `meus_bonus_itens()`, `comecar_trabalho()`, `trabalhar()`, `bonus_diario()`, `comprar()`, `comprar_equipamento()`, `usar_item()`, `transferir()` | `supabase-16.sql` | Ações da Economia somando equipamentos + atributos dos itens da loja. |
-| `propor_lei()`, `votar_camara()`, `votar_popular()`, `levar_ao_voto_popular()`, `arquivar_proposta()`, `propostas_situacao()` | `supabase-17.sql` | Sistema completo de Leis e Câmara. |
+| `votar_camara()`, `votar_popular()` | `supabase-17.sql` | Votação dos Deputados na Câmara e dos Katequistas no Voto Popular. |
 | `novo_usuario()`, `proteger_anuncio()`, `proteger_recado()`, `vender_item()`, `sortear()`, `pode_ver_arquivo()`, `pode_enviar_arquivo()`, `ordenar_tags()`, `apurar_proposta()` | `supabase-18.sql` | Correções de segurança, revenda com desconto, proteção de pastas do Storage, hierarquia de tags e apuração da Câmara. |
 | `estado_cassino()`, `comprar_cassino()`, `pagar_comissao_dono()`, `multiplicador_bomba()`, `iniciar_bomba()`, `abrir_casa_bomba()`, `sacar_bomba()`, `iniciar_aviator()`, `checar_aviator()`, `sacar_aviator()`, `apostar()` | `supabase-19.sql` | Concessão de Dono do Cassino (30 dias, 25% das perdas dos outros) + Revoada (Aviator), Campo Minado (5×5) e Tigrinho (3×3). |
+| `sincronizar_cargos_politica()`, `eh_presidente_ou_admin()`, `pode_propor_lei()`, `aplicar_proposta()`, `propor_lei()`, `avaliar_sugestao()`, `levar_ao_voto_popular()`, `arquivar_proposta()`, `propostas_situacao()` | `supabase-20.sql` | Ideias de leis dos Deputados (`sugestao`), aval do Presidente (`avaliar_sugestao`), votos nominais pós-encerramento e sincronização de tags políticas. |
 
 ---
 

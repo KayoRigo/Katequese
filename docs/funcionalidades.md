@@ -49,16 +49,18 @@ Resumo de como funcionam as abas sociais e políticas do site para consulta ráp
 
 ---
 
-## 6. Política, Eleições e Câmara de Leis (`politica.html` e `frontend/js/leis.js`)
+## 6. Política, Eleições e Câmara de Leis (`politica.html` e `frontend/modulos/politica/leis.js`)
 
 * **Sub-abas de `politica.html`:**
-  1. **Governo:** presidente atual, 4 deputados, candidatos (enquanto a eleição não encerrou, só para Katequistas) e cartão da eleição (com link do site de votação restrito a Katequistas).
-  2. **Leis em vigor:** visível para todos os aprovados (leis ativas e histórico de revogadas).
-  3. **Câmara:** visível para Katequistas. Mostra propostas em votação e histórico.
-  4. **Gestão:** visível para Presidente ou Admin (`propor_lei` para criar, alterar ou revogar uma lei).
-* **Regras de votação na Câmara (`supabase-17.sql` e `supabase-18.sql`):**
-  * Só quem tem a tag `Deputado` vota na Câmara (`votar_camara`), com voto secreto até encerrar.
+  1. **Governo:** presidente atual, 4 deputados, candidatos (enquanto a eleição não encerrou, só para Katequistas) e cartão da eleição (com link do site de votação restrito a Katequistas). Em `Admin → Política`, vincular o membro sincroniza automaticamente as tags `Presidente` e `Deputado` (`sincronizar_cargos_politica`).
+  2. **Leis em vigor:** visível para todos os aprovados (leis ativas e histórico de revogadas com texto completo).
+  3. **Câmara:** visível para Katequistas. Mostra propostas/ideias em andamento e histórico paginado (`htmlPaginacao`).
+  4. **Gestão:** visível para Presidente, Deputados ou Admin (`propor_lei` para criar, alterar ou revogar uma lei).
+* **Regras de propostas, ideias de Deputados e votação (`supabase-17.sql` a `supabase-20.sql`):**
+  * **Iniciativa do Presidente (ou Admin):** a proposta entra direto em votação na Câmara (`status = 'camara'`).
+  * **Ideia de Deputado (`status = 'sugestao'`):** o Deputado envia a ideia para a mesa do Presidente. O Presidente avalia em Gestão (`avaliar_sugestao`): se aprovar, escolhe o prazo e envia para a Câmara mantendo os créditos (*"Ideia de [Deputado] · Enviada à Câmara por [Presidente]"*); se recusar, é arquivada.
+  * Só quem tem a tag `Deputado` vota na Câmara (`votar_camara`), com voto secreto enquanto aberta e votos nominais visíveis após encerrar.
   * Encerra quando o prazo acaba **ou** quando todos os deputados já votaram (se houver pelo menos 1 deputado cadastrado).
-  * **Mais Sim:** aprovada e entra em vigor na hora (`aplicar_proposta`).
+  * **Mais Sim:** aprovada e entra em vigor na hora (`aplicar_proposta`), salvando o texto anterior quando for alteração.
   * **Mais Não:** rejeitada.
-  * **Empate:** o Presidente (ou Admin) escolhe entre arquivar (`arquivar_proposta`) ou levar ao **Voto Popular** (`levar_ao_voto_popular`), onde todos os Katequistas votam (`votar_popular`). Empate no voto popular mantém como está (rejeita).
+  * **Empate (2 a 2):** o Presidente (ou Admin) escolhe entre arquivar (`arquivar_proposta`) ou levar ao **Voto Popular** (`levar_ao_voto_popular`), onde todos os Katequistas votam em segredo (`votar_popular`). Empate no voto popular mantém como está (rejeita).

@@ -11,12 +11,13 @@ const { carregarSite } = require("./ajuda.js");
 const site = carregarSite(["dados.js", "banco.js", "economia.js", "cassino.js"]);
 
 describe("Campo Minado do Churrasco (Bomba 5x5): multiplicadorBomba()", () => {
-  test("começa em 1.00x com 0 acertos e sobe a cada casa segura aberta", () => {
+  test("começa em 1.00x com 0 acertos e sobe a cada casa segura aberta (com margem mais difícil da casa 0.88)", () => {
     assert.equal(site.multiplicadorBomba(3, 0), 1);
     const m1 = site.multiplicadorBomba(3, 1);
     const m2 = site.multiplicadorBomba(3, 2);
     const m5 = site.multiplicadorBomba(3, 5);
-    assert.equal(m1, 1.1); // floor(0.97 * 25/22 * 100) / 100 = 1.10
+    assert.equal(m1, 1.01); // 0.88 * 25/22 = 1.00 -> piso 1.01x
+    assert.equal(m2, 1.14); // floor(0.88 * (25/22) * (24/21) * 100) / 100 = 1.14x
     assert.ok(m2 > m1);
     assert.ok(m5 > m2);
   });

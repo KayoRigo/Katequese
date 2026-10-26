@@ -88,6 +88,10 @@ select.mini {
 .admin-politica-linha { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; margin-bottom: 14px; }
 .admin-politica-linha .campo { flex: 1 1 160px; margin: 0; }
 .admin-politica-linha img, .admin-politica-linha .iniciais { width: 48px; height: 48px; margin: 0; font-size: 1rem; }
+@media (max-width: 600px) {
+  .admin-politica-linha .campo { flex: 1 1 100%; }
+  .admin-politica-linha .botao-pequeno { flex: 1 1 auto; text-align: center; }
+}
 
 .barra-salvar {
   position: fixed;

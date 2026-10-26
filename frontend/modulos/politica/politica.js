@@ -32,6 +32,24 @@ if (eu.katequista) {
 const deputados = [0, 1, 2, 3].map(i => pol.deputados[i] || null).map(d => d && d.nome ? d : null);
 const fotos = await linksDosArquivos([pol.presidente_foto, ...deputados.map(d => d?.foto)]);
 
+// Preenche o painel de resumo vivo do topo (Presidência + Câmara)
+const caixaResumo = document.getElementById("pol-resumo");
+if (caixaResumo) {
+  caixaResumo.hidden = false;
+  const ocupadas = deputados.filter(Boolean).length;
+  document.getElementById("resumo-pol-presidente").textContent = pol.presidente_nome || "Vago";
+  document.getElementById("resumo-pol-partido").textContent = pol.presidente_partido || "Poder Executivo";
+  document.getElementById("resumo-pol-deputados").textContent = `${ocupadas} de 4`;
+  document.getElementById("resumo-pol-cadeiras").textContent = ocupadas === 4 ? "Bancada completa" : `${4 - ocupadas} vaga(s) aberta(s)`;
+
+  caixaResumo.addEventListener("click", (e) => {
+    const card = e.target.closest("[data-ir-aba]");
+    if (!card) return;
+    const btn = document.querySelector(`#pol-abas [data-aba="${card.dataset.irAba}"]`);
+    if (btn && !btn.hidden) btn.click();
+  });
+}
+
 // ---------- Datas ----------
 const formatar = (data) => {
   const dia = data.toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "2-digit" });
@@ -81,7 +99,7 @@ function htmlEleicao() {
   if (!eu.katequista) {
     acao = `<p class="eleicao-aviso">Só Katequistas votam nas eleições.</p>`;
   } else if (link && estado !== "encerrada") {
-    acao = `<a class="botao" href="${esc(link)}" target="_blank" rel="noopener noreferrer">Ir para o site da votação</a>`;
+    acao = `<a class="botao" href="${esc(link)}" target="_blank" rel="noopener noreferrer">Ir para o site da votação →</a>`;
   } else if (link) {
     acao = `<a class="botao-pequeno" href="${esc(link)}" target="_blank" rel="noopener noreferrer">Ver o site da votação</a>`;
   } else {
@@ -89,8 +107,8 @@ function htmlEleicao() {
   }
 
   return `
-    <section class="caixa eleicao ${estado}">
-      <h2>Eleição</h2>
+    <section class="caixa eleicao ${estado} pol-animar" style="--i: 2">
+      <h2>Urnas e Calendário Eleitoral</h2>
       <p class="eleicao-titulo">${estado === "aberta" ? '<span class="ponto-aberta"></span>' : ""}${titulo}</p>
       <p class="eleicao-texto">${esc(texto)}</p>
       ${acao}
@@ -101,17 +119,24 @@ function htmlEleicao() {
 function htmlPresidente() {
   if (!pol.presidente_nome) return `<p class="vazio">Sem presidente no momento.</p>`;
   const foto = fotos[pol.presidente_foto];
-  const desde = pol.mandato_desde
-    ? `<p class="cargo-desde">No cargo desde ${lerData(pol.mandato_desde).toLocaleDateString("pt-BR")}</p>` : "";
+  const dInicio = pol.mandato_desde ? lerData(pol.mandato_desde) : null;
+  const diasMandato = dInicio ? Math.max(1, Math.floor((Date.now() - dInicio.getTime()) / 86400000)) : 0;
+  const desde = dInicio
+    ? `<p class="cargo-desde">No cargo desde ${dInicio.toLocaleDateString("pt-BR")} · <b>${diasMandato} ${diasMandato === 1 ? "dia" : "dias"} de mandato</b></p>` : "";
   return `
     <div class="presidente">
-      ${foto ? `<img src="${esc(foto)}" alt="">`
-             : `<div class="iniciais">${esc(pol.presidente_nome[0].toUpperCase())}</div>`}
-      <div>
-        <span class="cargo">Presidente</span>
+      <div class="presidente-moldura">
+        ${foto ? `<img src="${esc(foto)}" alt="">`
+               : `<div class="iniciais">${esc(pol.presidente_nome[0].toUpperCase())}</div>`}
+      </div>
+      <div class="presidente-info">
+        <div class="proposta-tags">
+          <span class="cargo">Presidente da Katequese</span>
+          ${pol.presidente_partido ? `<span class="selo-partido">${esc(pol.presidente_partido)}</span>` : ""}
+        </div>
         <strong>${esc(pol.presidente_nome)}</strong>
-        ${pol.presidente_partido ? `<p class="partido-atual">${esc(pol.presidente_partido)}</p>` : ""}
         ${desde}
+        <p class="poderes-resumo">Chefe do Executivo · Propõe leis, avalia ideias dos Deputados e convoca Voto Popular em empates.</p>
       </div>
     </div>`;
 }
@@ -119,15 +144,17 @@ function htmlPresidente() {
 // ---------- Deputados (4 vagas) ----------
 function htmlDeputados() {
   return deputados.map((d, i) => d ? `
-    <div class="deputado">
+    <div class="deputado pol-animar" style="--i: ${i + 1}">
+      <span class="cadeira-num">Cadeira 0${i + 1}</span>
       ${htmlAvatar({ nome: d.nome }, fotos[d.foto])}
       <strong>${esc(d.nome)}</strong>
       <small>Deputado${d.partido ? " · " + esc(d.partido) : ""}</small>
     </div>` : `
-    <div class="deputado vaga">
+    <div class="deputado vaga pol-animar" style="--i: ${i + 1}">
+      <span class="cadeira-num">Cadeira 0${i + 1}</span>
       <div class="iniciais">${i + 1}</div>
       <strong>Vaga aberta</strong>
-      <small>Sem eleito</small>
+      <small>Sem titular eleito</small>
     </div>`).join("");
 }
 
@@ -149,13 +176,13 @@ function htmlCandidatos() {
   if (!eleicao) return "";
   const totalDeputados = eleicao.chapas.reduce((n, c) => n + c.deputados.length, 0);
   return `
-    <section class="caixa" style="margin-top: 16px">
+    <section class="caixa pol-animar" style="margin-top: 16px; --i: 2">
       <h2>Candidatos · ${esc(eleicao.titulo)}</h2>
       <p class="candidatos-resumo">${eleicao.chapas.length} chapas para presidente e ${totalDeputados} candidatos a deputado.
         Os ${eleicao.vagasDeputado} deputados mais votados são eleitos.</p>
       <div class="chapas">
-        ${eleicao.chapas.map(c => `
-          <article class="chapa">
+        ${eleicao.chapas.map((c, idx) => `
+          <article class="chapa pol-animar" style="--i: ${idx + 1}">
             <div class="chapa-topo">
               ${htmlFoto(c.foto, "chapa-foto")}
               <div>
@@ -185,12 +212,12 @@ function htmlCandidatos() {
 function montar() {
   const encerrada = pol.eleicao_fecha && new Date() >= new Date(pol.eleicao_fecha);
   area.innerHTML = `
-    <section class="caixa">
-      <h2>Presidente atual</h2>
+    <section class="caixa presidente-caixa pol-animar" style="--i: 0">
+      <h2>Poder Executivo · Presidente Atual</h2>
       ${htmlPresidente()}
     </section>
-    <section class="caixa" style="margin-top: 16px">
-      <h2>Deputados atuais</h2>
+    <section class="caixa pol-animar" style="margin-top: 16px; --i: 1">
+      <h2>Poder Legislativo · Bancada de Deputados (4 cadeiras)</h2>
       <div class="deputados">${htmlDeputados()}</div>
     </section>
     ${encerrada ? "" : htmlCandidatos()}
