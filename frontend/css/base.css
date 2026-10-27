@@ -37,7 +37,7 @@ img { display: block; max-width: 100%; }
 /* =====================================================================
    MENU (igual em todas as páginas, montado pelo menu.js)
    ===================================================================== */
-header {
+body > header {
   position: sticky;
   top: 0;
   z-index: var(--z-topo);
@@ -96,7 +96,7 @@ header {
 @media (max-width: 900px) {
   .so-computador, .abas-fixas { display: none !important; }
   .so-celular { display: revert !important; }
-  header { justify-content: space-between; }
+  body > header { justify-content: space-between; }
   .logo { margin-right: auto; }
   .botao-mais { border: 1px solid var(--borda); min-height: 38px; }
 

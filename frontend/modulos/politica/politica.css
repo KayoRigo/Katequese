@@ -152,8 +152,8 @@
 /* Filtros, Busca e Escalões de Hierarquia de Leis */
 .barra-vigor { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 20px; }
 .filtros-leis { display: flex; flex-wrap: wrap; gap: 6px; }
-.campo-busca-lei { flex: 1 1 220px; max-width: 300px; padding: 8px 12px; font-size: max(16px, 0.88rem); border-radius: 999px; background: var(--superficie); }
-.pilula-filtro { padding: 7px 13px; font: inherit; font-size: 0.82rem; font-weight: 600; color: var(--texto-suave); background: var(--superficie); border: 1px solid var(--borda); border-radius: 999px; cursor: pointer; transition: transform 0.15s var(--curva-suave), border-color 0.15s, background 0.15s; }
+.campo-busca-lei { flex: 1 1 220px; max-width: 300px; padding: 8px 12px; font-size: max(16px, 0.88rem); border-radius: 8px; background: var(--superficie); }
+.pilula-filtro { padding: 7px 13px; font: inherit; font-size: 0.82rem; font-weight: 600; color: var(--texto-suave); background: var(--superficie); border: 1px solid var(--borda); border-radius: 8px; cursor: pointer; transition: transform 0.15s var(--curva-suave), border-color 0.15s, background 0.15s; }
 .pilula-filtro:hover { color: var(--texto); border-color: var(--texto-suave); transform: translateY(-1px); }
 .pilula-filtro.ativa { color: var(--sobre-destaque); background: var(--destaque); border-color: var(--destaque); }
 
@@ -161,9 +161,9 @@
 .cabecalho-hierarquia { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 8px 14px; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--borda); }
 .titulo-hierarquia { margin: 6px 0 2px; font-size: 1.18rem; font-weight: 800; color: var(--texto); text-transform: none; letter-spacing: normal; }
 .resumo-hierarquia { margin: 0; font-size: 0.86rem; color: var(--texto-suave); }
-.contagem-hierarquia { padding: 3px 10px; font-size: 0.76rem; font-weight: 700; color: var(--texto-suave); background: var(--superficie-2); border: 1px solid var(--borda); border-radius: 999px; white-space: nowrap; }
+.contagem-hierarquia { padding: 3px 10px; font-size: 0.76rem; font-weight: 700; color: var(--texto-suave); background: var(--superficie-2); border: 1px solid var(--borda); border-radius: 8px; white-space: nowrap; }
 
-.selo-categoria { display: inline-block; padding: 2px 9px; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.03em; border: 1px solid var(--borda); border-radius: 999px; background: var(--superficie-2); color: var(--texto); }
+.selo-categoria { display: inline-block; max-width: 100%; padding: 2px 9px; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.03em; border: 1px solid var(--borda); border-radius: 8px; background: var(--superficie-2); color: var(--texto); }
 .selo-categoria.cat-constitucional { border-color: var(--alerta); color: var(--alerta); }
 .selo-categoria.cat-stk { border-color: var(--perigo); color: var(--perigo); }
 .selo-categoria.cat-geral { border-color: var(--destaque); color: var(--destaque); }
