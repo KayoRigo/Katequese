@@ -79,6 +79,10 @@ $("form-envio").addEventListener("submit", async (e) => {
     msg.textContent = detalhe || "Não consegui enviar. A função enviar-notificacao já foi criada no Supabase?";
     return;
   }
+  if (typeof data?.entregues !== "number") {
+    msg.textContent = "A função do Supabase respondeu algo inesperado (o código dela está certo?): " + JSON.stringify(data).slice(0, 150);
+    return;
+  }
   msg.textContent = `Enviado para ${data.entregues} aparelho(s).`;
   $("form-envio").reset();
   marcados.clear();
