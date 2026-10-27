@@ -28,13 +28,13 @@
 
     <!-- Formulário de nova conta (escondido até clicar em "Nova conta") -->
     <form class="caixa formulario-novo" id="form-conta" hidden>
-      <h2>Nova conta</h2>
+      <h2 id="form-titulo">Nova conta</h2>
 
       <label class="campo"><span>Título</span>
         <input id="titulo" required maxlength="100" placeholder="Ex: Confraternização dia 15"></label>
       <label class="campo"><span>Descrição (opcional)</span>
         <input id="descricao" maxlength="500" placeholder="Ex: Janta na casa da Ana"></label>
-      <label class="campo"><span>Foto (opcional)</span>
+      <label class="campo"><span id="foto-rotulo">Foto (opcional)</span>
         <input id="foto" type="file" accept="image/*"></label>
 
       <fieldset class="bloco-form">
@@ -57,7 +57,7 @@
 
       <p class="mensagem" id="form-msg"></p>
       <div class="acoes-form">
-        <button class="botao" type="submit">Criar conta</button>
+        <button class="botao" type="submit" id="form-enviar">Criar conta</button>
         <button class="botao-link" type="button" id="cancelar-form">Cancelar</button>
       </div>
     </form>

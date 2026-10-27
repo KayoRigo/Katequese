@@ -15,6 +15,7 @@ let fotos = {};    // { caminho: link }
 // Formulário de nova conta (estado enquanto a pessoa preenche)
 let novasPessoas = [];  // [{ nome, perfil_id }]
 let novosItens = [];    // [{ nome, valor, pessoas: [nome, ...] }]
+let editandoId = null;  // id da conta que está sendo editada (null = conta nova)
 
 // ---------------- Carregar ----------------
 async function carregarTudo() {
@@ -122,7 +123,10 @@ function mostrarDetalhe(c) {
         <p><b>Total ${BRL(r.total)}</b> · ${r.pagos} de ${r.quantas} pagaram</p>
         <div class="barra"><div style="width: ${pct}%"></div></div>
       </div>
-      ${podeMexer(c) ? `<button class="botao-link perigo" data-excluir="${c.id}">Apagar conta</button>` : ""}
+      ${podeMexer(c) ? `<div class="acoes-conta">
+        <button class="botao-pequeno" data-editar="${c.id}">Editar conta</button>
+        <button class="botao-link perigo" data-excluir="${c.id}">Apagar conta</button>
+      </div>` : ""}
     </div>
 
     <h3>Quem paga</h3>
@@ -166,15 +170,20 @@ function mostrarDetalhe(c) {
 $("detalhe").addEventListener("click", async (e) => {
   const marcar = e.target.closest("[data-marcar]");
   const excluir = e.target.closest("[data-excluir]");
-  if (marcar) {
+  const editar = e.target.closest("[data-editar]");
+  if (editar) {
+    abrirFormulario(contas.find(c => c.id === Number(editar.dataset.editar)));
+  } else if (marcar) {
     marcar.disabled = true;
     const { error } = await sb.rpc("marcar_pago", { p_pessoa: Number(marcar.dataset.marcar), p_pago: marcar.dataset.pago === "true" });
     if (error) { avisarJanela("Não foi possível salvar: " + error.message); marcar.disabled = false; return; }
     await carregarTudo();
   } else if (excluir) {
     if (!(await confirmar("Apagar esta conta inteira? Isso não pode ser desfeito.", "Apagar"))) return;
+    const apagada = contas.find(c => c.id === Number(excluir.dataset.excluir));
     const { error } = await sb.rpc("excluir_pagamento", { p_id: Number(excluir.dataset.excluir) });
     if (error) { avisarJanela("Não foi possível apagar: " + error.message); return; }
+    if (apagada?.foto_path) await apagarArquivo(apagada.foto_path).catch(() => {});
     location.hash = "";
     await carregarTudo();
   }
@@ -216,17 +225,33 @@ function desenharItens() {
     </div>`).join("");
 }
 
-function abrirFormulario() {
+// Sem argumento: conta nova. Com uma conta: edita ela (pessoas e itens já preenchidos)
+function abrirFormulario(conta = null) {
   $("form-conta").reset();
-  novasPessoas = [];
-  novosItens = [{ nome: "", valor: null, pessoas: [] }];
+  editandoId = conta ? conta.id : null;
+  $("form-titulo").textContent = conta ? "Editar conta" : "Nova conta";
+  $("form-enviar").textContent = conta ? "Salvar alterações" : "Criar conta";
+  $("foto-rotulo").textContent = conta ? "Trocar foto (deixe vazio para manter)" : "Foto (opcional)";
+  if (conta) {
+    const pessoas = conta.pagamento_pessoas || [];
+    $("titulo").value = conta.titulo;
+    $("descricao").value = conta.descricao || "";
+    novasPessoas = pessoas.map(p => ({ nome: p.nome, perfil_id: p.perfil_id }));
+    novosItens = itensDaConta(conta).map(i => ({
+      nome: i.nome, valor: Number(i.valor),
+      pessoas: (i.pagamento_item_pessoas || []).map(x => pessoas.find(p => p.id === x.pessoa_id)?.nome).filter(Boolean),
+    }));
+  } else {
+    novasPessoas = [];
+    novosItens = [{ nome: "", valor: null, pessoas: [] }];
+  }
   $("form-msg").textContent = "";
   $("form-conta").hidden = false;
   $("form-conta").scrollIntoView({ behavior: "smooth", block: "start" });
   desenharPessoas();
 }
 
-$("abrir-form").addEventListener("click", abrirFormulario);
+$("abrir-form").addEventListener("click", () => abrirFormulario());
 $("cancelar-form").addEventListener("click", () => { $("form-conta").hidden = true; });
 
 $("add-pessoa").addEventListener("click", () => {
@@ -305,19 +330,31 @@ $("form-conta").addEventListener("submit", async (e) => {
     const arquivo = $("foto").files[0];
     if (arquivo) foto = await enviarArquivo("pagamentos", await reduzirImagem(arquivo));
 
-    const { data: idNovo, error } = await sb.rpc("criar_pagamento", {
+    const dados = {
       p_titulo: $("titulo").value.trim(),
       p_descricao: $("descricao").value.trim(),
       p_foto: foto,
       p_pessoas: novasPessoas,
       p_itens: novosItens.map(i => ({ nome: i.nome.trim(), valor: i.valor, pessoas: i.pessoas })),
-    });
-    if (error) throw error;
+    };
+    let idConta;
+    if (editandoId) {
+      const fotoAntiga = contas.find(c => c.id === editandoId)?.foto_path;
+      const { error } = await sb.rpc("editar_pagamento", { p_id: editandoId, ...dados });
+      if (error) { if (foto) await apagarArquivo(foto); throw error; }
+      if (foto) await apagarArquivo(fotoAntiga);
+      idConta = editandoId;
+    } else {
+      const { data: idNovo, error } = await sb.rpc("criar_pagamento", dados);
+      if (error) { if (foto) await apagarArquivo(foto); throw error; }
+      idConta = idNovo;
+    }
     $("form-conta").hidden = true;
-    location.hash = `conta-${idNovo}`;
+    editandoId = null;
+    location.hash = `conta-${idConta}`;
     await carregarTudo();
   } catch (erro) {
-    msg.textContent = "Não foi possível criar: " + erro.message;
+    msg.textContent = "Não foi possível salvar: " + erro.message;
   } finally {
     botao.disabled = false;
   }

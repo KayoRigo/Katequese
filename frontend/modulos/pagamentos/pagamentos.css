@@ -104,3 +104,5 @@
   .pessoa-linha .selo, .pessoa-linha .botao-pequeno { justify-self: start; }
   .item-conta { flex-direction: column; }
 }
+
+.acoes-conta { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }

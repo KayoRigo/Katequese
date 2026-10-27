@@ -1,7 +1,7 @@
 # Back-end e Banco de Dados (`backend/sql/`)
 
 Todo o back-end roda no **Supabase** (PostgreSQL + Auth + Storage + Row Level Security).
-Os arquivos de criação e evolução do banco ficam em **`backend/sql/`** (`supabase.sql` até `supabase-23.sql`).
+Os arquivos de criação e evolução do banco ficam em **`backend/sql/`** (`supabase.sql` até `supabase-24.sql`).
 
 ---
 
@@ -54,14 +54,14 @@ Quando precisar consultar ou alterar uma função, veja em qual arquivo de `back
 | `estado_cassino()`, `comprar_cassino()`, `pagar_comissao_dono()`, `multiplicador_bomba()`, `iniciar_bomba()`, `abrir_casa_bomba()`, `sacar_bomba()`, `iniciar_aviator()`, `checar_aviator()`, `sacar_aviator()`, `apostar()` | `supabase-19.sql` | Concessão de Dono do Cassino (30 dias, 25% das perdas dos outros) + Revoada (Aviator), Campo Minado (5×5) e Tigrinho (3×3). |
 | `sincronizar_cargos_politica()`, `eh_presidente_ou_admin()`, `pode_propor_lei()`, `aplicar_proposta()`, `propor_lei()`, `avaliar_sugestao()`, `levar_ao_voto_popular()`, `arquivar_proposta()`, `propostas_situacao()` | `supabase-20.sql` | Ideias de leis dos Deputados (`sugestao`), aval do Presidente (`avaliar_sugestao`), votos nominais pós-encerramento e sincronização de tags políticas. |
 | `atualizar_magnata()`, `gatilho_magnata()` | `supabase-21.sql` (permissões em `supabase-23.sql`) | Tag Magnata para quem tem o maior saldo de carteira (empate: fica com quem chegou primeiro). Só gatilhos chamam. |
-| `criar_pagamento()`, `excluir_pagamento()`, `marcar_pago()` | `supabase-22.sql` (`criar_pagamento` com limites em `supabase-23.sql`) | Aba Pagamentos: contas divididas por itens e pessoas; qualquer katequista marca como pago. |
+| `criar_pagamento()`, `editar_pagamento()`, `excluir_pagamento()`, `marcar_pago()` | `supabase-22.sql` (`criar_pagamento` com limites em `supabase-23.sql`; `editar_pagamento` em `supabase-24.sql`) | Aba Pagamentos: contas divididas por itens e pessoas; qualquer katequista marca como pago. |
 | `pode_notificar()`, `salvar_inscricao_push()`, `remover_inscricao_push()`, `quem_recebe_notificacoes()` | `supabase-23.sql` | Notificações no celular: aparelhos inscritos e quem pode enviar (admin e Presidente). O envio é feito pela função `backend/funcoes/enviar-notificacao`. |
 
 ---
 
 ## 5. Como criar uma nova migração (`supabase-N.sql`)
 
-1. Crie o próximo arquivo numerado em **`backend/sql/supabase-24.sql`**.
+1. Crie o próximo arquivo numerado em **`backend/sql/supabase-25.sql`**.
 2. Escreva sempre de forma **idempotente** (que possa rodar mais de uma vez sem erro):
    * `create table if not exists`
    * `alter table ... add column if not exists`
