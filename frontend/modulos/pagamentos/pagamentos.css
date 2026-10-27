@@ -78,17 +78,45 @@
 .linha-campo > input:not([type=checkbox]) { flex: 1 1 160px; }
 
 .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
-.chip, .chip-check {
+
+/* Pessoa adicionada: etiqueta retangular com botão de tirar */
+.chip {
   display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 10px;
-  border-radius: 99px;
+  align-items: stretch;
+  max-width: 100%;
+  border-radius: 8px;
   background: var(--superficie-2);
   border: 1px solid var(--borda);
+  overflow: hidden;
 }
-.chip button { background: none; border: 0; color: inherit; cursor: pointer; font-size: 1.1em; }
-.chip-check input { accent-color: var(--pag-verde); }
+.chip-nome { padding: 8px 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.chip button {
+  min-width: 36px;
+  border: 0;
+  border-left: 1px solid var(--borda);
+  background: transparent;
+  color: var(--texto-suave);
+  font-size: 1.15em;
+  line-height: 1;
+  cursor: pointer;
+}
+.chip button:hover { background: var(--perigo); color: #fff; }
+
+/* Quem divide o item: botões de marcar, com cor quando marcado */
+.chip-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  background: var(--superficie-2);
+  border: 1px solid var(--borda);
+  cursor: pointer;
+  user-select: none;
+}
+.chip-check input { width: 18px; height: 18px; accent-color: var(--pag-verde); flex: none; }
+.chip-check:has(input:checked) { border-color: var(--pag-verde); background: color-mix(in srgb, var(--pag-verde) 16%, var(--superficie-2)); }
 
 .item-form {
   border: 1px dashed var(--borda);

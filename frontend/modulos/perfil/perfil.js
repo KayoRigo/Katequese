@@ -115,7 +115,39 @@ async function atualizarPush() {
   botao.textContent = estado === "ligado" ? "Desligar" : "Ligar notificações";
   botao.dataset.estado = estado;
   botao.disabled = false;
+  $("push-prefs").hidden = estado !== "ligado";
+  if (estado === "ligado") carregarPreferencias();
 }
+
+// O que a pessoa quer receber (a lista de desligados fica no banco)
+const CATEGORIAS_PUSH = [
+  ["leis", "Leis e votações", "Propostas, votações e resultados"],
+  ["enquetes", "Enquetes", "Novas enquetes e as que estão terminando"],
+  ["eventos", "Eventos", "Novos eventos e lembretes"],
+  ["avisos", "Avisos do mural", "Anúncios novos"],
+  ["aniversarios", "Aniversários", "Quem faz aniversário hoje"],
+  ["sorteios", "Sorteios", "Novos sorteios"],
+  ["pagamentos", "Pagamentos", "Quando você entra numa conta dividida"],
+  ["economia", "Economia", "Quando muda o Magnata"],
+  ["conta", "Sobre você", "Tags recebidas (e novos membros, para admins)"],
+];
+
+async function carregarPreferencias() {
+  const { data } = await sb.from("push_preferencias").select("categoria").eq("perfil_id", perfil.id);
+  const desligadas = new Set((data || []).map(x => x.categoria));
+  $("push-lista").innerHTML = CATEGORIAS_PUSH.map(([id, nome, dica]) => `
+    <label class="pref-linha">
+      <input type="checkbox" data-categoria="${id}" ${desligadas.has(id) ? "" : "checked"}>
+      <span><b>${nome}</b><small>${dica}</small></span>
+    </label>`).join("");
+}
+
+$("push-lista").addEventListener("change", async (e) => {
+  const caixa = e.target.closest("[data-categoria]");
+  if (!caixa) return;
+  const { error } = await sb.rpc("definir_preferencia_push", { p_categoria: caixa.dataset.categoria, p_ligado: caixa.checked });
+  if (error) { caixa.checked = !caixa.checked; $("push-texto").textContent = "Não consegui salvar: " + error.message; }
+});
 
 $("push-botao").addEventListener("click", async (e) => {
   const botao = e.currentTarget;

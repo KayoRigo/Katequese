@@ -1,7 +1,7 @@
 # Back-end e Banco de Dados (`backend/sql/`)
 
 Todo o back-end roda no **Supabase** (PostgreSQL + Auth + Storage + Row Level Security).
-Os arquivos de criação e evolução do banco ficam em **`backend/sql/`** (`supabase.sql` até `supabase-24.sql`).
+Os arquivos de criação e evolução do banco ficam em **`backend/sql/`** (`supabase.sql` até `supabase-25.sql`).
 
 ---
 
@@ -56,12 +56,14 @@ Quando precisar consultar ou alterar uma função, veja em qual arquivo de `back
 | `atualizar_magnata()`, `gatilho_magnata()` | `supabase-21.sql` (permissões em `supabase-23.sql`) | Tag Magnata para quem tem o maior saldo de carteira (empate: fica com quem chegou primeiro). Só gatilhos chamam. |
 | `criar_pagamento()`, `editar_pagamento()`, `excluir_pagamento()`, `marcar_pago()` | `supabase-22.sql` (`criar_pagamento` com limites em `supabase-23.sql`; `editar_pagamento` em `supabase-24.sql`) | Aba Pagamentos: contas divididas por itens e pessoas; qualquer katequista marca como pago. |
 | `pode_notificar()`, `salvar_inscricao_push()`, `remover_inscricao_push()`, `quem_recebe_notificacoes()` | `supabase-23.sql` | Notificações no celular: aparelhos inscritos e quem pode enviar (admin e Presidente). O envio é feito pela função `backend/funcoes/enviar-notificacao`. |
+| `enfileirar_push()`, `disparar_fila()`, `reivindicar_fila()`, `avisos_agendados()`, `primeira_vez()`, `ids_*()`, gatilhos `aviso_*` | `supabase-25.sql` | Notificações automáticas: gatilhos colocam avisos na `fila_push`; o banco chama a função `smart-processor` (pg_net) que entrega; `avisos_agendados` (pg_cron, a cada 30 min) faz aniversários, lembretes de evento e votações terminando. Preferências em `push_preferencias`. |
+| `pode_enviar_arquivo()` | `supabase-25.sql` | Pastas de envio no Storage (inclui `pagamentos/`). **Pasta nova de fotos = liberar aqui.** |
 
 ---
 
 ## 5. Como criar uma nova migração (`supabase-N.sql`)
 
-1. Crie o próximo arquivo numerado em **`backend/sql/supabase-25.sql`**.
+1. Crie o próximo arquivo numerado em **`backend/sql/supabase-26.sql`**.
 2. Escreva sempre de forma **idempotente** (que possa rodar mais de uma vez sem erro):
    * `create table if not exists`
    * `alter table ... add column if not exists`

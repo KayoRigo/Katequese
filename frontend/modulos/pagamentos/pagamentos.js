@@ -137,7 +137,6 @@ function mostrarDetalhe(c) {
           <div class="pessoa-linha ${p.pago ? "pago" : "nao-pago"}">
             <div class="pessoa-nome">
               <b>${esc(p.nome)}</b>
-              ${p.perfil_id ? "" : `<span class="suave">(de fora)</span>`}
             </div>
             <div class="pessoa-valor">${BRL(deve)}</div>
             <span class="selo ${p.pago ? "selo-pago" : "selo-nao"}">${p.pago ? "Pagou" : "Não pagou"}</span>
@@ -201,8 +200,8 @@ function nomeDoMembro(texto) {
 
 function desenharPessoas() {
   $("chips-pessoas").innerHTML = novasPessoas.map((p, i) => `
-    <span class="chip">${esc(p.nome)}${p.perfil_id ? "" : " (de fora)"}
-      <button type="button" data-tirar-pessoa="${i}" aria-label="Tirar">×</button></span>`).join("")
+    <span class="chip"><span class="chip-nome">${esc(p.nome)}</span>
+      <button type="button" data-tirar-pessoa="${i}" aria-label="Tirar ${esc(p.nome)}">×</button></span>`).join("")
     || `<span class="suave">Ninguém adicionado ainda.</span>`;
   desenharItens();
 }

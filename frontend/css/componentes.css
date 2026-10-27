@@ -114,9 +114,8 @@ input[type="color"] { width: 52px; height: 42px; padding: 3px; cursor: pointer; 
 .aba { padding: 8px; background: none; border: none; border-radius: 4px; font-family: inherit; font-size: 0.9rem; font-weight: 600; color: var(--texto-suave); cursor: pointer; }
 .aba.ativa { background: var(--superficie-2); color: var(--texto); }
 
-.eco-abas { display: flex; gap: 4px; margin-bottom: 18px; padding: 4px; overflow-x: auto; scrollbar-width: none; background: var(--superficie); border: 1px solid var(--borda); border-radius: var(--raio); }
-.eco-abas::-webkit-scrollbar { display: none; }
-.eco-abas button { flex: 1 0 auto; padding: 9px 14px; font: inherit; font-size: 0.9rem; font-weight: 600; color: var(--texto-suave); background: none; border: none; border-radius: 6px; cursor: pointer; white-space: nowrap; }
+.eco-abas { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 18px; padding: 4px; background: var(--superficie); border: 1px solid var(--borda); border-radius: var(--raio); }
+.eco-abas button { flex: 1 1 auto; min-height: 40px; padding: 9px 14px; font: inherit; font-size: 0.9rem; font-weight: 600; color: var(--texto-suave); background: none; border: none; border-radius: 6px; cursor: pointer; white-space: nowrap; }
 .eco-abas button:hover { color: var(--texto); }
 .eco-abas button.ativa { color: var(--texto); background: var(--superficie-2); box-shadow: inset 0 -2px 0 var(--destaque); }
 .eco-dica { margin: 0 0 14px; font-size: 0.88rem; color: var(--texto-suave); }

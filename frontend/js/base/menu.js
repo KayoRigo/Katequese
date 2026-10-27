@@ -19,21 +19,22 @@ const ABAS_FIXAS = [
   ["economia.html", "Economia"],
 ];
 
+// [arquivo, nome, regra, descrição curta]. A descrição aparece no painel e ajuda a achar cada aba.
 const GRUPOS_MENU = [
   { titulo: "Grupo", abas: [
-    ["membros.html", "Membros"],
-    ["mural.html", "Mural"],
+    ["membros.html", "Membros", null, "Quem faz parte do grupo"],
+    ["mural.html", "Mural", null, "Recados para todos"],
   ]},
   { titulo: "Atividades", abas: [
-    ["enquetes.html", "Enquetes"],
-    ["sorteios.html", "Sorteios"],
-    ["pagamentos.html", "Pagamentos"],
+    ["enquetes.html", "Enquetes", null, "Votações do grupo"],
+    ["sorteios.html", "Sorteios", null, "Sorteie itens e nomes"],
+    ["pagamentos.html", "Pagamentos", null, "Divida contas e confira quem pagou"],
   ]},
   { titulo: "Conta", abas: [
-    ["perfil.html", "Perfil"],
-    ["atualizacoes.html", "Atualizações", "soKatequista"],
-    ["notificacoes.html", "Notificações", "soNotificar"],
-    ["admin.html", "Admin", "soAdmin"],
+    ["perfil.html", "Perfil", null, "Seus dados e suas notificações"],
+    ["atualizacoes.html", "Atualizações", "soKatequista", "Novidades do site"],
+    ["notificacoes.html", "Notificações", "soNotificar", "Enviar avisos para o celular"],
+    ["admin.html", "Admin", "soAdmin", "Gerenciar o site"],
   ]},
 ];
 
@@ -50,8 +51,11 @@ function montarMenu(perfil) {
       (regra !== "soNotificar" || perfil.admin || (perfil.katequista && temCargo(perfil.id, "Presidente")))) }))
     .filter(g => g.abas.length);
 
-  const link = ([arquivo, nome]) =>
-    `<a href="${arquivo}" ${arquivo === paginaAtual ? 'class="ativo" aria-current="page"' : ""}>${nome}</a>`;
+  const atual = (arquivo) => (arquivo === paginaAtual ? 'class="ativo" aria-current="page"' : "");
+  const link = ([arquivo, nome]) => `<a href="${arquivo}" ${atual(arquivo)}>${nome}</a>`;
+  // Item do painel: nome + descrição curta
+  const itemPainel = ([arquivo, nome, , descricao]) =>
+    `<a href="${arquivo}" ${atual(arquivo)}><span class="nome-aba">${nome}</span>${descricao ? `<small>${descricao}</small>` : ""}</a>`;
 
   // A página atual está escondida dentro do "Mais"? Então o botão fica marcado e mostra o nome dela
   const abaDoPainel = grupos.flatMap(g => g.abas).find(([arquivo]) => arquivo === paginaAtual);
@@ -66,14 +70,14 @@ function montarMenu(perfil) {
         <svg viewBox="0 0 12 8" aria-hidden="true"><path d="M1 1.5l5 5 5-5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
       <div class="painel-menu" id="painel-menu" hidden>
-        <div class="grupo-menu so-celular">
+        <div class="grupo-menu principal so-celular">
           <p>Principal</p>
           ${ABAS_FIXAS.map(link).join("")}
         </div>
         ${grupos.map(g => `
           <div class="grupo-menu">
             <p>${g.titulo}</p>
-            ${g.abas.map(link).join("")}
+            ${g.abas.map(itemPainel).join("")}
           </div>`).join("")}
         <button class="botao-sair so-celular" data-sair>Sair</button>
       </div>
@@ -84,9 +88,14 @@ function montarMenu(perfil) {
   // Abrir e fechar o painel (clicar fora ou apertar Esc também fecha)
   const botao = document.getElementById("botao-mais");
   const painel = document.getElementById("painel-menu");
-  const abrir = (sim) => { painel.hidden = !sim; botao.setAttribute("aria-expanded", sim); };
+  const abrir = (sim) => {
+    painel.hidden = !sim;
+    botao.setAttribute("aria-expanded", sim);
+    document.documentElement.classList.toggle("menu-aberto", sim); // no celular, trava a rolagem da página
+  };
   botao.addEventListener("click", (e) => { e.stopPropagation(); abrir(painel.hidden); });
   document.addEventListener("click", (e) => { if (!painel.contains(e.target)) abrir(false); });
+  window.addEventListener("resize", () => { if (window.innerWidth > 900) document.documentElement.classList.remove("menu-aberto"); });
   document.addEventListener("keydown", (e) => { if (e.key === "Escape") abrir(false); });
 
   document.querySelectorAll("[data-sair]").forEach(b => b.addEventListener("click", sair));
@@ -98,7 +107,7 @@ function montarMenu(perfil) {
       .then(({ count }) => {
         if (!count) return;
         const bolinha = `<span class="bolinha">${count}</span>`;
-        document.querySelector('#menu a[href="admin.html"]')?.insertAdjacentHTML("beforeend", bolinha);
+        document.querySelector('#menu a[href="admin.html"] .nome-aba')?.insertAdjacentHTML("beforeend", bolinha);
         botao.insertAdjacentHTML("beforeend", bolinha);
       });
   }
