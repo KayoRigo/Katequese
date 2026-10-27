@@ -11,7 +11,7 @@
 .grade-pagamentos {
   display: grid;
   gap: 14px;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(260px, 100%), 1fr));
 }
 
 .cartao-conta {
@@ -73,9 +73,6 @@
 
 .item-conta { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
 
-.bloco-form { border: 1px solid var(--borda); border-radius: 10px; padding: 14px; margin: 14px 0; }
-.bloco-form legend { font-weight: 700; padding: 0 6px; }
-.bloco-form .dica { color: var(--texto-suave); font-size: 0.9em; margin-top: 0; }
 
 .linha-campo { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 8px; }
 .linha-campo > input:not([type=checkbox]) { flex: 1 1 160px; }

@@ -168,3 +168,19 @@ html.nt-segurando, html.nt-segurando * { cursor: crosshair !important; }
   .nt-chao { height: 130px; }
   .nt-chao .some-celular { display: none; }
 }
+
+/* Respostas a clique continuam mesmo com "reduzir movimento" ligado: são curtas e a própria pessoa pediu.
+   As animações contínuas (chama, neve, luzes) continuam desligadas. */
+@media (prefers-reduced-motion: reduce) {
+  .nt-sino.tocando { animation-duration: 1.4s !important; }
+  .nt-sino.tocando .badalo-sino { animation-duration: 0.35s !important; }
+  .nt-arvore.acesa svg { animation-duration: 0.9s !important; }
+  .nt-arvore.acesa .estrela-topo { animation-duration: 2.2s !important; }
+  .nt-presente.aberto .tampa { animation-duration: 0.9s !important; }
+  .nt-bengala.girando svg { animation-duration: 0.7s !important; }
+  .nt-monte.pegando svg { animation-duration: 0.4s !important; }
+  .nt-boneco.tremendo svg { animation-duration: 0.12s !important; }
+  .nt-boneco.tremendo .cartola { animation-duration: 0.8s !important; }
+  .nt-boneco.tremendo .nt-fala { animation-duration: 2s !important; }
+  .nt-boneco.sem-cartola .cartola { animation-duration: 2.6s !important; }
+}

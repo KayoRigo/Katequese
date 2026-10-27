@@ -15,6 +15,28 @@ self.addEventListener("activate", (e) => {
   e.waitUntil(self.clients.claim());
 });
 
+// ---------------- Notificações ----------------
+self.addEventListener("push", (e) => {
+  let dados = {};
+  try { dados = e.data ? e.data.json() : {}; } catch (_) { dados = { texto: e.data ? e.data.text() : "" }; }
+  e.waitUntil(self.registration.showNotification(dados.titulo || "Katequese", {
+    body: dados.texto || "",
+    icon: "/icons/icon-192.png",
+    badge: "/icons/icon-192.png",
+    data: { url: dados.url || "/paginas/index.html" },
+  }));
+});
+
+self.addEventListener("notificationclick", (e) => {
+  e.notification.close();
+  const destino = new URL(e.notification.data?.url || "/paginas/index.html", self.location.origin).href;
+  e.waitUntil(self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((abertas) => {
+    const aberta = abertas.find((c) => c.url.startsWith(self.location.origin));
+    if (aberta) return aberta.focus().then(() => aberta.navigate(destino).catch(() => {}));
+    return self.clients.openWindow(destino);
+  }));
+});
+
 self.addEventListener("fetch", (e) => {
   const url = new URL(e.request.url);
   if (e.request.method !== "GET" || url.origin !== self.location.origin) return;

@@ -64,3 +64,8 @@ Resumo de como funcionam as abas sociais e políticas do site para consulta ráp
   * **Mais Sim:** aprovada e entra em vigor na hora (`aplicar_proposta`), salvando o texto anterior quando for alteração.
   * **Mais Não:** rejeitada.
   * **Empate (2 a 2):** o Presidente (ou Admin) escolhe entre arquivar (`arquivar_proposta`) ou levar ao **Voto Popular** (`levar_ao_voto_popular`), onde todos os Katequistas votam em segredo (`votar_popular`). Empate no voto popular mantém como está (rejeita).
+
+## App instalável e notificações
+* **PWA:** o site pode ser instalado no celular/computador (`frontend/manifest.webmanifest`, `frontend/sw.js`, ícones em `frontend/icons/`). O `sw.js` pede sempre a versão nova ao servidor e só usa a cópia guardada sem internet; quando há versão nova, o `menu.js` mostra o aviso "Atualizar".
+* **Notificações (`supabase-23.sql`):** cada membro liga no **Perfil** (`js/base/push.js`; no iPhone só funciona com o site instalado na tela de início). **Admin e Presidente** enviam em `notificacoes.html`, escolhendo quem recebe. O envio passa pela Edge Function `backend/funcoes/enviar-notificacao` (passo a passo no `LEIA-ME.md` dela). A chave pública fica em `config.js`; a privada só nos Secrets do Supabase.
+* **Pagamentos (`pagamentos.html`):** divisão de contas por item; verde = pagou, vermelho = não. Só katequistas veem e criam; qualquer katequista marca como pago.

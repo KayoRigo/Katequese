@@ -341,3 +341,7 @@ dialog.janela-aviso { width: min(380px, 92vw); padding: 20px; }
   max-width: calc(100vw - 32px);
 }
 
+/* Grupo de campos com borda (fieldset). min-width: 0 evita estourar a tela no celular */
+.bloco-form { min-width: 0; border: 1px solid var(--borda); border-radius: 10px; padding: 14px; margin: 14px 0; }
+.bloco-form legend { font-weight: 700; padding: 0 6px; }
+.bloco-form .dica { color: var(--texto-suave); font-size: 0.9em; margin-top: 0; }

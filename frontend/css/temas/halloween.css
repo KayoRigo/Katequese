@@ -287,3 +287,16 @@
   .hw-chao { height: 120px; }
   .hw-chao .some-celular { display: none; }
 }
+
+/* Respostas a clique continuam mesmo com "reduzir movimento" ligado: são curtas e a própria pessoa pediu.
+   As animações contínuas (chama, neve, luzes) continuam desligadas. */
+@media (prefers-reduced-motion: reduce) {
+  .hw-abobora.acesa svg { animation-duration: 0.5s, 1.6s !important; }
+  .hw-abobora.acesa .rosto { animation-duration: 1.6s !important; }
+  .hw-vela.apagada .chama { animation-duration: 2.4s !important; }
+  .hw-vela.apagada::after { animation-duration: 1.6s !important; }
+  .hw-doce.pulando svg { animation-duration: 0.7s !important; }
+  .hw-lapide.tremendo svg { animation-duration: 0.6s !important; }
+  .hw-fantasma.assustando svg, .hw-fantasma.assustando .hw-buu { animation-duration: 2.6s !important; }
+  .hw-teia.descendo .hw-fio, .hw-teia.descendo .hw-aranha { animation-duration: 3.2s !important; }
+}

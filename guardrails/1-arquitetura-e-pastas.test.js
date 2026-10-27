@@ -58,7 +58,9 @@ describe("Guardrail 1: Organização de pastas (raiz e frontend sem arquivos sol
 
   test("nenhum arquivo .html, .js ou .css fica solto dentro de frontend/ (tudo fica em paginas/, modulos/, js/ ou css/)", () => {
     const itensFrontend = fs.readdirSync(FRONTEND);
-    const pastasPermitidas = new Set(["css", "js", "modulos", "paginas"]);
+    // sw.js, manifest.webmanifest e icons/ (app instalável) precisam ficar na raiz do site:
+    // o service worker só controla as páginas que estão na pasta dele.
+    const pastasPermitidas = new Set(["css", "js", "modulos", "paginas", "icons", "sw.js", "manifest.webmanifest"]);
     const soltosEmFrontend = itensFrontend.filter(nome => !pastasPermitidas.has(nome));
     assert.deepEqual(
       soltosEmFrontend,

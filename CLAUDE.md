@@ -13,7 +13,7 @@ Para não acumular tudo na raiz nem num único documento, o projeto é dividido 
 | Pasta | O que fica ali |
 | :--- | :--- |
 | `frontend/` | **Todo o site:** `paginas/*.html`, `css/style.css` (base global), `js/base/` (config, banco, dados, menu, tema) e `modulos/<secao>/` (cada seção isolada com seu `.js` e `.css`). |
-| `backend/sql/` | Estrutura e funções do Supabase (`supabase.sql` até `supabase-19.sql`), rodados em ordem. |
+| `backend/sql/` | Estrutura e funções do Supabase (`supabase.sql` até `supabase-23.sql`), rodados em ordem. Funções do Supabase (Edge Functions) ficam em `backend/funcoes/`. |
 | `testes/` | Testes unitários da lógica e banco (`node --test testes/*.test.js` + `5-banco-seguranca.sql`). |
 | `guardrails/` | Travas automáticas de arquitetura e responsividade (`node --test guardrails/*.test.js`). |
 | `docs/` | Documentação detalhada dividida por assunto (leia só o documento da parte em que for mexer). |
@@ -44,7 +44,7 @@ Para não acumular tudo na raiz nem num único documento, o projeto é dividido 
    * Todo texto vindo de usuário dentro de `innerHTML` **precisa** passar por `esc()` (`frontend/js/dados.js`).
    * Nunca use `alert()` ou `confirm()` do navegador: use `avisarJanela()` e `confirmar()`.
 3. **Mudança no banco = novo `backend/sql/supabase-N.sql`:**
-   * O próximo arquivo é o **`backend/sql/supabase-20.sql`**.
+   * O próximo arquivo é o **`backend/sql/supabase-24.sql`**.
    * Todo SQL deve ser **idempotente** (poder rodar mais de uma vez sem erro: `create table if not exists`, `drop policy if exists`, `create or replace function`).
    * Não cole o SQL inteiro no chat a menos que peçam: crie o arquivo em `backend/sql/` e avise o nome para rodar no SQL Editor do Supabase.
 4. **Registre toda mudança em Atualizações:**

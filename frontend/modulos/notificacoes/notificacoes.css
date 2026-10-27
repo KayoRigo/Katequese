@@ -1,0 +1,33 @@
+/* =====================================================================
+   modulos/notificacoes/notificacoes.css — tela de envio (notificacoes.html).
+   ===================================================================== */
+
+.acoes-lista { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 10px; }
+.suave { color: var(--texto-suave); font-size: 0.9em; }
+
+.lista-destino {
+  display: grid;
+  gap: 6px;
+  grid-template-columns: repeat(auto-fill, minmax(min(220px, 100%), 1fr));
+  max-height: 340px;
+  overflow-y: auto;
+}
+.destino {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 6px 10px;
+  background: var(--superficie-2);
+  border: 1px solid var(--borda);
+  border-radius: 10px;
+  cursor: pointer;
+}
+.destino.sem-aparelho { opacity: 0.55; cursor: default; }
+.destino input { width: 20px; height: 20px; flex: none; }
+.destino .nome-destino { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.destino small { color: var(--texto-suave); flex: none; }
+
+.item-historico { padding: 10px 0; border-top: 1px solid var(--borda); }
+.item-historico:first-child { border-top: 0; }
+.item-historico p { margin: 2px 0 0; overflow-wrap: anywhere; }

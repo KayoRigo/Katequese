@@ -96,3 +96,38 @@ $("form-senha").addEventListener("submit", async (evento) => {
   $("senha-msg").textContent = error ? "Não foi possível trocar: " + error.message : "Senha trocada.";
   if (!error) $("form-senha").reset();
 });
+
+
+// ---------- Notificações neste aparelho ----------
+async function atualizarPush() {
+  let estado = "sem-suporte";
+  try { estado = await Promise.race([pushStatus(), new Promise((ok) => setTimeout(() => ok("sem-suporte"), 4000))]); } catch (_) {}
+  const textos = {
+    "sem-suporte": "Este aparelho ou navegador não aceita notificações.",
+    "instalar": "No iPhone, primeiro instale o site: toque em Compartilhar e depois em \"Adicionar à Tela de Início\". Abra pelo ícone e volte aqui.",
+    "bloqueado": "As notificações estão bloqueadas. Libere nas configurações do aparelho ou do navegador e volte aqui.",
+    "desligado": "Receba avisos do grupo neste aparelho.",
+    "ligado": "Notificações ligadas neste aparelho.",
+  };
+  $("push-texto").textContent = textos[estado];
+  const botao = $("push-botao");
+  botao.hidden = estado !== "desligado" && estado !== "ligado";
+  botao.textContent = estado === "ligado" ? "Desligar" : "Ligar notificações";
+  botao.dataset.estado = estado;
+  botao.disabled = false;
+}
+
+$("push-botao").addEventListener("click", async (e) => {
+  const botao = e.currentTarget;
+  botao.disabled = true;
+  try {
+    if (botao.dataset.estado === "ligado") await desativarPush();
+    else await ativarPush();
+  } catch (erro) {
+    $("push-texto").textContent = erro.message;
+    botao.disabled = false;
+    return;
+  }
+  atualizarPush();
+});
+atualizarPush();

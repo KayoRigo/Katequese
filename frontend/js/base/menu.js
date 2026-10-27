@@ -7,7 +7,8 @@
 //   - No celular, tudo (fixas + grupos) fica no painel do botão "Menu".
 //
 // Para criar uma aba nova, é só colocar ["arquivo.html", "Nome"] no grupo certo.
-// Regras opcionais: "soAdmin" (só administradores) e "soKatequista" (visitantes não veem).
+// Regras opcionais: "soAdmin" (só administradores), "soKatequista" (visitantes não veem)
+// e "soNotificar" (admin ou Presidente, quem pode enviar notificações).
 // =====================================================================
 
 const ABAS_FIXAS = [
@@ -31,6 +32,7 @@ const GRUPOS_MENU = [
   { titulo: "Conta", abas: [
     ["perfil.html", "Perfil"],
     ["atualizacoes.html", "Atualizações", "soKatequista"],
+    ["notificacoes.html", "Notificações", "soNotificar"],
     ["admin.html", "Admin", "soAdmin"],
   ]},
 ];
@@ -44,7 +46,8 @@ function montarMenu(perfil) {
   // Tira do menu o que a pessoa não pode ver (Admin para quem não é admin, etc.)
   const grupos = GRUPOS_MENU
     .map(g => ({ ...g, abas: g.abas.filter(([, , regra]) =>
-      (regra !== "soAdmin" || perfil.admin) && (regra !== "soKatequista" || perfil.katequista)) }))
+      (regra !== "soAdmin" || perfil.admin) && (regra !== "soKatequista" || perfil.katequista) &&
+      (regra !== "soNotificar" || perfil.admin || (perfil.katequista && temCargo(perfil.id, "Presidente")))) }))
     .filter(g => g.abas.length);
 
   const link = ([arquivo, nome]) =>
@@ -104,6 +107,8 @@ function montarMenu(perfil) {
 // ---------------- App instalável (PWA) ----------------
 // Registra o service worker e avisa quando há versão nova do site
 if ("serviceWorker" in navigator) {
+  // Na primeira visita o site ainda não tinha controlador: aí não precisa recarregar a página
+  const tinhaControlador = !!navigator.serviceWorker.controller;
   navigator.serviceWorker.register("/sw.js").then((reg) => {
     const avisar = () => {
       if (document.getElementById("aviso-atualizacao")) return;
@@ -125,7 +130,7 @@ if ("serviceWorker" in navigator) {
 
   let recarregou = false;
   navigator.serviceWorker.addEventListener("controllerchange", () => {
-    if (!recarregou) { recarregou = true; location.reload(); }
+    if (tinhaControlador && !recarregou) { recarregou = true; location.reload(); }
   });
 }
 

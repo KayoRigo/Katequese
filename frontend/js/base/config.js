@@ -20,3 +20,7 @@ const SUPABASE_ANON_KEY = "sb_publishable_w6Trrved7p0rMtCBFB5JCQ_hIdlSpoU";
 // um como um e-mail diferente. Nenhum e-mail é enviado (a confirmação está desligada).
 // Este endereço fica visível no código do site, então use um Gmail só do grupo.
 const EMAIL_BASE = "kayorigo0@gmail.com";
+
+// Chave PÚBLICA das notificações no celular (pode ficar no código).
+// A chave PRIVADA fica só nos "Secrets" da função enviar-notificacao no Supabase.
+const VAPID_PUBLIC_KEY = "BGFRpanuyBZfmAEJsXuxDwq0y3e5dbAALTZlZGGCFY82E6vc--hdgMtzlhUgI4Z0lp_a9VRnOrItUkw-e3LwfY0";

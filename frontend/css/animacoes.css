@@ -24,27 +24,3 @@
     scroll-behavior: auto !important;
   }
 }
-
-/* Respostas a clique continuam mesmo com "reduzir movimento" ligado: são curtas e a própria pessoa pediu.
-   As animações contínuas (chama, neve, luzes) continuam desligadas. */
-@media (prefers-reduced-motion: reduce) {
-  .hw-abobora.acesa svg { animation-duration: 0.5s, 1.6s !important; }
-  .hw-abobora.acesa .rosto { animation-duration: 1.6s !important; }
-  .hw-vela.apagada .chama { animation-duration: 2.4s !important; }
-  .hw-vela.apagada::after { animation-duration: 1.6s !important; }
-  .hw-doce.pulando svg { animation-duration: 0.7s !important; }
-  .hw-lapide.tremendo svg { animation-duration: 0.6s !important; }
-  .hw-fantasma.assustando svg, .hw-fantasma.assustando .hw-buu { animation-duration: 2.6s !important; }
-  .hw-teia.descendo .hw-fio, .hw-teia.descendo .hw-aranha { animation-duration: 3.2s !important; }
-  .nt-sino.tocando { animation-duration: 1.4s !important; }
-  .nt-sino.tocando .badalo-sino { animation-duration: 0.35s !important; }
-  .nt-arvore.acesa svg { animation-duration: 0.9s !important; }
-  .nt-arvore.acesa .estrela-topo { animation-duration: 2.2s !important; }
-  .nt-presente.aberto .tampa { animation-duration: 0.9s !important; }
-  .nt-bengala.girando svg { animation-duration: 0.7s !important; }
-  .nt-monte.pegando svg { animation-duration: 0.4s !important; }
-  .nt-boneco.tremendo svg { animation-duration: 0.12s !important; }
-  .nt-boneco.tremendo .cartola { animation-duration: 0.8s !important; }
-  .nt-boneco.tremendo .nt-fala { animation-duration: 2s !important; }
-  .nt-boneco.sem-cartola .cartola { animation-duration: 2.6s !important; }
-}
