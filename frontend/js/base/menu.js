@@ -91,11 +91,9 @@ function montarMenu(perfil) {
   const abrir = (sim) => {
     painel.hidden = !sim;
     botao.setAttribute("aria-expanded", sim);
-    document.documentElement.classList.toggle("menu-aberto", sim); // no celular, trava a rolagem da página
   };
   botao.addEventListener("click", (e) => { e.stopPropagation(); abrir(painel.hidden); });
   document.addEventListener("click", (e) => { if (!painel.contains(e.target)) abrir(false); });
-  window.addEventListener("resize", () => { if (window.innerWidth > 900) document.documentElement.classList.remove("menu-aberto"); });
   document.addEventListener("keydown", (e) => { if (e.key === "Escape") abrir(false); });
 
   document.querySelectorAll("[data-sair]").forEach(b => b.addEventListener("click", sair));

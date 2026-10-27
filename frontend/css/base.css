@@ -99,40 +99,31 @@ header {
   header { justify-content: space-between; }
   .logo { margin-right: auto; }
   .botao-mais { border: 1px solid var(--borda); min-height: 38px; }
-  html.menu-aberto { overflow: hidden; }
 
-  /* Painel do celular: ocupa a tela abaixo do topo e rola por dentro */
+  /* Painel do celular: caixinha compacta embaixo do botão, com os grupos bem separados */
   .painel-menu {
-    position: fixed;
-    top: 60px;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    width: auto;
+    width: min(300px, calc(100vw - 2 * var(--pad-tela)));
+    max-height: calc(100vh - 72px);
+    max-height: calc(100dvh - 72px);
     overflow-y: auto;
     overscroll-behavior: contain;
     display: flex;
     flex-direction: column;
-    gap: 18px;
-    padding: 16px var(--pad-tela) calc(24px + env(safe-area-inset-bottom));
-    border-radius: 0;
-    border-width: 1px 0 0;
-    box-shadow: none;
+    gap: 0;
+    padding: 6px 12px;
   }
-  .grupo-menu { gap: 0; }
-  .grupo-menu p { padding: 0 2px 8px; }
+  .grupo-menu { gap: 2px; padding: 10px 0; border-top: 1px solid var(--borda); }
+  .grupo-menu:first-child { border-top: 0; }
+  .grupo-menu p { padding: 0 8px 4px; }
+  #menu .grupo-menu a { flex-direction: row; align-items: center; justify-content: flex-start; min-height: 40px; padding: 8px; }
+  #menu .grupo-menu a small { display: none; }
 
-  /* Páginas principais: blocos grandes de dois em dois */
-  .grupo-menu.principal.so-celular { display: grid !important; grid-template-columns: 1fr 1fr; gap: 8px; }
-  .grupo-menu.principal p { grid-column: 1 / -1; padding-bottom: 0; }
-  #menu .grupo-menu.principal a { min-height: 48px; padding: 12px; justify-content: center; border: 1px solid var(--borda); border-radius: 10px; font-size: 1rem; }
+  /* Páginas principais: botões retos, dois por linha */
+  .grupo-menu.principal.so-celular { display: grid !important; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .grupo-menu.principal p { grid-column: 1 / -1; padding-bottom: 2px; }
+  #menu .grupo-menu.principal a { justify-content: center; border: 1px solid var(--borda); border-radius: 6px; }
   #menu .grupo-menu.principal a:last-of-type:nth-of-type(odd) { grid-column: 1 / -1; }
-
-  /* Demais abas: lista com nome e descrição */
-  #menu .grupo-menu:not(.principal) a { min-height: 56px; padding: 10px 4px; border-radius: 0; border-bottom: 1px solid var(--borda); box-shadow: none; }
-  #menu .grupo-menu:not(.principal) a .nome-aba { font-size: 1rem; color: var(--texto); }
-  #menu .grupo-menu:not(.principal) a.ativo { box-shadow: inset 3px 0 0 var(--destaque); padding-left: 12px; }
-  .painel-menu .botao-sair { min-height: 48px; margin-top: 4px; padding: 12px; font-size: 1rem; }
+  .painel-menu .botao-sair { margin: 6px 0 4px; padding: 10px; }
 }
 
 .bolinha {
