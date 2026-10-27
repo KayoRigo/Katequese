@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="carregando">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pagamentos · Katequese</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../modulos/pagamentos/pagamentos.css">
+  <script src="../js/base/tema.js"></script>
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="theme-color" content="#111214">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
+</head>
+
+<body>
+  <!-- O menu é preenchido pelo menu.js -->
+  <header id="menu"></header>
+
+  <main>
+    <div class="cabecalho-pagina">
+      <div>
+        <h1>Pagamentos</h1>
+        <p id="subtitulo">Divida a conta de janta ou confraternização. Verde = pagou, vermelho = ainda não.</p>
+      </div>
+      <!-- Só katequistas veem esse botão -->
+      <button class="botao" id="abrir-form">Nova conta</button>
+    </div>
+
+    <!-- Formulário de nova conta (escondido até clicar em "Nova conta") -->
+    <form class="caixa formulario-novo" id="form-conta" hidden>
+      <h2>Nova conta</h2>
+
+      <label class="campo"><span>Título</span>
+        <input id="titulo" required maxlength="100" placeholder="Ex: Confraternização dia 15"></label>
+      <label class="campo"><span>Descrição (opcional)</span>
+        <input id="descricao" maxlength="500" placeholder="Ex: Janta na casa da Ana"></label>
+      <label class="campo"><span>Foto (opcional)</span>
+        <input id="foto" type="file" accept="image/*"></label>
+
+      <fieldset class="bloco-form">
+        <legend>1. Quem participa</legend>
+        <p class="dica">Membros do site ou pessoas de fora, uma de cada vez.</p>
+        <div class="linha-campo">
+          <input id="pessoa-nome" list="lista-membros" maxlength="60" placeholder="Nome">
+          <button class="botao-pequeno" type="button" id="add-pessoa">Adicionar</button>
+        </div>
+        <datalist id="lista-membros"></datalist>
+        <div class="chips" id="chips-pessoas"></div>
+      </fieldset>
+
+      <fieldset class="bloco-form">
+        <legend>2. O que foi pago</legend>
+        <p class="dica">Cada item tem o seu valor e as pessoas que dividem ele. Ex: Comida (todos) e Bebida (só quem bebeu).</p>
+        <div id="itens-form"></div>
+        <button class="botao-pequeno" type="button" id="add-item">Adicionar item</button>
+      </fieldset>
+
+      <p class="mensagem" id="form-msg"></p>
+      <div class="acoes-form">
+        <button class="botao" type="submit">Criar conta</button>
+        <button class="botao-link" type="button" id="cancelar-form">Cancelar</button>
+      </div>
+    </form>
+
+    <!-- Lista de contas -->
+    <section id="lista" class="grade-pagamentos"></section>
+
+    <!-- Uma conta aberta -->
+    <section id="detalhe" hidden></section>
+  </main>
+
+  <footer>Katequese © 2026</footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+  <script src="../js/base/config.js"></script>
+  <script src="../js/base/dados.js"></script>
+  <script src="../js/base/menu.js"></script>
+  <script src="../js/base/banco.js"></script>
+  <script type="module" src="../modulos/pagamentos/pagamentos.js"></script>
+</body>
+</html>

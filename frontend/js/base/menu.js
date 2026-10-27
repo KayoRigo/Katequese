@@ -26,6 +26,7 @@ const GRUPOS_MENU = [
   { titulo: "Atividades", abas: [
     ["enquetes.html", "Enquetes"],
     ["sorteios.html", "Sorteios"],
+    ["pagamentos.html", "Pagamentos"],
   ]},
   { titulo: "Conta", abas: [
     ["perfil.html", "Perfil"],
@@ -99,3 +100,32 @@ function montarMenu(perfil) {
       });
   }
 }
+
+// ---------------- App instalável (PWA) ----------------
+// Registra o service worker e avisa quando há versão nova do site
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("/sw.js").then((reg) => {
+    const avisar = () => {
+      if (document.getElementById("aviso-atualizacao")) return;
+      const barra = document.createElement("div");
+      barra.id = "aviso-atualizacao";
+      barra.className = "aviso-atualizacao";
+      barra.innerHTML = '<span>Nova versão do site disponível.</span><button type="button" class="botao-pequeno">Atualizar</button>';
+      barra.querySelector("button").addEventListener("click", () => reg.waiting?.postMessage("pular-espera"));
+      document.body.appendChild(barra);
+    };
+    if (reg.waiting && navigator.serviceWorker.controller) avisar();
+    reg.addEventListener("updatefound", () => {
+      const novo = reg.installing;
+      novo.addEventListener("statechange", () => {
+        if (novo.state === "installed" && navigator.serviceWorker.controller) avisar();
+      });
+    });
+  }).catch(() => {});
+
+  let recarregou = false;
+  navigator.serviceWorker.addEventListener("controllerchange", () => {
+    if (!recarregou) { recarregou = true; location.reload(); }
+  });
+}
+

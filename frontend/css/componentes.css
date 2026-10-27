@@ -322,3 +322,22 @@ dialog.janela-aviso { width: min(380px, 92vw); padding: 20px; }
 }
 .paginacao-info b { color: var(--texto); }
 .paginacao .botao-pequeno:disabled { opacity: 0.4; cursor: default; }
+
+/* Aviso de versão nova do site (app instalado) */
+.aviso-atualizacao {
+  position: fixed;
+  left: 50%;
+  bottom: 16px;
+  transform: translateX(-50%);
+  z-index: var(--z-aviso);
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: var(--superficie);
+  border: 1px solid var(--destaque);
+  box-shadow: var(--sombra);
+  max-width: calc(100vw - 32px);
+}
+

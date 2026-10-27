@@ -1,0 +1,109 @@
+/* =====================================================================
+   modulos/pagamentos/pagamentos.css — divisão de contas (pagamentos.html).
+   Verde = pagou. Vermelho = ainda não.
+   ===================================================================== */
+
+:root {
+  --pag-verde: #3fb56b;
+  --pag-vermelho: #e5484d;
+}
+
+.grade-pagamentos {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+}
+
+.cartao-conta {
+  display: flex;
+  flex-direction: column;
+  background: var(--superficie);
+  border: 1px solid var(--borda);
+  border-radius: 12px;
+  overflow: hidden;
+  color: inherit;
+  text-decoration: none;
+}
+.cartao-conta:hover { border-color: var(--destaque); }
+.cartao-conta img { width: 100%; height: 150px; object-fit: cover; }
+.cartao-texto { display: flex; flex-direction: column; gap: 6px; padding: 14px; }
+
+.suave { color: var(--texto-suave); font-size: 0.9em; }
+
+.barra { height: 8px; border-radius: 99px; background: var(--superficie-2); overflow: hidden; }
+.barra > div { height: 100%; background: var(--pag-verde); transition: width 0.4s ease; }
+
+.cabecalho-conta {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: 1fr;
+  margin-top: 12px;
+}
+.foto-conta { width: 100%; max-height: 260px; object-fit: cover; border-radius: 10px; }
+
+.lista-pessoas, .lista-itens { display: grid; gap: 10px; margin-bottom: 18px; }
+
+.pessoa-linha {
+  display: grid;
+  gap: 10px;
+  align-items: center;
+  grid-template-columns: 1fr auto;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--borda);
+  border-left-width: 6px;
+  background: var(--superficie);
+}
+.pessoa-linha.pago { border-left-color: var(--pag-verde); }
+.pessoa-linha.nao-pago { border-left-color: var(--pag-vermelho); }
+.pessoa-nome { display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+.pessoa-valor { font-weight: 700; }
+.pessoa-linha .selo, .pessoa-linha .botao-pequeno { justify-self: end; }
+
+.selo {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 99px;
+  font-size: 0.85em;
+  font-weight: 700;
+  color: #0b0d0c;
+}
+.selo-pago { background: var(--pag-verde); }
+.selo-nao { background: var(--pag-vermelho); color: #fff; }
+
+.item-conta { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+
+.bloco-form { border: 1px solid var(--borda); border-radius: 10px; padding: 14px; margin: 14px 0; }
+.bloco-form legend { font-weight: 700; padding: 0 6px; }
+.bloco-form .dica { color: var(--texto-suave); font-size: 0.9em; margin-top: 0; }
+
+.linha-campo { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 8px; }
+.linha-campo > input:not([type=checkbox]) { flex: 1 1 160px; }
+
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.chip, .chip-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 99px;
+  background: var(--superficie-2);
+  border: 1px solid var(--borda);
+}
+.chip button { background: none; border: 0; color: inherit; cursor: pointer; font-size: 1.1em; }
+.chip-check input { accent-color: var(--pag-verde); }
+
+.item-form {
+  border: 1px dashed var(--borda);
+  border-radius: 10px;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.acoes-form { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+
+@media (max-width: 600px) {
+  .pessoa-linha { grid-template-columns: 1fr; }
+  .pessoa-linha .selo, .pessoa-linha .botao-pequeno { justify-self: start; }
+  .item-conta { flex-direction: column; }
+}
