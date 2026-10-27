@@ -113,3 +113,11 @@ select.mini {
   .barra-salvar { flex-wrap: wrap; gap: 10px; }
   .barra-salvar .botao { width: 100%; }
 }
+
+/* Notificações */
+.resumo-push { display: grid; gap: 4px; margin-bottom: 14px; padding: 12px 14px; border: 1px solid var(--borda); border-radius: 10px; background: var(--superficie-2); }
+.linha-area { display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 8px 0; border-top: 1px solid var(--borda); cursor: pointer; }
+.linha-area input { width: 20px; height: 20px; flex: none; }
+.linha-area span { display: grid; min-width: 0; }
+.linha-area small { color: var(--texto-suave); }
+.linha-mestre { border-top: 0; }

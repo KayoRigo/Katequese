@@ -72,6 +72,45 @@ grant execute on function public.definir_preferencia_push(text, boolean) to auth
 
 
 -- ---------------------------------------------------------------------
+-- 3b) Painel do admin: quais áreas avisam sozinhas (linha desligada = não avisa).
+--     A linha especial "todas" desligada = nenhum aviso automático.
+-- ---------------------------------------------------------------------
+create table if not exists public.push_areas (
+  categoria  text primary key,
+  ligada     boolean not null default true
+);
+alter table public.push_areas enable row level security;
+drop policy if exists "admin ve areas push" on public.push_areas;
+create policy "admin ve areas push" on public.push_areas for select using (eh_admin());
+
+create or replace function public.definir_area_push(p_categoria text, p_ligada boolean) returns void
+language plpgsql security definer set search_path = public as $$
+begin
+  if not eh_admin() then raise exception 'Só administradores.'; end if;
+  if p_categoria not in ('todas', 'leis', 'enquetes', 'eventos', 'avisos', 'aniversarios', 'sorteios', 'pagamentos', 'economia', 'conta') then
+    raise exception 'Área desconhecida.';
+  end if;
+  insert into public.push_areas (categoria, ligada) values (p_categoria, p_ligada)
+  on conflict (categoria) do update set ligada = excluded.ligada;
+end $$;
+
+-- Números para o painel de Notificações do Admin
+create or replace function public.resumo_push() returns jsonb
+language plpgsql stable security definer set search_path = public as $$
+begin
+  if not eh_admin() then raise exception 'Só administradores.'; end if;
+  return jsonb_build_object(
+    'aparelhos',   (select count(*) from push_inscricoes),
+    'membros_com', (select count(distinct perfil_id) from push_inscricoes),
+    'membros',     (select count(*) from perfis where status = 'aprovado'),
+    'pendentes',   (select count(*) from fila_push where enviada_em is null),
+    'enviadas_24h',(select count(*) from fila_push where enviada_em > now() - interval '24 hours'),
+    'desligadas',  (select coalesce(jsonb_agg(categoria), '[]'::jsonb) from push_areas where not ligada)
+  );
+end $$;
+
+
+-- ---------------------------------------------------------------------
 -- 4) Fila de notificações (uma linha por pessoa) e registro do que já foi avisado
 -- ---------------------------------------------------------------------
 create table if not exists public.fila_push (
@@ -171,7 +210,9 @@ begin
    where i.perfil_id = any (p_destinos)
      and i.perfil_id is distinct from p_excluir
      and not exists (select 1 from push_preferencias pf
-                      where pf.perfil_id = i.perfil_id and pf.categoria = p_categoria);
+                      where pf.perfil_id = i.perfil_id and pf.categoria = p_categoria)
+     and not exists (select 1 from push_areas pa
+                      where pa.categoria in (p_categoria, 'todas') and not pa.ligada);
   get diagnostics qtd = row_count;
   if qtd > 0 then perform disparar_fila(); end if;
   return qtd;
@@ -473,6 +514,8 @@ revoke execute on function public.primeira_vez(text), public.ids_aprovados(), pu
   public.ids_com_tag(text), public.ids_admins(), public.ids_publico(boolean), public.nome_curto(uuid),
   public.disparar_fila(), public.enfileirar_push(text, text, text, text, uuid[], uuid),
   public.avisos_agendados() from public, anon, authenticated;
+revoke execute on function public.definir_area_push(text, boolean), public.resumo_push() from public, anon;
+grant execute on function public.definir_area_push(text, boolean), public.resumo_push() to authenticated;
 revoke execute on function public.reivindicar_fila(int) from public, anon, authenticated;
 grant execute on function public.reivindicar_fila(int) to service_role;
 

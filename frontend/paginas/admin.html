@@ -32,6 +32,7 @@
       <a href="#sec-semana">Membro da semana</a>
       <a href="#sec-politica">Política</a>
       <a href="#sec-tags">Tags</a>
+      <a href="#sec-notificacoes">Notificações</a>
       <a href="#sec-uso">Uso do espaço</a>
       <a href="#sec-frases">Frases</a>
     </nav>
@@ -133,6 +134,20 @@
         <div id="lista-tags"></div>
       </section>
 
+      <!-- NOTIFICAÇÕES: quais áreas avisam sozinhas -->
+      <section class="caixa" id="sec-notificacoes">
+        <h2>Notificações</h2>
+        <p class="dica-admin">Avisos automáticos no celular. Cada membro também pode desligar o que não quer no próprio Perfil. As mudanças valem na hora.</p>
+        <div class="resumo-push" id="push-resumo"></div>
+        <label class="linha-area linha-mestre">
+          <input type="checkbox" id="push-todas">
+          <span><b>Avisos automáticos</b><small>Chave geral: desligada, nenhuma área avisa sozinha.</small></span>
+        </label>
+        <div id="push-areas"></div>
+        <p class="aviso" id="push-msg"></p>
+        <a class="link-mais" href="notificacoes.html">Enviar um aviso manual →</a>
+      </section>
+
       <!-- USO DO ESPAÇO (limites do plano grátis do Supabase) -->
       <section class="caixa" id="sec-uso">
         <h2>Uso do espaço</h2>
@@ -162,6 +177,7 @@
   <script src="../js/base/dados.js"></script>
   <script src="../js/base/menu.js"></script>
   <script src="../js/base/banco.js"></script>
+  <script src="../js/base/push.js"></script>
   <script type="module" src="../modulos/admin/admin.js"></script>
 </body>
 </html>

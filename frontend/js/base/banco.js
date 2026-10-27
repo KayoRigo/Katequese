@@ -91,6 +91,7 @@ async function iniciarPagina({ soAdmin = false } = {}) {
 
   montarMenu(perfil);
   document.documentElement.classList.remove("carregando"); // agora sim, mostra a página
+  if (typeof iniciarPushAutomatico === "function") iniciarPushAutomatico(perfil); // notificações ligadas por padrão
   return perfil;
 }
 

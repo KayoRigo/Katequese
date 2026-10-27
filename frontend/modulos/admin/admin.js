@@ -566,4 +566,44 @@ $("salvar").addEventListener("click", async () => {
   $("status").textContent = error ? "Não foi possível salvar: " + error.message : "Salvo. Já vale para todos.";
 });
 
-await Promise.all([recarregar(), mostrarUso()]);
+// ================= NOTIFICAÇÕES =================
+const AREAS_PUSH = [
+  ["leis", "Leis e votações", "Ideias, propostas, votações e resultados"],
+  ["enquetes", "Enquetes", "Nova enquete e enquete terminando"],
+  ["eventos", "Eventos", "Novo evento, véspera, dia e 1 hora antes"],
+  ["avisos", "Avisos do mural", "Anúncios novos"],
+  ["aniversarios", "Aniversários", "Parabéns e aviso para o grupo, às 8h"],
+  ["sorteios", "Sorteios", "Novo sorteio"],
+  ["pagamentos", "Pagamentos", "Quando alguém entra numa conta dividida"],
+  ["economia", "Economia", "Quando muda o Magnata"],
+  ["conta", "Sobre a pessoa", "Tags recebidas e novos membros (para admins)"],
+];
+
+async function mostrarNotificacoes() {
+  const { data: r, error } = await sb.rpc("resumo_push");
+  if (error) {
+    $("push-areas").innerHTML = `<p class="vazio">As notificações ainda não estão no banco. Rode o <b>supabase-25.sql</b>.</p>`;
+    return;
+  }
+  const desligadas = new Set(r.desligadas || []);
+  $("push-resumo").innerHTML = `
+    <div><b>${r.membros_com}</b> de ${r.membros} membros com notificação ligada (${r.aparelhos} aparelhos)</div>
+    <div><b>${r.enviadas_24h}</b> avisos enviados nas últimas 24h · <b>${r.pendentes}</b> na fila</div>`;
+  $("push-todas").checked = !desligadas.has("todas");
+  $("push-areas").innerHTML = AREAS_PUSH.map(([id, nome, dica]) => `
+    <label class="linha-area">
+      <input type="checkbox" data-area="${id}" ${desligadas.has(id) ? "" : "checked"} ${desligadas.has("todas") ? "disabled" : ""}>
+      <span><b>${nome}</b><small>${dica}</small></span>
+    </label>`).join("");
+}
+
+$("sec-notificacoes").addEventListener("change", async (e) => {
+  const caixa = e.target.closest("#push-todas, [data-area]");
+  if (!caixa) return;
+  const area = caixa.id === "push-todas" ? "todas" : caixa.dataset.area;
+  const { error } = await sb.rpc("definir_area_push", { p_categoria: area, p_ligada: caixa.checked });
+  $("push-msg").textContent = error ? "Não foi possível salvar: " + error.message : "Salvo.";
+  mostrarNotificacoes();
+});
+
+await Promise.all([recarregar(), mostrarUso(), mostrarNotificacoes()]);
