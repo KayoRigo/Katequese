@@ -115,6 +115,13 @@
         <h2>Tags</h2>
         <p class="dica-admin">Crie tags com nome e cor e escolha quem recebe cada uma. As ações desta seção valem na hora.
           Quem tem <b>Katequista</b> tem acesso completo; os outros aprovados são <b>Visitantes</b> e só veem o que for liberado para eles.</p>
+        <label class="opcao-tema">
+          <input type="checkbox" id="mostrar-todas-tags">
+          <span><strong>Mostrar todas as tags nos nomes</strong>
+            <small>Desligado: aparece só a tag mais alta de cada membro (e se é admin).
+              Ligado: aparecem todas as tags. Katequista e Visitante só aparecem se a pessoa não tiver outra tag.</small></span>
+        </label>
+        <p class="dica-admin" id="tags-todas-msg"></p>
         <form class="nova-tag" id="form-tag">
           <label class="campo"><span>Nome da tag</span><input id="tag-nome" maxlength="30" required></label>
           <label class="campo"><span>Cor</span><input id="tag-cor" type="color" value="#f26b3a"></label>

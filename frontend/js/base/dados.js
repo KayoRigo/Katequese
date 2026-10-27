@@ -168,6 +168,11 @@ function cargosVisiveis(idPerfil) {
   const lista = cargosDe(idPerfil);
   if (!lista.length) return [];
   const ehBase = (c) => c.sistema && (c.nome === "Katequista" || c.nome === "Visitante");
+  // Admin → Tags → "Mostrar todas as tags": mostra todas, menos Katequista/Visitante (só se for a única)
+  if (dados?.mostrarTodasTags) {
+    const outras = lista.filter(c => !ehBase(c));
+    return outras.length ? outras : lista;
+  }
   const destaque = lista.find(c => c.nome !== "Admin" && !ehBase(c));
   if (lista[0].nome === "Admin") {
     return destaque ? [lista[0], destaque] : [lista[0]];

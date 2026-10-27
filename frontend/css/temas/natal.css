@@ -22,19 +22,7 @@
   color: #f4f8fb;
   filter: drop-shadow(0 0.02em 0 #b9cbd6) drop-shadow(0 0.03em 0.12em rgba(170, 215, 255, 0.35));
 }
-:where(:root[data-tema-global="natal"]) .nome-grupo span:is(:nth-child(2), :nth-child(4), :nth-child(6), :nth-child(8))::after {
-  content: "";
-  position: absolute;
-  left: 6%;
-  right: 6%;
-  top: 0.2em;
-  height: 0.13em;
-  border-radius: 0.1em 0.1em 0.06em 0.06em;
-  background: #ffffff;
-  box-shadow: 0 0.02em 0 #cfdde6;
-}
-:where(:root[data-tema-global="natal"]) .nome-grupo span:nth-child(4)::after { top: 0.36em; }
-:where(:root[data-tema-global="natal"]) .nome-grupo span:nth-child(8)::after { top: 0.36em; }
+/* Sem risco branco no título: só o brilho da neve (o risco aparecia cortando as letras) */
 :where(:root[data-tema-global="natal"]) .nome-grupo span:nth-child(1)::before {
   content: "";
   position: absolute;

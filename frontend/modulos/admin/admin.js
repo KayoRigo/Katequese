@@ -136,6 +136,21 @@ $("temas-globais").addEventListener("change", async (e) => {
   }
 });
 
+// ================= TAGS: mostrar todas =================
+$("mostrar-todas-tags").checked = dados.mostrarTodasTags === true;
+$("mostrar-todas-tags").addEventListener("change", async (e) => {
+  const ligado = e.target.checked;
+  $("tags-todas-msg").textContent = "Salvando...";
+  try {
+    await gravarNaConfig("mostrarTodasTags", ligado);
+    $("tags-todas-msg").textContent = ligado ? "Ligado: os nomes mostram todas as tags." : "Desligado: os nomes mostram só a tag mais alta.";
+    setTimeout(() => location.reload(), 600);
+  } catch (erro) {
+    e.target.checked = !ligado;
+    $("tags-todas-msg").textContent = "Não foi possível salvar: " + erro.message;
+  }
+});
+
 // ================= CADASTRO =================
 $("visitantes-ativos").checked = dados.visitantesAtivos !== false;
 $("visitantes-ativos").addEventListener("change", async (e) => {
