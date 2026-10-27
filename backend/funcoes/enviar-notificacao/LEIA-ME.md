@@ -1,5 +1,7 @@
 # Função enviar-notificacao
 
+> No Supabase real o endereço (slug) ficou `smart-processor`; é esse nome que o site chama em `notificacoes.js`.
+
 Envia as notificações para o celular. Roda no Supabase (não no site).
 
 ## Como colocar no ar (só uma vez)

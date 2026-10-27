@@ -1,7 +1,7 @@
 // =====================================================================
 // modulos/notificacoes/notificacoes.js — enviar avisos para o celular (notificacoes.html).
 // Só admin e Presidente chegam aqui. O envio de verdade é feito pela função
-// "enviar-notificacao" do Supabase (veja backend/funcoes/).
+// "enviar-notificacao" do Supabase (no Supabase ela ficou com o endereço "smart-processor") (veja backend/funcoes/).
 // =====================================================================
 
 const eu = await iniciarPagina();
@@ -69,7 +69,7 @@ $("form-envio").addEventListener("submit", async (e) => {
   if (!marcados.size) { msg.textContent = "Escolha pelo menos uma pessoa."; return; }
   $("botao-enviar").disabled = true;
   msg.textContent = "Enviando...";
-  const { data, error } = await sb.functions.invoke("enviar-notificacao", {
+  const { data, error } = await sb.functions.invoke("smart-processor", {
     body: { titulo: $("titulo").value.trim(), texto: $("texto").value.trim(), destinatarios: [...marcados] },
   });
   $("botao-enviar").disabled = false;
