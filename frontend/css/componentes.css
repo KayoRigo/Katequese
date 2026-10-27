@@ -341,7 +341,7 @@ dialog.janela-aviso { width: min(380px, 92vw); padding: 20px; }
 }
 .aviso-atualizacao span { flex: 1; min-width: 0; }
 .aviso-atualizacao .botao-pequeno, .aviso-atualizacao .botao-link { flex: none; }
-.aviso-push { width: 420px; }
+.aviso-push { width: min(420px, calc(100vw - 32px)); }
 @media (max-width: 480px) {
   .aviso-push { flex-wrap: wrap; width: calc(100vw - 32px); }
   .aviso-push span { flex: 1 1 100%; }
